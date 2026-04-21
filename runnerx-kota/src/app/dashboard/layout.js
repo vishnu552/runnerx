@@ -4,22 +4,6 @@ import DashboardSidebar from './DashboardSidebar';
 
 export const dynamic = 'force-dynamic';
 
-export const dynamic = 'force-dynamic';
-
-export const dynamic = 'force-dynamic';
-
-export const dynamic = 'force-dynamic';
-
-export const dynamic = 'force-dynamic';
-
-export const dynamic = 'force-dynamic';
-
-export const dynamic = 'force-dynamic';
-
-export const dynamic = 'force-dynamic';
-
-export const dynamic = 'force-dynamic';
-
 export default async function DashboardLayout({ children }) {
   const user = await getCurrentUser();
 
