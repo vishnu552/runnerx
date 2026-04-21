@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 
 import { useState, useEffect } from 'react';
-import { API_URL } from '@/lib/api';
+import { API_URL, authenticatedFetch } from '@/lib/api';
 
 export default function ShareStoryPage() {
   const [profile, setProfile] = useState(null);
@@ -28,7 +28,7 @@ export default function ShareStoryPage() {
     async function init() {
       try {
         // Get profile
-        const profileRes = await fetch('/api/profile');
+        const profileRes = await authenticatedFetch('/api/auth/profile');
         const profileData = await profileRes.json();
         if (profileData.success && profileData.profile) {
           setProfile(profileData.profile);
@@ -41,19 +41,10 @@ export default function ShareStoryPage() {
         }
 
         // Get stories
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('runnerx-user-token='))
-          ?.split('=')[1];
-
-        if (token) {
-          const storiesRes = await fetch(`${API_URL}/api/auth/stories`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          const storiesData = await storiesRes.json();
-          if (storiesData.success) {
-            setStories(storiesData.stories || []);
-          }
+        const storiesRes = await authenticatedFetch('/api/auth/stories');
+        const storiesData = await storiesRes.json();
+        if (storiesData.success) {
+          setStories(storiesData.stories || []);
         }
       } catch (err) {
         console.error('Failed to load data:', err);
@@ -78,17 +69,8 @@ export default function ShareStoryPage() {
     setSubmitting(true);
     setError('');
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('runnerx-user-token='))
-        ?.split('=')[1];
-
-      const res = await fetch(`${API_URL}/api/auth/stories`, {
+      const res = await authenticatedFetch('/api/auth/stories', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
         body: JSON.stringify(formData),
       });
       const data = await res.json();

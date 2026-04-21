@@ -1,8 +1,31 @@
 const baseUrl = typeof window === 'undefined' 
-  ? process.env.BACKEND_URL || 'http://localhost:3001'      // server: use localhost
-  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';  // client: use domain
+  ? process.env.BACKEND_URL || 'http://localhost:3001'      // server: use internal URL
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';  // client: use public domain
 
 export const API_URL = baseUrl;
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
+
+/**
+ * Helper for client-side authenticated fetches to the backend.
+ * Uses API_URL from env.
+ */
+export async function authenticatedFetch(path, options = {}) {
+  const { getSessionTokenClient } = await import('./auth');
+  const token = getSessionTokenClient();
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...options.headers,
+  };
+
+  const url = path.startsWith('http') ? path : `${API_URL}${path}`;
+  
+  return fetch(url, {
+    ...options,
+    headers,
+  });
+}
 
 export async function getPageContent(page, siteFor = 'KTA') {
   try {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { authenticatedFetch } from '@/lib/api';
 
 export default function RegistrationsClient({ registrations: initialRegistrations }) {
   const [registrations, setRegistrations] = useState(initialRegistrations);
@@ -48,9 +49,8 @@ export default function RegistrationsClient({ registrations: initialRegistration
     setMessage({ type: 'info', text: 'Saving changes...' });
 
     try {
-      const res = await fetch(`/api/registrations/line-item/${selectedItem.id}`, {
+      const res = await authenticatedFetch(`/api/auth/registrations/line-item/${selectedItem.id}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
       const data = await res.json();

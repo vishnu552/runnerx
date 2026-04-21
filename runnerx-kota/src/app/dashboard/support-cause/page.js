@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 
 
 import { useState, useEffect } from 'react';
-import { API_URL } from '@/lib/api';
+import { API_URL, authenticatedFetch } from '@/lib/api';
 
 export default function SupportCausePage() {
   const [profile, setProfile] = useState(null);
@@ -39,7 +39,7 @@ export default function SupportCausePage() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await fetch('/api/profile');
+        const res = await authenticatedFetch('/api/auth/profile');
         const data = await res.json();
         if (data.success && data.profile) {
           setProfile(data.profile);
@@ -90,9 +90,8 @@ export default function SupportCausePage() {
 
   async function verifyPayment(paymentResponse, currentDonationData) {
     try {
-      const res = await fetch('/api/donations/verify', {
+      const res = await authenticatedFetch('/api/auth/donations/verify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...paymentResponse,
           donationData: {
@@ -119,11 +118,8 @@ export default function SupportCausePage() {
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch('/api/donations', {
+      const res = await authenticatedFetch('/api/auth/donations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           ...formData,
           ngoName: formData.ngoName || 'RunnerX General Fund',

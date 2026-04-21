@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 import { useFormStatus } from 'react-dom';
 import { useActionState, useEffect, useState } from 'react';
 import { updateProfile } from '@/lib/actions';
+import { authenticatedFetch, API_URL } from '@/lib/api';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -35,7 +36,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await fetch('/api/profile');
+        const res = await authenticatedFetch('/api/auth/profile');
         const data = await res.json();
         if (data.success) {
           setProfile(data.profile);
@@ -427,9 +428,8 @@ function PasswordUpdateSection() {
     setMessage(null);
 
     try {
-      const res = await fetch('/api/auth/update-password', {
+      const res = await authenticatedFetch('/api/auth/update-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           currentPassword: passFormData.currentPassword,
           newPassword: passFormData.newPassword,
