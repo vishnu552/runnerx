@@ -1,0 +1,70 @@
+
+> runnerx-backend@0.1.0 build
+> next build
+
+▲ Next.js 16.1.6 (Turbopack)
+- Environments: .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 7.1s
+  Running TypeScript ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/34) ...
+  Generating static pages using 3 workers (8/34) 
+  Generating static pages using 3 workers (16/34) 
+  Generating static pages using 3 workers (25/34) 
+✓ Generating static pages using 3 workers (34/34) in 269.0ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/auth
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/me
+├ ƒ /api/auth/profile
+├ ƒ /api/auth/register
+├ ƒ /api/auth/registrations
+├ ƒ /api/categories
+├ ƒ /api/categories/[slug]
+├ ƒ /api/categories/[slug]/content
+├ ƒ /api/categories/[slug]/tabs
+├ ƒ /api/categories/[slug]/tabs/[tabId]
+├ ƒ /api/coupons
+├ ƒ /api/coupons/[id]
+├ ƒ /api/coupons/validate
+├ ƒ /api/events
+├ ƒ /api/events/[id]
+├ ƒ /api/events/[id]/categories
+├ ƒ /api/events/[id]/categories/[categoryId]
+├ ƒ /api/events/public
+├ ƒ /api/events/public/[eventId]
+├ ƒ /api/events/public/active
+├ ƒ /api/page-content
+├ ƒ /api/page-content/[id]
+├ ƒ /api/page-content/bulk
+├ ƒ /api/registrations
+├ ƒ /api/registrations/verify
+├ ƒ /api/sites
+├ ƒ /api/sponsors
+├ ƒ /api/sponsors/[id]
+├ ƒ /api/upload
+├ ƒ /api/users
+├ ƒ /dashboard
+├ ƒ /dashboard/categories
+├ ƒ /dashboard/content
+├ ƒ /dashboard/coupons
+├ ƒ /dashboard/events
+├ ƒ /dashboard/registrations
+├ ƒ /dashboard/sponsors
+├ ƒ /dashboard/users
+└ ○ /login
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

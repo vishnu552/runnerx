@@ -1,0 +1,4 @@
+ALTER TABLE "User"
+ADD COLUMN "county" TEXT,
+ADD COLUMN "pinCode" TEXT,
+ADD COLUMN "address" TEXT;

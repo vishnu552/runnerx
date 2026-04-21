@@ -1,0 +1,456 @@
+// RunnerX Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("USER")
+  resetToken       String?  @unique
+  resetTokenExpiry DateTime?
+
+  // Profile fields
+  gender                String?
+  dateOfBirth           DateTime?
+  phone                 String?
+  city                  String?
+  state                 String?
+  county                String?
+  pinCode               String?
+  address               String?
+  bloodGroup            String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  tshirtSize            String?
+
+  // Identity verification
+  panNumber             String?
+  aadharNumber          String?
+  passportNumber        String?
+  idVerified            Boolean  @default(false)
+
+  registrations Registration[]
+  orders        Order[]
+  donations     Donation[]
+  stories       Story[]
+  bulkCoupons   BulkCoupon[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Site {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Coupon {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique
+  siteFor     String   @default("JDH")
+  description String
+  discountType String  @default("PERCENTAGE") // PERCENTAGE or FLAT
+  discountValue Float
+  minOrderValue Float? @default(0)
+  maxDiscount   Float?
+  usageLimit    Int?
+  usedCount     Int    @default(0)
+  isActive      Boolean @default(true)
+  validFrom     DateTime @default(now())
+  validUntil    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Event {
+  id                Int      @id @default(autoincrement())
+  title             String
+  slug              String   @unique
+  siteFor           String   @default("JDH")
+  description       String
+  date              DateTime
+  registrationStart DateTime
+  registrationEnd   DateTime
+  venue             String
+  address           String
+  city              String
+  state             String
+  mapUrl            String?
+  bannerImage       String?
+  contactEmail      String?
+  contactPhone      String?
+  status            String   @default("DRAFT") // DRAFT, PUBLISHED, CANCELLED, COMPLETED
+  isActive          Boolean  @default(true)
+  categories        EventCategory[]
+  registrations     Registration[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model EventCategory {
+  id               Int      @id @default(autoincrement())
+  eventId          Int
+  event            Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  // Link to template category for content (hero, tabs, tagline, etc.)
+  categoryId       Int?
+  category         Category? @relation(fields: [categoryId], references: [id])
+
+  raceType         String   // 3KM, 5KM, 10KM, HALF_MARATHON, VIRTUAL
+  distance         Float    // Distance in km
+  price            Float
+  discountPrice    Float?
+  startTime        DateTime
+  maxParticipants  Int?
+  registeredCount  Int      @default(0)
+  ageMin           Int?
+  ageMax           Int?
+  isActive         Boolean  @default(true)
+  virtualSettings  Json?    // Optional pricing for sub-categories if raceType is VIRTUAL
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  registrationItems RegistrationLineItem[]
+  bulkCouponItems   BulkCouponItem[]
+
+  @@unique([eventId, raceType])
+}
+
+model Sponsor {
+  id        Int      @id @default(autoincrement())
+  siteFor   String   @default("JDH")
+  title     String?
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PageContent {
+  id        Int      @id @default(autoincrement())
+  siteFor   String                        // REQUIRED — KTA, JDH, UDR etc.
+  page      String                        // e.g. "home", "about", "faq", "global"
+  section   String                        // e.g. "hero", "overview", "ambassador"
+  key       String                        // e.g. "title", "subtitle", "text", "image"
+  value     String   @db.Text             // The actual content
+  type      String   @default("TEXT")     // TEXT, IMAGE, HTML, JSON, LINK
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([siteFor, page, section, key])
+  @@index([siteFor, page])
+}
+
+model Category {
+  id            Int       @id @default(autoincrement())
+  siteFor       String    // e.g. "KTA", "JDH", "UDR" — same namespace as PageContent
+  slug          String    // e.g. "3km", "5km", "10km", "21km", "virtual-marathon"
+  name          String    // Display name, e.g. "3K Fun Run"
+  distanceLabel String    // Short label e.g. "3K", "5K", "10K", "21K", "Virtual"
+  icon          String?   // Emoji or image path
+  price         Float?    // DEPRECATED — use EventCategory.price instead
+  discountPrice Float?    // DEPRECATED — use EventCategory.discountPrice instead
+  raceDate      DateTime? // DEPRECATED — use EventCategory.startTime instead
+  heroImage     String?   // Full-width hero image on category detail page
+  tagline       String?   // Short tagline shown on cards & hero
+  order         Int       @default(0) // Display order in listings
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  tabs            CategoryTab[]
+  eventCategories EventCategory[]  // Reverse: which event categories use this template
+
+  @@unique([siteFor, slug])
+  @@index([siteFor])
+}
+
+model CategoryTab {
+  id         Int      @id @default(autoincrement())
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  title      String   // Tab heading, e.g. "About This Race", "Route Details"
+  body       String   @db.Text // Tab content — rich text / HTML
+  icon       String?  // Optional icon/emoji for the tab heading
+  sortOrder  Int      @default(0) // Display order
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([categoryId])
+}
+
+// ─── Registration System ────────────────────────────────────────────────────
+
+model Registration {
+  id              Int      @id @default(autoincrement())
+  eventId         Int
+  event           Event    @relation(fields: [eventId], references: [id])
+  userId          Int?     // null for guest registrations
+  user            User?    @relation(fields: [userId], references: [id])
+  orderId         Int?     // link to unified Order
+  order           Order?   @relation(fields: [orderId], references: [id])
+
+  // Order-level info
+  status          String   @default("PENDING")  // PENDING, CONFIRMED, CANCELLED, REFUNDED
+  totalAmount     Float    @default(0)
+  discountAmount  Float    @default(0)
+  finalAmount     Float    @default(0)
+  couponCode      String?  // coupon code snapshot (not FK)
+  paymentStatus   String   @default("UNPAID")   // UNPAID, PAID, FAILED, REFUNDED
+  paymentId       String?  // from payment gateway
+
+  // Snapshots for historical integrity
+  eventTitleSnapshot  String
+  eventDateSnapshot   DateTime
+  siteForSnapshot     String
+
+  lineItems       RegistrationLineItem[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([eventId])
+  @@index([userId])
+  @@index([orderId])
+}
+
+model RegistrationLineItem {
+  id                  Int      @id @default(autoincrement())
+  registrationId      Int
+  registration        Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  eventCategoryId     Int
+  eventCategory       EventCategory @relation(fields: [eventCategoryId], references: [id])
+  status              String   @default("PENDING")  // PENDING, CONFIRMED, CANCELLED, REFUNDED
+
+  // Participant personal info (one line item per participant)
+  participantName     String
+  participantEmail    String
+  participantPhone    String
+  participantGender   String
+  participantDob      DateTime
+  participantCity     String?
+  participantState    String?
+  participantCountry  String?
+  participantPinCode  String?
+  participantAddress  String?
+  isRegistrant        Boolean  @default(false)  // true = logged-in user themselves
+
+  // Bib & T-Shirt
+  bibNumber           String?  // Auto-generated 4-digit bib (category series)
+  isCustomBib         Boolean  @default(false)
+  tshirtSize          String?
+  tshirtChangeCount   Int      @default(0)
+
+  // Price snapshots (frozen at registration time)
+  categoryNameSnapshot    String   // e.g. "3K Fun Run"
+  distanceSnapshot        String   // e.g. "3K"
+  raceTypeSnapshot        String   // e.g. "3KM"
+  unitPriceSnapshot       Float
+  discountPriceSnapshot   Float?
+  finalPriceSnapshot      Float
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([registrationId])
+  @@index([eventCategoryId])
+  @@index([bibNumber])
+}
+
+// ─── Unified Order System ───────────────────────────────────────────────────
+// Tracks ALL transactions: registrations, coupon purchases, donations, bib upgrades
+
+model Order {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+
+  // Order identification
+  orderType       String   // REGISTRATION, COUPON_PURCHASE, DONATION, BIB_UPGRADE, CATEGORY_UPGRADE
+  reason          String   // Human-readable reason e.g. "Event Registration", "Bulk Coupon Purchase"
+
+  // Financial
+  amount          Float    @default(0)
+  taxAmount       Float    @default(0)
+  charityAmount   Float    @default(0)
+  couponDiscount  Float    @default(0)
+  finalAmount     Float    @default(0)
+  couponCode      String?
+
+  // Payment
+  paymentStatus   String   @default("UNPAID")  // UNPAID, PAID, FAILED, REFUNDED
+  paymentId       String?  // Gateway transaction ID
+  paymentMode     String?  // UPI, Card, NetBanking, etc.
+
+  // Invoice
+  invoiceNumber   String?  @unique
+
+  // Contact snapshot
+  contactEmail    String
+  contactPhone    String?
+
+  // Relations
+  registrations   Registration[]
+  donations       Donation[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([paymentStatus])
+}
+
+// ─── Donation System ────────────────────────────────────────────────────────
+
+model Donation {
+  id              Int      @id @default(autoincrement())
+  userId          Int?
+  user            User?    @relation(fields: [userId], references: [id])
+  orderId         Int?
+  order           Order?   @relation(fields: [orderId], references: [id])
+
+  // Cause & NGO
+  causeName       String
+  ngoName         String
+
+  // Donor details
+  amount          Float
+  donorName       String
+  donorEmail      String
+  donorPhone      String?
+  panCardName     String?
+  panCardNumber   String?
+
+  // Tax
+  wantsTaxExemption Boolean @default(false)
+  taxCertificateUrl String?
+
+  // Payment
+  paymentStatus   String   @default("UNPAID")
+  paymentId       String?
+  razorpayOrderId String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([orderId])
+}
+
+// ─── Bulk Coupon System (Corporate/Group Ticketing) ─────────────────────────
+
+model BulkCoupon {
+  id              Int      @id @default(autoincrement())
+  ownerId         Int
+  owner           User     @relation(fields: [ownerId], references: [id])
+
+  code            String   @unique
+  eventId         Int      // Restricted to this single event
+
+  // Billing
+  billingType     String   // INDIVIDUAL or ORGANISATION
+  billingName     String
+  billingEmail    String
+  billingPhone    String
+  billingGst      String?
+  billingOrgName  String?
+  billingAddress  String?
+  billingPinCode  String?
+  billingCity     String?
+  billingState    String?
+  billingCountry  String?
+
+  // Ticket quantities per category
+  items           BulkCouponItem[]
+
+  // Usage tracking
+  totalTickets    Int      @default(0)
+  usedTickets     Int      @default(0)
+  validUntil      DateTime?
+
+  // Payment
+  paymentStatus   String   @default("UNPAID")
+  paymentId       String?
+  totalAmount     Float    @default(0)
+
+  // Allocation
+  allocatedEmails String?  @db.Text // JSON array of allowed emails (optional restriction)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([eventId])
+}
+
+model BulkCouponItem {
+  id               Int      @id @default(autoincrement())
+  bulkCouponId     Int
+  bulkCoupon       BulkCoupon @relation(fields: [bulkCouponId], references: [id], onDelete: Cascade)
+  eventCategoryId  Int
+  eventCategory    EventCategory @relation(fields: [eventCategoryId], references: [id])
+  quantity         Int      @default(0)
+  usedCount        Int      @default(0)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([bulkCouponId, eventCategoryId])
+  @@index([bulkCouponId])
+}
+
+// ─── Story System ───────────────────────────────────────────────────────────
+
+model Story {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  user            User     @relation(fields: [userId], references: [id])
+
+  name            String
+  email           String
+  phone           String?
+  socialMediaUrl  String?  // Optional social media link
+
+  title           String?
+  content         String   @db.Text
+  imageUrls       String?  @db.Text // JSON array of image URLs
+
+  status          String   @default("SUBMITTED") // SUBMITTED, REVIEWED, PUBLISHED, REJECTED
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ─── Info Sections (FAQ / Terms / Privacy) ──────────────────────────────────
+// Unified table so admin can manage headings + descriptions without HTML/JSON.
+// pageType distinguishes FAQ vs TERMS vs PRIVACY (expandable to more later).
+
+model InfoSection {
+  id          Int      @id @default(autoincrement())
+  siteFor     String   // KTA, JDH, UDR — which site this belongs to
+  pageType    String   // FAQ, TERMS, PRIVACY — which page this appears on
+  heading     String   // Question (FAQ) or Section Title (Terms/Privacy)
+  content     String   @db.Text // Answer (FAQ) or Section Body (Terms/Privacy)
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([siteFor, pageType])
+}
