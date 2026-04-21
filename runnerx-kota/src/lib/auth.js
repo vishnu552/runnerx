@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
+import { COOKIE_NAME } from './constants';
 import { API_URL } from './api';
-
-const COOKIE_NAME = 'runnerx-user-token';
 
 /**
  * Stores the authentication token securely in the frontend.
@@ -15,26 +14,6 @@ export async function setSessionToken(token) {
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   });
-}
-
-/**
- * Client-side helper to get the token (since 'cookies()' only works on server)
- */
-export function getSessionTokenClient() {
-  if (typeof window === 'undefined') return null;
-  const name = COOKIE_NAME + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return null;
 }
 
 /**

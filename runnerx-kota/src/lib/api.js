@@ -10,7 +10,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
  * Uses API_URL from env.
  */
 export async function authenticatedFetch(path, options = {}) {
-  const { getSessionTokenClient } = await import('./auth');
+  const { getSessionTokenClient } = await import('./auth-client');
   const token = getSessionTokenClient();
   
   const headers = {
