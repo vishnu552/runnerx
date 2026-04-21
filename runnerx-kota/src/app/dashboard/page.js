@@ -3,13 +3,15 @@ import { getCurrentUser } from '@/lib/auth';
 import { getActiveEvent, getUserRegistrations, getEvents } from '@/lib/api';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const cookieStore = await cookies();
   const token = cookieStore.get('runnerx-user-token')?.value;
-  const registrations = await getUserRegistrations(token);
+  const registrations = await getUserRegistrations(token) || [];
   const activeEvent = await getActiveEvent('KTA');
-  const allEvents = await getEvents();
+  const allEvents = await getEvents() || [];
 
   const regCount = registrations.length;
   const totalSpent = registrations.reduce((sum, r) => sum + (r.finalAmount || 0), 0);

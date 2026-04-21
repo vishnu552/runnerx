@@ -2,6 +2,24 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import DashboardSidebar from './DashboardSidebar';
 
+export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';
+
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardLayout({ children }) {
   const user = await getCurrentUser();
 

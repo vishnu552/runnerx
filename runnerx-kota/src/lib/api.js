@@ -1,4 +1,8 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const baseUrl = typeof window === 'undefined' 
+  ? process.env.BACKEND_URL || 'http://localhost:3001'      // server: use localhost
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';  // client: use domain
+
+export const API_URL = baseUrl;
 
 export async function getPageContent(page, siteFor = 'KTA') {
   try {
@@ -144,12 +148,12 @@ export async function getEvents(siteFor = null) {
 
     if (!res.ok) {
       console.error('Failed to fetch events');
-      return null;
+      return [];
     }
 
     const data = await res.json();
     if (!data.success) {
-      return null;
+      return [];
     }
 
     return data.events;

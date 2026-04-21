@@ -7,11 +7,13 @@ export const metadata = {
   title: 'My Registrations — RunnerX',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function MyRegistrationsPage() {
   const user = await getCurrentUser();
   const cookieStore = await cookies();
   const token = cookieStore.get('runnerx-user-token')?.value;
-  const registrations = await getUserRegistrations(token);
+  const registrations = await getUserRegistrations(token) || [];
   const activeEvent = await getActiveEvent('KTA');
 
   return (

@@ -1,5 +1,8 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
+
 import { useFormStatus } from 'react-dom';
 import { useActionState, useEffect, useState } from 'react';
 import { updateProfile } from '@/lib/actions';

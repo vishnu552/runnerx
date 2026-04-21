@@ -4,8 +4,10 @@ export const metadata = {
   title: 'Choose Your Event — RunnerX',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function RegisterPage() {
-  const allEvents = await getEvents();
+  const allEvents = await getEvents() || [];
   
   const kotaEvents = allEvents.filter(e => e.siteFor === 'KTA');
   const otherEvents = allEvents.filter(e => e.siteFor !== 'KTA');

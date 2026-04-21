@@ -6,11 +6,13 @@ export const metadata = {
   title: 'My Orders — RunnerX',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function MyOrdersPage() {
   const user = await getCurrentUser();
   const cookieStore = await cookies();
   const token = cookieStore.get('runnerx-user-token')?.value;
-  const orders = await getUserOrders(token);
+  const orders = await getUserOrders(token) || [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

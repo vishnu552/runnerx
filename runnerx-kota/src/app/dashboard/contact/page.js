@@ -5,6 +5,8 @@ export const metadata = {
   title: 'Contact — RunnerX Dashboard',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardContactPage() {
   const content = await getPageContent('contact');
   const globalContent = await getGlobalContent();
