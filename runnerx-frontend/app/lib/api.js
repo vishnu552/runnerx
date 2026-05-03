@@ -1,8 +1,11 @@
-const baseUrl = typeof window === 'undefined' 
+const baseUrl = typeof window === 'undefined'
   ? process.env.BACKEND_URL || 'http://localhost:3001'      // server: use internal URL
   : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';  // client: use public domain
 
 export const API_URL = baseUrl;
+// Public URL for assets (image src) — must be reachable from the user's browser,
+// so always use NEXT_PUBLIC_API_URL even when running on the server.
+export const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || baseUrl;
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
 
 /**
@@ -51,7 +54,7 @@ export async function getPageContent(page, siteFor = 'KTA') {
       
       let parsedValue = item.value;
       if (item.type === 'IMAGE' && typeof parsedValue === 'string' && parsedValue.startsWith('/uploads/')) {
-        parsedValue = `${API_URL}${parsedValue}`;
+        parsedValue = `${PUBLIC_API_URL}${parsedValue}`;
       } else if (item.type === 'JSON') {
         try {
           parsedValue = JSON.parse(item.value);

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { API_URL } from "@/lib/api";
+import { PUBLIC_API_URL } from "@/lib/api";
 
 const navLinks = [
   { href: "/about", label: "About Us" },
@@ -158,7 +158,7 @@ export default function Header({
               <img
                 src={
                   titleSponsor.image?.startsWith("/")
-                    ? `${API_URL}${titleSponsor.image}`
+                    ? `${PUBLIC_API_URL}${titleSponsor.image}`
                     : titleSponsor.image
                 }
                 alt={titleSponsor.title || "Sponsor"}

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { categories as fallbackCategories, eventInfo as fallbackEventInfo } from '@/data/categories';
 import CountdownTimer from '@/components/CountdownTimer';
 import CategorySlider from '@/components/CategorySlider';
-import { getPageContent, getGlobalContent, getCategories, getEvents, getSponsors, getRunnersInfo, API_URL } from '@/lib/api';
+import { getPageContent, getGlobalContent, getCategories, getEvents, getSponsors, getRunnersInfo, PUBLIC_API_URL } from '@/lib/api';
 import SponsorSlider from '@/components/SponsorSlider';
 
 export default async function HomePage() {
@@ -120,7 +120,7 @@ export default async function HomePage() {
                 const getCardImage = (val, fallback) => {
                   if (!val || typeof val !== 'string') return fallback;
                   const cleanVal = val.trim();
-                  if (cleanVal.startsWith('/uploads')) return `${API_URL}${cleanVal}`;
+                  if (cleanVal.startsWith('/uploads')) return `${PUBLIC_API_URL}${cleanVal}`;
                   if (cleanVal.startsWith('/') || cleanVal.startsWith('http')) return cleanVal;
                   return fallback;
                 };
@@ -314,7 +314,7 @@ export default async function HomePage() {
             })().map((item, i) => (
               <div className="initiative-card" key={i}>
                 <Image
-                  src={item.image?.startsWith('/uploads') ? `${API_URL}${item.image}` : item.image}
+                  src={item.image?.startsWith('/uploads') ? `${PUBLIC_API_URL}${item.image}` : item.image}
                   alt={item.alt || item.title}
                   fill
                   unoptimized
@@ -350,7 +350,7 @@ export default async function HomePage() {
                   {sponsors.filter(s => s.title?.toLowerCase() === 'title sponsor').map(s => (
                     <div key={s.id} className="sponsor-logo-box" style={{ width: '200px', height: '90px', padding: '10px' }}>
                       <Image 
-                        src={s.image?.startsWith('/') ? `${API_URL}${s.image}` : s.image} 
+                        src={s.image?.startsWith('/') ? `${PUBLIC_API_URL}${s.image}` : s.image}
                         alt={s.name || "Title Sponsor"} 
                         width={180}
                         height={70}
@@ -377,7 +377,7 @@ export default async function HomePage() {
                   {sponsors.filter(s => s.title?.toLowerCase() === 'associate sponsor').map(s => (
                     <div key={s.id} className="sponsor-logo-box" style={{ width: '180px', height: '80px', padding: '8px' }}>
                       <Image 
-                        src={s.image?.startsWith('/') ? `${API_URL}${s.image}` : s.image} 
+                        src={s.image?.startsWith('/') ? `${PUBLIC_API_URL}${s.image}` : s.image}
                         alt={s.name || "Associate Sponsor"} 
                         width={160}
                         height={60}
@@ -402,7 +402,7 @@ export default async function HomePage() {
                 <div className="sponsors-tier-label">Partners</div>
                 <SponsorSlider 
                   sponsors={sponsors.filter(s => !['title sponsor', 'associate sponsor'].includes(s.title?.toLowerCase()))} 
-                  apiUrl={API_URL} 
+                  apiUrl={PUBLIC_API_URL}
                 />
               </div>
             )}

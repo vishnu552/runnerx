@@ -1,4 +1,4 @@
-import { getPageContent, getGalleryImages, API_URL } from '@/lib/api';
+import { getPageContent, getGalleryImages } from '@/lib/api';
 import GalleryClient from './GalleryClient';
 import PageHero from '@/components/PageHero';
 

@@ -1,8 +1,11 @@
-const baseUrl = typeof window === 'undefined' 
+const baseUrl = typeof window === 'undefined'
   ? process.env.BACKEND_URL || 'http://localhost:3001'      // server: use internal URL
   : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';  // client: use public domain
 
 export const API_URL = baseUrl;
+// Public URL for assets (image src) — must be reachable from the user's browser,
+// so always use NEXT_PUBLIC_API_URL even when running on the server.
+export const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || baseUrl;
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
 
 /**
@@ -51,7 +54,7 @@ export async function getPageContent(page, siteFor = 'KTA') {
       
       let parsedValue = item.value;
       if (item.type === 'IMAGE' && typeof parsedValue === 'string' && parsedValue.startsWith('/uploads/')) {
-        parsedValue = `${API_URL}${parsedValue}`;
+        parsedValue = `${PUBLIC_API_URL}${parsedValue}`;
       } else if (item.type === 'JSON') {
         try {
           parsedValue = JSON.parse(item.value);
@@ -93,7 +96,7 @@ export async function getGalleryImages(siteFor = 'KTA', year = null) {
 
     return data.images.map(img => ({
       ...img,
-      imagePath: img.imagePath.startsWith('/uploads/') ? `${API_URL}${img.imagePath}` : img.imagePath
+      imagePath: img.imagePath.startsWith('/uploads/') ? `${PUBLIC_API_URL}${img.imagePath}` : img.imagePath
     }));
   } catch (error) {
     console.error('Error fetching gallery images:', error);
@@ -125,7 +128,7 @@ export async function getCategories(siteFor = 'KTA') {
       price: cat.price || 0,
       discountPrice: cat.discountPrice || null,
       raceDate: cat.raceDate || null,
-      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/uploads/') ? `${API_URL}${cat.heroImage}` : cat.heroImage) : null,
+      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/uploads/') ? `${PUBLIC_API_URL}${cat.heroImage}` : cat.heroImage) : null,
       tagline: cat.tagline || '',
       icon: cat.icon || '',
       order: cat.order || 0,
@@ -169,7 +172,7 @@ export async function getCategoryBySlug(slug, siteFor = 'KTA') {
       price: cat.price || 0,
       discountPrice: cat.discountPrice || null,
       raceDate: cat.raceDate || null,
-      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/uploads/') ? `${API_URL}${cat.heroImage}` : cat.heroImage) : null,
+      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/uploads/') ? `${PUBLIC_API_URL}${cat.heroImage}` : cat.heroImage) : null,
       tagline: cat.tagline || '',
       icon: cat.icon || '',
       order: cat.order || 0,
@@ -312,7 +315,7 @@ export async function getRunnersInfo(siteFor = 'KTA') {
 
     return data.items.map(item => ({
       ...item,
-      image: item.image.startsWith('/uploads/') ? `${API_URL}${item.image}` : item.image
+      image: item.image.startsWith('/uploads/') ? `${PUBLIC_API_URL}${item.image}` : item.image
     }));
   } catch (error) {
     console.error(`Error fetching runners info:`, error);
