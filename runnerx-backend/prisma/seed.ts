@@ -79,10 +79,10 @@ function getKtaContent() {
     // Initiatives
     c(S, "home", "initiatives", "title", "INITIATIVES"),
     c(S, "home", "initiatives", "subtitle", "Since its inception, RunnerX Kota Marathon has been committed to promoting health, sustainability, and the transformative power of running."),
-    c(S, "home", "initiatives", "items", JSON.stringify([
-      { title: "Green Run Initiative", image: "/images/initiative-green.png", alt: "Green Run Initiative" },
-      { title: "Community Fitness Drive", image: "/images/initiative-community.png", alt: "Community Fitness Drive" }
-    ]), "JSON"),
+    c(S, "home", "initiatives", "item1_title", "Green Run Initiative"),
+    c(S, "home", "initiatives", "item1_image", "/images/initiative-green.png", "IMAGE"),
+    c(S, "home", "initiatives", "item2_title", "Community Fitness Drive"),
+    c(S, "home", "initiatives", "item2_image", "/images/initiative-community.png", "IMAGE"),
 
     // Countdown
     c(S, "home", "countdown", "title", "Event Starts"),
@@ -115,6 +115,7 @@ function getKtaContent() {
     c(S, "about", "hero", "title", "About"),
     c(S, "about", "hero", "title_accent", "RunnerX Kota"),
     c(S, "about", "hero", "subtitle", "Bringing the spirit of world-class marathon events to the heart of Hadoti region."),
+    c(S, "about", "hero", "bg_image", "", "IMAGE"),
 
     // Mission
     c(S, "about", "mission", "title", "Our Mission"),
@@ -133,39 +134,18 @@ function getKtaContent() {
       { icon: "❤️", title: "Run for a Cause", desc: "A portion of every registration goes to local NGOs supporting education, health, and environmental conservation in the Hadoti region." }
     ]), "JSON"),
 
-    // Timeline
-    c(S, "about", "timeline", "badge", "Race Day"),
-    c(S, "about", "timeline", "title", "Event Day"),
-    c(S, "about", "timeline", "title_accent", "Timeline"),
-    c(S, "about", "timeline", "items", JSON.stringify([
-      { time: "4:00 AM", title: "Gates Open", desc: "Venue gates open. Bib collection & bag drop for registered runners." },
-      { time: "4:30 AM", title: "Half Marathon Reporting", desc: "Half Marathon runners assemble at Nayapura Circle start line." },
-      { time: "5:30 AM", title: "Half Marathon Flag-Off", desc: "The flagship 21.1 KM race begins at dawn." },
-      { time: "6:30 AM", title: "10 KM Challenge Flag-Off", desc: "10 KM runners start from Kota Barrage." },
-      { time: "7:00 AM", title: "5 KM Sprint Flag-Off", desc: "Sprint category runners start from Chambal Garden." },
-      { time: "7:30 AM", title: "3 KM Fun Run Flag-Off", desc: "Fun Run begins! Families, kids, and beginners start their journey." },
-      { time: "9:00 AM", title: "Prize Ceremony & Breakfast", desc: "Awards, celebrations, and post-race breakfast for all finishers." }
-    ]), "JSON"),
 
-    // Team
-    c(S, "about", "team", "title", "Meet"),
-    c(S, "about", "team", "title_accent", "the Team"),
-    c(S, "about", "team", "subtitle", "RunnerX Kota is organized by a passionate team of runners, event managers, and community leaders dedicated to making Kota a running city."),
-    c(S, "about", "team", "cta_title", "Want to Volunteer?"),
-    c(S, "about", "team", "cta_subtitle", "We need 500+ volunteers on race day. Be part of the team that makes it happen!"),
-    c(S, "about", "team", "cta_button_text", "Get in Touch →"),
-    c(S, "about", "team", "cta_button_link", "/contact", "LINK"),
 
     // ═══════════════════════════════════════════════════════
-    // FAQ PAGE
+    // EVENT RULES PAGE
     // ═══════════════════════════════════════════════════════
-    c(S, "faq", "hero", "badge", "Help"),
-    c(S, "faq", "hero", "title", "Frequently Asked"),
-    c(S, "faq", "hero", "title_accent", "Questions"),
-    c(S, "faq", "hero", "subtitle", "Got questions? We've got answers. Find everything you need to know about the event."),
-    c(S, "faq", "footer", "text", "Still have questions? We're happy to help!"),
-    c(S, "faq", "footer", "cta_text", "Contact Us →"),
-    c(S, "faq", "footer", "cta_link", "/contact", "LINK"),
+    c(S, "event-rules", "hero", "heading", "Event Rules & Guidelines"),
+    c(S, "event-rules", "hero", "bg_image", "", "IMAGE"),
+
+    // PHILANTHROPY PAGE
+    // ═══════════════════════════════════════════════════════
+    c(S, "philanthropy", "hero", "heading", "Philanthropy & Impact"),
+    c(S, "philanthropy", "hero", "bg_image", "", "IMAGE"),
 
     // ═══════════════════════════════════════════════════════
     // CONTACT PAGE
@@ -186,17 +166,8 @@ function getKtaContent() {
     c(S, "gallery", "hero", "badge", "Moments"),
     c(S, "gallery", "hero", "title_accent", "Gallery"),
     c(S, "gallery", "hero", "subtitle", "Capturing the energy, emotion, and spirit of running in Kota."),
+    c(S, "gallery", "hero", "bg_image", "", "IMAGE"),
     c(S, "gallery", "content", "notice", "📸 Images from our upcoming event will be showcased here. Stay tuned!"),
-    c(S, "gallery", "content", "items", JSON.stringify([
-      { id: 1, title: "Runners at Dawn", desc: "Early morning start along Chambal River" },
-      { id: 2, title: "Fun Run Families", desc: "3 KM Fun Run with families and kids" },
-      { id: 3, title: "Sprint Finish", desc: "Exciting 5 KM sprint finish line moments" },
-      { id: 4, title: "Challenge Route", desc: "10 KM runners passing Kota Barrage" },
-      { id: 5, title: "Half Marathon Start", desc: "The flagship race flag-off at dawn" },
-      { id: 6, title: "Medal Moment", desc: "Finishers celebrating with their medals" },
-      { id: 7, title: "Kota Skyline", desc: "Beautiful view of Kota from the route" },
-      { id: 8, title: "Community Spirit", desc: "Volunteers and supporters cheering runners" }
-    ]), "JSON"),
 
     // ═══════════════════════════════════════════════════════
     // ROUTE PAGE
@@ -635,58 +606,7 @@ function getKotaCategories(): CategorySeed[] {
   ];
 }
 
-function getKtaFaqs() {
-  return [
-    {
-      question: "How do I register for the marathon?",
-      answer: "Registration will open soon on our website. You will be able to register online by selecting your preferred category, filling in your details, and making the payment. Follow our social media for registration announcements.",
-    },
-    {
-      question: "What are the age requirements for each category?",
-      answer: "3 KM Fun Run: 6 years and above. 5 KM Sprint: 12 years and above. 10 KM Challenge: 16 years and above. Half Marathon: 18 years and above. Participants under 18 must have a parent/guardian's consent.",
-    },
-    {
-      question: "Is there a refund policy?",
-      answer: "Registrations are non-refundable. However, you may transfer your registration to another person up to 7 days before the event by contacting our support team. Deferrals to the next edition may be considered on a case-by-case basis.",
-    },
-    {
-      question: "What should I bring on race day?",
-      answer: "Carry your event bib (collected at the Expo), a valid photo ID, and comfortable running gear. We recommend arriving at least 1 hour before your flag-off time. Bag drop facilities will be available near the start line.",
-    },
-    {
-      question: "Will there be timing chips?",
-      answer: "Yes! The 5 KM, 10 KM, and Half Marathon categories will have chip timing for accurate results. The 3 KM Fun Run is a non-timed, participation-only event.",
-    },
-    {
-      question: "What medical support will be available?",
-      answer: "We will have trained medical teams stationed every 2-3 km along all routes. Ambulance support will be on standby throughout the event. Each hydration station will also have a basic first-aid kit.",
-    },
-    {
-      question: "Can I participate if I haven't run a marathon before?",
-      answer: "Absolutely! The 3 KM Fun Run and 5 KM Sprint are perfect for beginners. We encourage first-time runners to start training at least 4-6 weeks before the event. A training guide will be shared with all registered participants.",
-    },
-    {
-      question: "Where is the start/finish line?",
-      answer: "The primary venue is Chambal Garden, Kota. The Half Marathon starts from Nayapura Circle, the 10 KM from Kota Barrage, and the 5 KM and 3 KM from Chambal Garden. All races finish at Chambal Garden Main Gate.",
-    },
-    {
-      question: "Will there be parking available?",
-      answer: "Yes, free parking will be available at Chambal Garden and nearby designated areas. We recommend carpooling or using public transport due to road closures during the event.",
-    },
-    {
-      question: "What happens if it rains on race day?",
-      answer: "The event will take place rain or shine. In case of extreme weather conditions that pose a safety risk, the organizing committee reserves the right to modify routes, timings, or cancel the event. Registered participants will be notified promptly.",
-    },
-    {
-      question: "Are there prize money and awards?",
-      answer: "Yes! Prize money is available for the top finishers in the 10 KM and Half Marathon categories. Age-group awards will also be given. All finishers in every category receive a medal and certificate.",
-    },
-    {
-      question: "Can I walk during the Fun Run?",
-      answer: "Yes! The 3 KM Fun Run is designed for everyone — you can walk, jog, or run at your own pace. There is no competitive timing for this category.",
-    },
-  ];
-}
+
 
 function getKtaPrivacySections() {
   return [
@@ -879,25 +799,7 @@ async function main() {
     }
     console.log("✅ All 5 Kota categories seeded successfully");
 
-    // ─── Seed Info Sections (FAQ) for KTA ───
-    const ktaFaqs = getKtaFaqs();
-    await prisma.infoSection.deleteMany({
-      where: { siteFor: "KTA", pageType: "FAQ" },
-    });
 
-    for (let i = 0; i < ktaFaqs.length; i++) {
-      await prisma.infoSection.create({
-        data: {
-          siteFor: "KTA",
-          pageType: "FAQ",
-          heading: ktaFaqs[i].question,
-          content: ktaFaqs[i].answer,
-          sortOrder: i + 1,
-          isActive: true,
-        },
-      });
-    }
-    console.log(`✅ ${ktaFaqs.length} FAQs seeded for KTA`);
 
     // ─── Seed Info Sections (PRIVACY) for KTA ───
     const ktaPrivacy = getKtaPrivacySections();

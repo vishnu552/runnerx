@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import dynamic from "next/dynamic";
+
+const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
 interface InfoSection {
   id: number;
@@ -15,19 +18,48 @@ interface InfoSection {
 }
 
 const PAGE_TYPES = [
-  { value: "FAQ", label: "FAQ", desc: "Questions & Answers", icon: "❓" },
+  { value: "EVENT_RULES", label: "Event Rules", desc: "Detailed rules and guidelines", icon: "⚖️" },
+  { value: "PHILANTHROPY", label: "Philanthropy", desc: "Charity and social impact details", icon: "🤝" },
   { value: "TERMS", label: "Terms & Conditions", desc: "Legal terms for participation", icon: "📋" },
-  { value: "PRIVACY", label: "Privacy Policy", desc: "Data privacy & cookie policies", icon: "🔒" },
-  { value: "POLICY", label: "Dashboard Policies", desc: "General policies shown in user dashboard", icon: "🛡️" },
+  { value: "PRIVACY", label: "Privacy & Policy", desc: "Data privacy & cookie policies", icon: "🔒" },
+  { value: "REFUND", label: "Refund Policy", desc: "Cancellation & refund terms", icon: "💸" },
+  { value: "WAIVER", label: "Liability Waiver", desc: "Liability waiver and release form", icon: "📝" },
 ];
 
+const GLOBAL_TYPES = ["TERMS", "PRIVACY", "REFUND", "WAIVER"];
+
 export default function InfoSectionsPage() {
+  const editor = useRef(null);
+  const config = useMemo(() => ({
+    readonly: false,
+    placeholder: "Start typing...",
+    minHeight: 400,
+    theme: "dark",
+    style: {
+      color: "#ffffff"
+    },
+    buttons: [
+      'source', '|',
+      'bold', 'italic', 'underline', 'strikethrough', '|',
+      'ul', 'ol', '|',
+      'font', 'fontsize', 'brush', 'paragraph', '|',
+      'link', '|',
+      'align', 'undo', 'redo'
+    ],
+    uploader: {
+      insertImageAsBase64URI: true,
+    },
+  }), []);
+
   const [sites, setSites] = useState<{ id: string; name: string; code: string }[]>([]);
   const [selectedSite, setSelectedSite] = useState("");
-  const [selectedPageType, setSelectedPageType] = useState("FAQ");
+  const [selectedPageType, setSelectedPageType] = useState("EVENT_RULES");
   const [sections, setSections] = useState<InfoSection[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const isGlobalType = GLOBAL_TYPES.includes(selectedPageType);
+  const effectiveSite = isGlobalType ? "GLOBAL" : selectedSite;
 
   // Form state
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -50,11 +82,11 @@ export default function InfoSectionsPage() {
   }, []);
 
   const fetchSections = useCallback(async () => {
-    if (!selectedSite) return;
+    if (!effectiveSite) return;
     setLoading(true);
     try {
       const res = await fetch(
-        `/api/info-sections/all?siteFor=${selectedSite}&pageType=${selectedPageType}`
+        `/api/info-sections/all?siteFor=${effectiveSite}&pageType=${selectedPageType}`
       );
       const data = await res.json();
       if (data.success) {
@@ -65,7 +97,7 @@ export default function InfoSectionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedSite, selectedPageType]);
+  }, [effectiveSite, selectedPageType]);
 
   useEffect(() => {
     fetchSections();
@@ -121,7 +153,7 @@ export default function InfoSectionsPage() {
       };
 
       if (!editingId) {
-        payload.siteFor = selectedSite;
+        payload.siteFor = effectiveSite;
         payload.pageType = selectedPageType;
       }
 
@@ -207,20 +239,22 @@ export default function InfoSectionsPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
-          <div className="form-group" style={{ marginBottom: 0, minWidth: "180px" }}>
-            <label className="form-label">Site</label>
-            <select
-              className="form-select"
-              value={selectedSite}
-              onChange={(e) => setSelectedSite(e.target.value)}
-            >
-              {sites.map((s) => (
-                <option key={s.code} value={s.code}>
-                  {s.name} ({s.code})
-                </option>
-              ))}
-            </select>
-          </div>
+          {!isGlobalType && (
+            <div className="form-group" style={{ marginBottom: 0, minWidth: "180px" }}>
+              <label className="form-label">Site</label>
+              <select
+                className="form-select"
+                value={selectedSite}
+                onChange={(e) => setSelectedSite(e.target.value)}
+              >
+                {sites.map((s) => (
+                  <option key={s.code} value={s.code}>
+                    {s.name} ({s.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -332,23 +366,12 @@ export default function InfoSectionsPage() {
               <label className="form-label" style={{ fontSize: "1rem", fontWeight: 600 }}>
                 {contentLabel} *
               </label>
-              <textarea
-                className="form-textarea"
+              <JoditEditor
+                ref={editor}
                 value={formContent}
-                onChange={(e) => setFormContent(e.target.value)}
-                placeholder={
-                  selectedPageType === "FAQ"
-                    ? "Type the answer here. You can use multiple lines for clarity."
-                    : "Type the section content. Use line breaks for paragraphs."
-                }
-                rows={8}
-                style={{
-                  fontSize: "1rem",
-                  padding: "14px 16px",
-                  lineHeight: 1.6,
-                  width: "100%",
-                }}
-                required
+                config={config}
+                onBlur={(newContent) => setFormContent(newContent)}
+                onChange={(newContent) => {}}
               />
               <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "4px" }}>
                 Tip: Use blank lines to separate paragraphs. Content will display with proper formatting.
@@ -537,7 +560,7 @@ export default function InfoSectionsPage() {
                   >
                     {section.heading}
                   </h4>
-                  <p
+                  <div
                     style={{
                       fontSize: "0.85rem",
                       color: "var(--text-muted)",
@@ -547,9 +570,8 @@ export default function InfoSectionsPage() {
                       WebkitBoxOrient: "vertical",
                       overflow: "hidden",
                     }}
-                  >
-                    {section.content}
-                  </p>
+                    dangerouslySetInnerHTML={{ __html: section.content }}
+                  />
                 </div>
 
                 {/* Actions */}

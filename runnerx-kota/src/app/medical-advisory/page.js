@@ -1,3 +1,5 @@
+import PageHero from '@/components/PageHero';
+
 export const metadata = {
   title: 'Medical Advisory',
   description:
@@ -35,14 +37,9 @@ const responsibilityPoints = [
 export default function MedicalAdvisoryPage() {
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <h1 className="page-hero-title">Medical Advisory</h1>
-          <p className="page-hero-subtitle">
-            Pre-race screening, race day safety, and post-race recovery guidance for participants.
-          </p>
-        </div>
-      </section>
+      <PageHero 
+        title="Medical Advisory"
+      />
 
       <div className="legal-content">
         <p className="last-updated">Last updated: April 18, 2026</p>

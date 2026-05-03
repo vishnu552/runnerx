@@ -1,5 +1,6 @@
 import { eventInfo as fallbackEventInfo } from '@/data/categories';
 import { getPageContent, getGlobalContent } from '@/lib/api';
+import PageHero from '@/components/PageHero';
 
 export const metadata = {
   title: 'Contact Us',
@@ -20,15 +21,11 @@ export default async function ContactPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>{hero.badge || "Reach Out"}</div>
-          <h1 className="page-hero-title">{hero.title || "Contact"} <span style={{ color: 'var(--primary)' }}>{hero.title_accent || "Us"}</span></h1>
-          <p className="page-hero-subtitle">
-            {hero.subtitle || "Have questions about the event? Want to partner or volunteer? We'd love to hear from you."}
-          </p>
-        </div>
-      </section>
+      <PageHero 
+        title={hero.title || "Contact"}
+        titleAccent={hero.title_accent || "Us"}
+        bgImage={hero.bg_image}
+      />
 
       <section className="section">
         <div className="container">
@@ -45,12 +42,15 @@ export default async function ContactPage() {
                   <input type="email" className="form-input" placeholder="you@example.com" required />
                 </div>
                 <div className="form-group">
+                  
                   <label className="form-label">Subject</label>
                   <select className="form-input" required>
                     <option value="">Select a topic</option>
-                    <option value="registration">Registration Issue</option>
+                    <option value="registration">Registration</option>
+                    <option value="payment">Payment Issue</option>
+                    <option value="event">Event Information</option>
                     <option value="sponsorship">Sponsorship Inquiry</option>
-                    <option value="volunteer">Volunteer Sign-up</option>
+                    <option value="volunteer">Volunteer</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
@@ -59,9 +59,9 @@ export default async function ContactPage() {
                   <textarea className="form-textarea" placeholder="How can we help you?" required></textarea>
                 </div>
                 <button type="submit" className="btn btn-primary" style={{ marginTop: '8px' }}>Send Message</button>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
+                {/* <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
                   {form.disclaimer || ""}
-                </p>
+                </p> */}
               </form>
             </div>
 
@@ -69,49 +69,52 @@ export default async function ContactPage() {
               <h2 className="section-title" style={{ fontSize: '2rem', marginBottom: '32px' }}>{info.title || "Contact Information"}</h2>
               
               <div className="contact-info-list" style={{ marginBottom: '40px' }}>
-                {/* <div className="contact-info-item">
-                  <div className="contact-info-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  </div>
-                  <div>
-                    <div className="contact-info-label">Address</div>
-                    <div className="contact-info-value">{address}</div>
-                  </div>
-                </div> */}
                 <div className="contact-info-item">
                   <div className="contact-info-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                   </div>
                   <div>
-                    <div className="contact-info-label">Email</div>
-                    <div className="contact-info-value"><a href={`mailto:${email}`}>{email}</a></div>
+                    <div className="contact-info-label">Event Email</div>
+                    <div className="contact-info-value"><a href="mailto:kota@runnerx.in" className="hover:text-[var(--primary)] transition font-bold">kota@runnerx.in</a></div>
                   </div>
                 </div>
+
                 <div className="contact-info-item">
                   <div className="contact-info-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                   </div>
                   <div>
-                    <div className="contact-info-label">Phone</div>
-                    <div className="contact-info-value"><a href={`tel:${phone}`}>{phone}</a></div>
+                    <div className="contact-info-label">Event Helpline</div>
+                    <div className="contact-info-value">
+                      <a href="tel:+917073574001" className="hover:text-[var(--primary)] transition font-bold">+91 70735 74001</a>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px' }}>(Monday to Saturday, 10 AM to 7 PM)</div>
+                    </div>
                   </div>
                 </div>
+
                 <div className="contact-info-item">
                   <div className="contact-info-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                   </div>
                   <div>
-                    <div className="contact-info-label">Contact Hours</div>
+                    <div className="contact-info-label">WhatsApp</div>
                     <div className="contact-info-value">
-                      Monday – Saturday: 10:00 AM – 6:00 PM<br />
-                      Sunday: Closed
+                      <a href="https://wa.me/917073574001" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--primary)] transition font-bold">+91 70735 74001</a>
                     </div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '32px', padding: '24px', background: 'var(--bg-alt)', borderRadius: '12px', borderLeft: '4px solid var(--primary)' }}>
+                  <div className="contact-info-label" style={{ color: 'var(--primary)', marginBottom: '8px' }}>For Brand Sponsorship & Partnerships</div>
+                  <div className="contact-info-value">
+                    <div style={{ fontSize: '0.9rem', marginBottom: '4px' }}>Email: <a href="mailto:partnership@runnerx.in" className="font-bold hover:text-[var(--primary)] transition">partnership@runnerx.in</a></div>
+                    
                   </div>
                 </div>
               </div>
 
               {/* Social */}
-              <div style={{ marginTop: '32px' }}>
+              {/* <div style={{ marginTop: '32px' }}>
                 <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', fontWeight: 700, color: '#000', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Follow Us
                 </h3>
@@ -126,7 +129,7 @@ export default async function ContactPage() {
                     <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                   </a>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, signToken } from "@/lib/auth";
 import { registerSchema } from "@/lib/validations";
+import { sendVerificationEmail } from "@/lib/mail";
+import crypto from "crypto";
 
 export async function POST(request: Request) {
   try {
@@ -35,6 +37,8 @@ export async function POST(request: Request) {
     // Hash the password securely
     const hashedPassword = await hashPassword(password);
 
+    const verifyToken = crypto.randomBytes(32).toString("hex");
+
     // Create the global user
     const user = await prisma.user.create({
       data: {
@@ -42,22 +46,22 @@ export async function POST(request: Request) {
         name,
         password: hashedPassword,
         role: "USER", // Default scope is Runner/User
+        verifyToken,
       },
     });
 
-    // Generate token for frontend user session handling
-    const token = signToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    });
+    // Send welcome/verification email
+    try {
+      await sendVerificationEmail(user.email, user.name, verifyToken);
+    } catch (mailError) {
+      console.error("Failed to send welcome email:", mailError);
+    }
 
-    // Return the token to the frontend so it can store it in its own user cookie
+    // Return success without token to enforce email verification before login
     return NextResponse.json(
       {
         success: true,
-        message: "Registration successful",
-        token,
+        message: "Registration successful. Please check your email to verify your account.",
         user: {
           id: user.id,
           name: user.name,

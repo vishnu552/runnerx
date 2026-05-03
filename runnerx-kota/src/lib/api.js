@@ -50,7 +50,9 @@ export async function getPageContent(page, siteFor = 'KTA') {
       }
       
       let parsedValue = item.value;
-      if (item.type === 'JSON') {
+      if (item.type === 'IMAGE' && typeof parsedValue === 'string' && parsedValue.startsWith('/uploads/')) {
+        parsedValue = `${API_URL}${parsedValue}`;
+      } else if (item.type === 'JSON') {
         try {
           parsedValue = JSON.parse(item.value);
         } catch (e) {
@@ -70,6 +72,33 @@ export async function getPageContent(page, siteFor = 'KTA') {
 
 export async function getGlobalContent(siteFor = 'KTA') {
   return getPageContent('global', siteFor);
+}
+
+export async function getGalleryImages(siteFor = 'KTA', year = null) {
+  try {
+    const params = new URLSearchParams({ siteFor });
+    if (year) params.append('year', year);
+    
+    const res = await fetch(`${API_URL}/api/gallery-images?${params.toString()}`, {
+      next: { revalidate: 60 }
+    });
+
+    if (!res.ok) {
+      console.error('Failed to fetch gallery images');
+      return [];
+    }
+
+    const data = await res.json();
+    if (!data.success) return [];
+
+    return data.images.map(img => ({
+      ...img,
+      imagePath: img.imagePath.startsWith('/uploads/') ? `${API_URL}${img.imagePath}` : img.imagePath
+    }));
+  } catch (error) {
+    console.error('Error fetching gallery images:', error);
+    return [];
+  }
 }
 
 export async function getCategories(siteFor = 'KTA') {
@@ -96,7 +125,7 @@ export async function getCategories(siteFor = 'KTA') {
       price: cat.price || 0,
       discountPrice: cat.discountPrice || null,
       raceDate: cat.raceDate || null,
-      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/') ? `${API_URL}${cat.heroImage}` : cat.heroImage) : null,
+      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/uploads/') ? `${API_URL}${cat.heroImage}` : cat.heroImage) : null,
       tagline: cat.tagline || '',
       icon: cat.icon || '',
       order: cat.order || 0,
@@ -140,7 +169,7 @@ export async function getCategoryBySlug(slug, siteFor = 'KTA') {
       price: cat.price || 0,
       discountPrice: cat.discountPrice || null,
       raceDate: cat.raceDate || null,
-      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/') ? `${API_URL}${cat.heroImage}` : cat.heroImage) : null,
+      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/uploads/') ? `${API_URL}${cat.heroImage}` : cat.heroImage) : null,
       tagline: cat.tagline || '',
       icon: cat.icon || '',
       order: cat.order || 0,
@@ -247,7 +276,7 @@ export async function validateCoupon(code, siteFor, amount) {
 export async function getSponsors(siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/sponsors?siteFor=${siteFor}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -263,6 +292,30 @@ export async function getSponsors(siteFor = 'KTA') {
     return data.sponsors;
   } catch (error) {
     console.error(`Error fetching sponsors:`, error);
+    return [];
+  }
+}
+
+export async function getRunnersInfo(siteFor = 'KTA') {
+  try {
+    const res = await fetch(`${API_URL}/api/runners-info?siteFor=${siteFor}`, {
+      next: { revalidate: 60 }
+    });
+
+    if (!res.ok) {
+      console.error(`Failed to fetch runners info for ${siteFor}`);
+      return [];
+    }
+
+    const data = await res.json();
+    if (!data.success) return [];
+
+    return data.items.map(item => ({
+      ...item,
+      image: item.image.startsWith('/uploads/') ? `${API_URL}${item.image}` : item.image
+    }));
+  } catch (error) {
+    console.error(`Error fetching runners info:`, error);
     return [];
   }
 }

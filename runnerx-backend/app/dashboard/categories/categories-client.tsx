@@ -54,7 +54,16 @@ export default function CategoriesClient() {
   const [showNewTab, setShowNewTab] = useState(false);
   const [tabBody, setTabBody] = useState("");
   const editorRef = useRef(null);
-  const joditConfig = useMemo(() => ({ readonly: false, height: 400 }), []);
+
+  const joditConfig = useMemo(() => ({ 
+    readonly: false, 
+    height: 400,
+    theme: "dark",
+    style: {
+      background: "#1a1a1a",
+      color: "#ffffff",
+    }
+  }), []);
 
   useEffect(() => {
     fetchCategories();
@@ -90,9 +99,7 @@ export default function CategoriesClient() {
       name: fd.get("name") as string,
       distanceLabel: fd.get("distanceLabel") as string,
       heroImage: (fd.get("heroImage") as string) || null,
-      tagline: (fd.get("tagline") as string) || null,
       order: parseInt(fd.get("order") as string) || 0,
-      icon: (fd.get("icon") as string) || null,
     };
 
     setSaving(true);
@@ -128,9 +135,7 @@ export default function CategoriesClient() {
     const data: Record<string, unknown> = {
       name: fd.get("name") as string,
       distanceLabel: fd.get("distanceLabel") as string,
-      icon: (fd.get("icon") as string) || null,
       heroImage: (fd.get("heroImage") as string) || null,
-      tagline: (fd.get("tagline") as string) || null,
       order: parseInt(fd.get("order") as string) || 0,
       isActive: fd.get("isActive") === "on",
     };
@@ -189,7 +194,6 @@ export default function CategoriesClient() {
     const data = {
       title: fd.get("title") as string,
       body: tabBody,
-      icon: (fd.get("icon") as string) || null,
       sortOrder: parseInt(fd.get("sortOrder") as string) || 0,
     };
 
@@ -225,7 +229,6 @@ export default function CategoriesClient() {
     const data = {
       title: fd.get("title") as string,
       body: tabBody,
-      icon: (fd.get("icon") as string) || null,
       sortOrder: parseInt(fd.get("sortOrder") as string) || 0,
       isActive: fd.get("isActive") === "on",
     };
@@ -297,16 +300,8 @@ export default function CategoriesClient() {
             <input name="distanceLabel" className="input" placeholder="e.g. 3K" defaultValue={cat?.distanceLabel || ""} required />
           </div>
           <div className="form-group">
-            <label className="form-label">Icon (emoji)</label>
-            <input name="icon" className="input" placeholder="🎉" defaultValue={cat?.icon || ""} />
-          </div>
-          <div className="form-group">
             <label className="form-label">Order</label>
             <input name="order" type="number" className="input" placeholder="1" defaultValue={cat?.order ?? 0} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Tagline</label>
-            <input name="tagline" className="input" placeholder="Run for Joy!" defaultValue={cat?.tagline || ""} />
           </div>
           <div className="form-group">
             <label className="form-label">Hero Image URL</label>
@@ -365,14 +360,10 @@ export default function CategoriesClient() {
           </button>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 80px", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 100px", gap: 12 }}>
           <div className="form-group">
             <label className="form-label">Title *</label>
             <input name="title" className="input" placeholder="e.g. About This Race" defaultValue={tab?.title || ""} required />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Icon</label>
-            <input name="icon" className="input" placeholder="📋" defaultValue={tab?.icon || ""} />
           </div>
           <div className="form-group">
             <label className="form-label">Order</label>
@@ -467,7 +458,6 @@ export default function CategoriesClient() {
                     opacity: cat.isActive ? 1 : 0.5,
                   }}
                 >
-                    <span style={{ fontSize: "1.2rem" }}>{cat.icon || "🏃"}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{cat.name}</div>
                     <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
@@ -494,12 +484,10 @@ export default function CategoriesClient() {
               {/* Category Header */}
               <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", marginBottom: 24 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span style={{ fontSize: "1.5rem" }}>{selectedCategory.icon || "🏃"}</span>
                   <div>
                     <h3 style={{ margin: 0 }}>{selectedCategory.name}</h3>
                     <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
                       {selectedCategory.slug} · {selectedCategory.distanceLabel}
-                      {selectedCategory.tagline && ` · "${selectedCategory.tagline}"`}
                     </span>
                   </div>
                 </div>
@@ -581,7 +569,6 @@ export default function CategoriesClient() {
                               opacity: tab.isActive ? 1 : 0.5,
                             }}
                           >
-                            <span style={{ fontSize: "1.2rem", flexShrink: 0 }}>{tab.icon || "📄"}</span>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{tab.title}</div>
                               <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>

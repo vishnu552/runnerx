@@ -1,5 +1,5 @@
-import { eventInfo as fallbackEventInfo } from '@/data/categories';
 import { getPageContent, getGlobalContent, getInfoSections } from '@/lib/api';
+import PageHero from '@/components/PageHero';
 
 export const metadata = {
   title: 'Privacy Policy',
@@ -68,7 +68,7 @@ We do not sell your personal information to any third party for commercial purpo
 export default async function PrivacyPolicyPage() {
   const content = await getPageContent('privacy');
   const globalContent = await getGlobalContent();
-  const sections = await getInfoSections('PRIVACY');
+  const sections = await getInfoSections('PRIVACY', 'GLOBAL');
 
   const hero = content?.hero || {};
   const legal = content?.legal || {};
@@ -82,14 +82,10 @@ export default async function PrivacyPolicyPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <h1 className="page-hero-title">{hero.title || "Privacy Policy"}</h1>
-          <p className="page-hero-subtitle">
-            {hero.subtitle || "Your privacy matters to us. Here's how we handle your information."}
-          </p>
-        </div>
-      </section>
+      <PageHero 
+        title={hero.title || "Privacy Policy"}
+        bgImage={hero.bg_image}
+      />
 
       <div className="legal-content">
         <p className="last-updated">{legal.last_updated || "Last updated: March 26, 2026"}</p>
@@ -97,9 +93,10 @@ export default async function PrivacyPolicyPage() {
         {privacySections.map((section, index) => (
           <div key={section.id || index} style={{ marginBottom: '32px' }}>
             <h2>{section.heading}</h2>
-            <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
-              {section.content}
-            </div>
+            <div
+              style={{ lineHeight: 1.8 }}
+              dangerouslySetInnerHTML={{ __html: section.content }}
+            />
           </div>
         ))}
 

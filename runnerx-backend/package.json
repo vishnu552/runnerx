@@ -15,7 +15,9 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
+    "@types/busboy": "^1.5.4",
     "bcrypt": "^6.0.0",
+    "busboy": "^1.6.0",
     "dotenv": "^17.3.1",
     "jodit": "^4.12.2",
     "jodit-react": "^5.3.21",

@@ -1,60 +1,55 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { resetPasswordUser } from '@/lib/actions';
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button 
+      type="submit" 
+      className="w-full bg-[#00a0ff] hover:bg-[#136a8a] text-white font-bold py-4 rounded-lg shadow-lg shadow-blue-100 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wider italic flex items-center justify-center gap-2"
+      disabled={pending}
+    >
+      {pending ? (
+        <>
+          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          Updating...
+        </>
+      ) : 'Reset Password →'}
+    </button>
+  );
+}
+
+const initialState = {
+  error: null,
+  success: false,
+  message: null,
+  redirect: null,
+  fieldErrors: null,
+};
 
 function ResetPasswordForm() {
+  const [state, formAction] = useActionState(resetPasswordUser, initialState);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
-  const [error, setError] = useState(null);
+  
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
   useEffect(() => {
-    if (!token) {
-      setError('Invalid or missing reset token.');
+    if (state?.success && state?.redirect) {
+      setTimeout(() => {
+        router.push(state.redirect);
+      }, 3000);
     }
-  }, [token]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setMessage(null);
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password }),
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        setMessage(data.message);
-        setTimeout(() => {
-          router.push('/auth');
-        }, 3000);
-      } else {
-        setError(data.message || 'Something went wrong');
-      }
-    } catch (err) {
-      setError('Failed to connect to server');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [state, router]);
 
   return (
     <div className="bg-white rounded-xl shadow-2xl border border-slate-200 p-8 md:p-10 w-full relative overflow-hidden">
@@ -65,20 +60,28 @@ function ResetPasswordForm() {
         Set New Password
       </h2>
 
-      {message && (
+      {state?.success && state?.message && (
         <div className="p-4 bg-green-50 text-green-700 border border-green-200 rounded-lg mb-6 text-sm font-medium">
-          {message} Redirecting to login...
+          {state.message} Redirecting to login...
         </div>
       )}
 
-      {error && (
+      {state?.error && !state?.fieldErrors && (
         <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg mb-6 text-sm font-medium">
-          {error}
+          {state.error}
         </div>
       )}
 
-      {!message && token && (
-        <form className="space-y-6" onSubmit={handleSubmit}>
+      {!token && !state?.error && (
+        <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg mb-6 text-sm font-medium">
+          Invalid or missing reset token.
+        </div>
+      )}
+
+      {!state?.success && token && (
+        <form className="space-y-6" action={formAction}>
+          <input type="hidden" name="token" value={token} />
+          
           <div>
             <label className="block text-sm font-bold text-slate-700 uppercase tracking-wide mb-2 italic" htmlFor="new-password">
               New Password
@@ -90,8 +93,8 @@ function ResetPasswordForm() {
                 id="new-password"
                 name="password"
                 placeholder="Minimum 6 characters"
-                required
-                minLength={6}
+                // required
+                // minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -103,6 +106,11 @@ function ResetPasswordForm() {
                 {showPass ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
+            {state?.fieldErrors?.password && (
+              <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>
+                {state.fieldErrors.password[0]}
+              </div>
+            )}
           </div>
 
           <div>
@@ -114,8 +122,9 @@ function ResetPasswordForm() {
                 className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#00a0ff] focus:border-[#00a0ff] transition-all bg-slate-50 text-slate-900 pr-12"
                 type={showConfirm ? 'text' : 'password'}
                 id="confirm-password"
+                name="confirmPassword"
                 placeholder="Repeat your password"
-                required
+                // required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -127,24 +136,18 @@ function ResetPasswordForm() {
                 {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
               </button>
             </div>
+            {state?.fieldErrors?.confirmPassword && (
+              <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>
+                {state.fieldErrors.confirmPassword[0]}
+              </div>
+            )}
           </div>
 
-          <button 
-            type="submit" 
-            className="w-full bg-[#00a0ff] hover:bg-[#136a8a] text-white font-bold py-4 rounded-lg shadow-lg shadow-blue-100 transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-wider italic flex items-center justify-center gap-2"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                Updating...
-              </>
-            ) : 'Reset Password →'}
-          </button>
+          <SubmitButton />
         </form>
       )}
 
-      {!token && !error && (
+      {!token && (
         <div className="text-center py-6">
           <p className="text-slate-600 mb-6 font-medium italic">
             No valid reset token found. Please request a new link.
@@ -156,7 +159,7 @@ function ResetPasswordForm() {
       )}
 
       <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-        <Link href="/auth" className="text-sm font-medium text-slate-500 hover:text-[#1a8ab4] transition-colors">
+        <Link href="/login" className="text-sm font-medium text-slate-500 hover:text-[#1a8ab4] transition-colors">
           Change your mind? <span className="text-[#1a8ab4] font-bold underline">Back to Login</span>
         </Link>
       </div>

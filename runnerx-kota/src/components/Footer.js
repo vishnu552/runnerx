@@ -4,19 +4,16 @@ export default function Footer({ eventInfo }) {
   return (
     <footer className="bg-black text-white">
       <div className="mx-auto max-w-[1280px] px-4 pb-8 pt-14 sm:px-6 lg:px-8">
-        <div className="grid gap-10 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 xl:grid-cols-3">
           <div>
             <div className="mb-4 flex items-center">
               <img
-                src="/images/logo.png"
+                src="/images/logo-footer.png"
                 alt="Kota"
-                className="h-20 w-auto rounded sm:h-24"
+                className="h-28 w-auto sm:h-36"
+                style={{ mixBlendMode: 'screen' }}
               />
             </div>
-            <p className="max-w-sm text-sm leading-7 text-slate-300">
-              {eventInfo.tagline}. Join {eventInfo.expectedParticipants} runners
-              in the {eventInfo.edition} of Kota&apos;s biggest marathon event.
-            </p>
             <div className="mt-5 flex items-center gap-3">
               <a
                 href={eventInfo.social.instagram}
@@ -55,10 +52,7 @@ export default function Footer({ eventInfo }) {
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-bold uppercase tracking-[0.12em] text-[#1a8ab4]">
-              About
-            </h4>
-            <div className="flex flex-col gap-3 text-sm text-slate-300">
+            <div className="flex flex-col gap-3 text-sm font-bold uppercase text-white">
               <Link href="/about" className="transition hover:text-[#1a8ab4]">
                 About the Event
               </Link>
@@ -74,28 +68,25 @@ export default function Footer({ eventInfo }) {
               <Link href="/gallery" className="transition hover:text-[#1a8ab4]">
                 Gallery
               </Link>
+              <Link href="/event-rules" className="transition hover:text-[#1a8ab4]">
+                Event Rules
+              </Link>
+              <Link href="/philanthropy" className="transition hover:text-[#1a8ab4]">
+                Philanthropy
+              </Link>
             </div>
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-bold uppercase tracking-[0.12em] text-[#1a8ab4]">
-              Resources
-            </h4>
-            <div className="flex flex-col gap-3 text-sm text-slate-300">
-              <Link href="/faq" className="transition hover:text-[#1a8ab4]">
-                FAQ
-              </Link>
+            <div className="flex flex-col gap-3 text-sm font-bold uppercase text-white">
               <Link href="/contact" className="transition hover:text-[#1a8ab4]">
                 Contact Us
               </Link>
-              <Link
-                href="/privacy-policy"
-                className="transition hover:text-[#1a8ab4]"
-              >
-                Privacy Policy
+              <Link href="/refund" className="transition hover:text-[#1a8ab4]">
+                Refund Policy
               </Link>
-              <Link href="/terms" className="transition hover:text-[#1a8ab4]">
-                Terms & Conditions
+              <Link href="/waiver" className="transition hover:text-[#1a8ab4]">
+                Liability Waiver
               </Link>
               <Link
                 href="/medical-advisory"
@@ -106,67 +97,10 @@ export default function Footer({ eventInfo }) {
             </div>
           </div>
 
-          <div>
-            <h4 className="mb-4 text-sm font-bold uppercase tracking-[0.12em] text-[#1a8ab4]">
-              Contact
-            </h4>
-            <div className="flex flex-col gap-4 text-sm text-slate-300">
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-slate-800 text-sky-400">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                </span>
-                <span>{eventInfo.email}</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-slate-800 text-sky-400">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                </span>
-                <span>{eventInfo.phone}</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-slate-800 text-sky-400">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                </span>
-                <span>{eventInfo.location}</span>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-4 border-t border-slate-800 pt-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 {eventInfo.name}. All rights reserved.</p>
+        <div className="uppercase mt-10 flex flex-col gap-4 border-t border-slate-800 pt-6 text-sm font-bold text-white sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} Kota Half Marathon. All Rights Reserved.</p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
               href="/privacy-policy"
@@ -174,14 +108,9 @@ export default function Footer({ eventInfo }) {
             >
               Privacy Policy
             </Link>
+            <span className="text-slate-700">|</span>
             <Link href="/terms" className="transition hover:text-[#00a0ff]">
               Terms & Conditions
-            </Link>
-            <Link
-              href="/medical-advisory"
-              className="transition hover:text-[#00a0ff]"
-            >
-              Medical Advisory
             </Link>
           </div>
         </div>

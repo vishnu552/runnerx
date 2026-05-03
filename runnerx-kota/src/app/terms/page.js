@@ -1,5 +1,6 @@
 import { eventInfo as fallbackEventInfo } from '@/data/categories';
 import { getPageContent, getGlobalContent, getInfoSections } from '@/lib/api';
+import PageHero from '@/components/PageHero';
 
 export const metadata = {
   title: 'Terms & Conditions',
@@ -64,7 +65,7 @@ const fallbackTermsSections = [
 export default async function TermsPage() {
   const content = await getPageContent('terms');
   const globalContent = await getGlobalContent();
-  const sections = await getInfoSections('TERMS');
+  const sections = await getInfoSections('TERMS', 'GLOBAL');
 
   const hero = content?.hero || {};
   const legal = content?.legal || {};
@@ -79,14 +80,10 @@ export default async function TermsPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <h1 className="page-hero-title">{hero.title || "Terms & Conditions"}</h1>
-          <p className="page-hero-subtitle">
-            {hero.subtitle || "Please read these terms carefully before registering for the event."}
-          </p>
-        </div>
-      </section>
+      <PageHero 
+        title={hero.title || "Terms & Conditions"}
+        bgImage={hero.bg_image}
+      />
 
       <div className="legal-content">
         <p className="last-updated">{legal.last_updated || "Last updated: March 26, 2026"}</p>
@@ -94,9 +91,10 @@ export default async function TermsPage() {
         {termsSections.map((section, index) => (
           <div key={section.id || index} style={{ marginBottom: '32px' }}>
             <h2>{section.heading}</h2>
-            <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
-              {section.content}
-            </div>
+            <div
+              style={{ lineHeight: 1.8 }}
+              dangerouslySetInnerHTML={{ __html: section.content }}
+            />
           </div>
         ))}
 

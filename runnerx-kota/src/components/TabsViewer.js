@@ -25,7 +25,6 @@ export default function TabsViewer({ tabs }) {
             onClick={() => setActiveTabId(tab.id || idx)}
             className={`tab-btn ${activeTabId === (tab.id || idx) ? 'active' : ''}`}
           >
-            {tab.icon && <span className="tab-icon">{tab.icon}</span>}
             <span className="tab-title">{tab.title}</span>
           </button>
         ))}
@@ -83,15 +82,6 @@ export default function TabsViewer({ tabs }) {
           color: #fff;
           font-weight: 600;
           box-shadow: 0 4px 15px rgba(229, 57, 53, 0.3);
-        }
-
-        .tab-icon {
-          font-size: 1.2rem;
-          opacity: 0.8;
-        }
-
-        .tab-btn.active .tab-icon {
-          opacity: 1;
         }
 
         .tab-title {

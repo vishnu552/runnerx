@@ -37,23 +37,43 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Create donation record now that payment is verified
-    const donation = await prisma.donation.create({
-      data: {
-        userId: Number(session.userId),
-        causeName: donationData.causeName,
-        ngoName: donationData.ngoName || "RunnerX General Fund",
-        amount: Number(donationData.amount),
-        donorName: donationData.donorName,
-        donorEmail: donationData.donorEmail,
-        donorPhone: donationData.donorPhone || null,
-        panCardName: donationData.panCardName || null,
-        panCardNumber: donationData.panCardNumber || null,
-        wantsTaxExemption: donationData.wantsTaxExemption || false,
-        paymentStatus: "PAID",
-        paymentId: razorpay_payment_id,
-        razorpayOrderId: razorpay_order_id,
-      },
+    // 2. Create donation record and master Order record now that payment is verified
+    const donation = await prisma.$transaction(async (tx) => {
+      const d = await tx.donation.create({
+        data: {
+          userId: Number(session.userId),
+          causeName: donationData.causeName,
+          ngoName: donationData.ngoName || "RunnerX General Fund",
+          amount: Number(donationData.amount),
+          donorName: donationData.donorName,
+          donorEmail: donationData.donorEmail,
+          donorPhone: donationData.donorPhone || null,
+          panCardName: donationData.panCardName || null,
+          panCardNumber: donationData.panCardNumber || null,
+          wantsTaxExemption: donationData.wantsTaxExemption || false,
+          paymentStatus: "PAID",
+          paymentId: razorpay_payment_id,
+          razorpayOrderId: razorpay_order_id,
+        },
+      });
+
+      // Create unified Order record for dashboard history
+      await tx.order.create({
+        data: {
+          userId: Number(session.userId),
+          orderType: "DONATION",
+          reason: `Donation for ${donationData.causeName}`,
+          amount: Number(donationData.amount),
+          finalAmount: Number(donationData.amount),
+          paymentStatus: "PAID",
+          paymentId: razorpay_payment_id,
+          paymentMode: "ONLINE",
+          contactEmail: donationData.donorEmail,
+          contactPhone: donationData.donorPhone || "",
+        }
+      });
+
+      return d;
     });
 
     return NextResponse.json({ success: true, message: "Donation verified and processed successfully" });

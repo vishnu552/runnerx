@@ -1,3 +1,5 @@
+'use server';
+
 import { cookies } from 'next/headers';
 import { COOKIE_NAME } from './constants';
 import { API_URL } from './api';

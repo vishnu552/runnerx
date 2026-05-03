@@ -1,0 +1,98 @@
+import { cookies } from 'next/headers';
+import { COOKIE_NAME, ORIGIN_COOKIE_NAME } from './constants';
+import { API_URL } from './api';
+
+/**
+ * Stores the authentication token securely in the frontend.
+ */
+export async function setSessionToken(token) {
+  const cookieStore = await cookies();
+  cookieStore.set(COOKIE_NAME, token, {
+    httpOnly: false, // Set to false so client-side can read it for direct API calls
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: '/',
+  });
+}
+
+/**
+ * Stores the origin site code (KTA, JDH, UDP) in a cookie.
+ */
+export async function setOriginCookie(origin) {
+  const cookieStore = await cookies();
+  cookieStore.set(ORIGIN_COOKIE_NAME, origin, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: '/',
+  });
+}
+
+/**
+ * Removes all authentication and origin cookies.
+ */
+export async function destroySession() {
+  const cookieStore = await cookies();
+  cookieStore.set(COOKIE_NAME, '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 0,
+    path: '/',
+  });
+  cookieStore.set(ORIGIN_COOKIE_NAME, '', {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 0,
+    path: '/',
+  });
+}
+
+/**
+ * Fetches the currently authenticated user from the backend.
+ * @returns {Promise<Object|null>} The user object or null if not authenticated
+ */
+export async function getCurrentUser() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(COOKIE_NAME)?.value;
+
+    if (!token) {
+      return null;
+    }
+
+    const res = await fetch(`${API_URL}/api/auth/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      cache: 'no-store' // Always fetch fresh user data
+    });
+
+    if (!res.ok) {
+      // If unauthorized, token is likely invalid or expired
+      if (res.status === 401) {
+        await destroySession();
+      }
+      return null;
+    }
+
+    const data = await res.json();
+    if (!data.success || !data.user) {
+      return null;
+    }
+
+    // Frontend must stay user-only; admin tokens are not kept in this app.
+    if (data.user.role !== 'USER') {
+      await destroySession();
+      return null;
+    }
+
+    return data.user;
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    return null;
+  }
+}

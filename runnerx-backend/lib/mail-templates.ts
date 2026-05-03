@@ -77,8 +77,6 @@ export const verificationTemplate = (userName: string, verificationUrl: string) 
         <div style="text-align: center;">
           <a href="${verificationUrl}" style="${buttonStyle}">Verify Email Address</a>
         </div>
-        <p style="margin-top: 32px; font-size: 14px; color: #666;">If the button doesn't work, you can also copy and paste this link into your browser:</p>
-        <p style="font-size: 12px; color: #00a0ff; word-break: break-all;">${verificationUrl}</p>
         <p style="margin-top: 40px; border-top: 1px solid #eee; pt: 20px;">Stay active,<br><strong>Team RunnerX</strong></p>
       </div>
       <div style="${footerStyle}">
@@ -129,8 +127,14 @@ export const forgotPasswordTemplate = (userName: string, resetUrl: string) => `
 
 /**
  * Event Registration Success Template
+ * Sent to the primary registrant after payment.
  */
-export const eventRegistrationTemplate = (userName: string, eventName: string, registrationId: string, eventDate: string) => `
+export const eventRegistrationTemplate = (
+  userName: string,
+  eventName: string,
+  registrationId: string,
+  eventDate: string
+) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -144,18 +148,15 @@ export const eventRegistrationTemplate = (userName: string, eventName: string, r
         ${brandText}
       </div>
       <div style="${bodyStyle}">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <span style="font-size: 50px;">🏁</span>
-        </div>
-        <h2 style="margin-top: 0; color: #1a1a1a; font-size: 24px; text-align: center;">You're Registered!</h2>
+        <h2 style="margin-top: 0; color: #1a1a1a; font-size: 24px; text-align: center;">Registration Confirmed</h2>
         <p>Hi ${userName},</p>
         <p>Congratulations! You have successfully registered for <strong>${eventName}</strong>. We can't wait to see you at the starting line.</p>
         
         <div style="background-color: #f8faff; border-radius: 12px; padding: 24px; margin: 30px 0; border: 1px dashed #00a0ff;">
-          <h3 style="margin-top: 0; color: #00a0ff; font-size: 18px;">Event Details</h3>
+          <h3 style="margin-top: 0; color: #00a0ff; font-size: 18px;">Order Summary</h3>
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
-              <td style="padding: 8px 0; color: #666; width: 120px;">Registration ID:</td>
+              <td style="padding: 8px 0; color: #666; width: 140px;">Order ID:</td>
               <td style="padding: 8px 0; font-weight: 600;">#${registrationId}</td>
             </tr>
             <tr>
@@ -169,10 +170,173 @@ export const eventRegistrationTemplate = (userName: string, eventName: string, r
           </table>
         </div>
 
-        <p>What's next? Start training, stay hydrated, and keep an eye on your inbox for more details as race day approaches.</p>
-        
+        <p>Check your email for individual registration IDs for each participant. Start training, stay hydrated, and keep an eye on your inbox for more details as race day approaches.</p>
+        <p style="margin-top: 40px; border-top: 1px solid #eee; pt: 20px;">See you at the race,<br><strong>Team RunnerX</strong></p>
+      </div>
+      <div style="${footerStyle}">
+        <p>&copy; ${new Date().getFullYear()} RunnerX. All rights reserved.</p>
+        <p>Get Ready. Get Set. RunnerX.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+/**
+ * Participant Confirmation Template
+ * Sent to each participant who already has a RunnerX account.
+ */
+export const participantConfirmationTemplate = (
+  participantName: string,
+  eventName: string,
+  uniqueRegId: string,
+  eventDate: string,
+  categoryName: string,
+  amount: string | number
+) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>You're Registered - ${eventName}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8faff;">
+  <div style="${baseStyle}">
+    <div style="${containerStyle}">
+      <div style="${headerStyle}">
+        ${brandText}
+      </div>
+      <div style="${bodyStyle}">
+        <h2 style="margin-top: 0; color: #1a1a1a; font-size: 24px; text-align: center;">Registration Confirmed</h2>
+        <p>Hi ${participantName},</p>
+        <p>Great news — you've been successfully registered for <strong>${eventName}</strong>! Your spot is confirmed.</p>
+        <p>This registration was completed as part of a group/multi-participant entry.</p>
+
+        <div style="background-color: #f8faff; border-radius: 12px; padding: 24px; margin: 30px 0; border: 2px solid #00a0ff;">
+          <h3 style="margin-top: 0; color: #00a0ff; font-size: 18px; text-align: center;">Your Registration Details</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 10px 0; color: #666; width: 160px;">Registration ID:</td>
+              <td style="padding: 10px 0; font-weight: 800; font-size: 18px; color: #00a0ff; letter-spacing: 1px;">${uniqueRegId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;">Category:</td>
+              <td style="padding: 10px 0; font-weight: 600;">${categoryName || 'N/A'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;">Amount Paid:</td>
+              <td style="padding: 10px 0; font-weight: 600;">₹${amount || '0'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;">Event:</td>
+              <td style="padding: 10px 0; font-weight: 600;">${eventName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;">Date:</td>
+              <td style="padding: 10px 0; font-weight: 600;">${eventDate}</td>
+            </tr>
+          </table>
+        </div>
+
+        <p>Keep this email safe — your Registration ID <strong>${uniqueRegId}</strong> is your entry pass for race day.</p>
         <div style="text-align: center;">
-          <a href="#" style="${buttonStyle}">View Dashboard</a>
+          <a href="${process.env.FRONTEND_URL || '#'}/dashboard/registrations" style="${buttonStyle}">View My Registration</a>
+        </div>
+        <p style="margin-top: 40px; border-top: 1px solid #eee; pt: 20px;">See you at the finish line,<br><strong>Team RunnerX</strong></p>
+      </div>
+      <div style="${footerStyle}">
+        <p>&copy; ${new Date().getFullYear()} RunnerX. All rights reserved.</p>
+        <p>Get Ready. Get Set. RunnerX.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+/**
+ * New Participant Welcome + Credentials Template
+ * Sent to participants who did NOT have a RunnerX account.
+ * Includes their auto-created credentials (DOB as password).
+ */
+export const newParticipantWelcomeTemplate = (
+  participantName: string,
+  eventName: string,
+  uniqueRegId: string,
+  eventDate: string,
+  email: string,
+  password: string,
+  categoryName: string,
+  amount: string | number
+) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Welcome to RunnerX - You're Registered for ${eventName}!</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8faff;">
+  <div style="${baseStyle}">
+    <div style="${containerStyle}">
+      <div style="${headerStyle}">
+        ${brandText}
+      </div>
+      <div style="${bodyStyle}">
+        <h2 style="margin-top: 0; color: #1a1a1a; font-size: 24px; text-align: center;">Welcome to RunnerX</h2>
+        <p>Hi ${participantName},</p>
+        <p>You've been registered for <strong>${eventName}</strong> by a fellow runner. We're excited to have you join us!</p>
+
+        <div style="background-color: #f8faff; border-radius: 12px; padding: 24px; margin: 30px 0; border: 2px solid #00a0ff;">
+          <h3 style="margin-top: 0; color: #00a0ff; font-size: 18px; text-align: center;">Your Registration Details</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 10px 0; color: #666; width: 160px;">Registration ID:</td>
+              <td style="padding: 10px 0; font-weight: 800; font-size: 18px; color: #00a0ff; letter-spacing: 1px;">${uniqueRegId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;">Category:</td>
+              <td style="padding: 10px 0; font-weight: 600;">${categoryName || 'N/A'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;">Amount Paid:</td>
+              <td style="padding: 10px 0; font-weight: 600;">₹${amount || '0'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;">Event:</td>
+              <td style="padding: 10px 0; font-weight: 600;">${eventName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 0; color: #666;">Date:</td>
+              <td style="padding: 10px 0; font-weight: 600;">${eventDate}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background-color: #fff8e6; border-radius: 12px; padding: 24px; margin: 24px 0; border: 1px solid #ffc83c;">
+          <h3 style="margin-top: 0; color: #b8860b; font-size: 16px;">🔑 Your New RunnerX Account</h3>
+          <p style="margin: 8px 0; color: #666;">We've created a RunnerX account for you so you can track your registration and manage your details.</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
+            <tr>
+              <td style="padding: 8px 0; color: #666; width: 100px; font-weight: 600;">Email:</td>
+              <td style="padding: 8px 0; font-family: monospace; font-size: 14px; background: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd;">${email}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0 0; color: #666; font-weight: 600; vertical-align: top; padding-top: 12px;">Password:</td>
+              <td style="padding-top: 12px;">
+                <span style="font-family: monospace; font-size: 16px; font-weight: 800; background: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd; letter-spacing: 2px;">${password}</span>
+                <p style="margin: 6px 0 0; font-size: 12px; color: #999;">(Your date of birth in YYYYMMDD format)</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background-color: #fff0f0; border-radius: 8px; padding: 16px; border-left: 4px solid #e74c3c; margin: 16px 0;">
+          <p style="margin: 0; color: #c0392b; font-weight: 600;">⚠️ Important: Please login and change your password immediately for security.</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="${process.env.FRONTEND_URL || '#'}/auth/login" style="${buttonStyle}">Login to RunnerX</a>
         </div>
         
         <p style="margin-top: 40px; border-top: 1px solid #eee; pt: 20px;">See you at the race,<br><strong>Team RunnerX</strong></p>
@@ -186,3 +350,4 @@ export const eventRegistrationTemplate = (userName: string, eventName: string, r
 </body>
 </html>
 `;
+

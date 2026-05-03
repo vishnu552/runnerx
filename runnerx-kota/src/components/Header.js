@@ -26,6 +26,20 @@ export default function Header({
   const [countdown, setCountdown] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [expandedNav, setExpandedNav] = useState(null);
+  const [clientUser, setClientUser] = useState(user);
+
+  useEffect(() => {
+    setClientUser(user);
+  }, [user]);
+
+  useEffect(() => {
+    if (clientUser) {
+      const hasCookie = document.cookie.includes('runnerx-user-token');
+      if (!hasCookie) {
+        setClientUser(null);
+      }
+    }
+  }, [pathname, clientUser]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,17 +76,19 @@ export default function Header({
       <div
         className={`fixed inset-x-0 top-0 z-[1001] bg-sky-500 text-white transition-transform duration-300 ${scrolled ? "-translate-y-full" : "translate-y-0"}`}
       >
-        <div className="mx-auto flex min-h-[var(--countdown-height)] max-w-[1280px] flex-wrap items-center justify-center gap-x-2 gap-y-1 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] sm:px-6 sm:text-xs">
+        <div className="mx-auto flex min-h-[var(--countdown-height)] max-w-[1280px] flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] sm:px-6">
           <div className="flex items-center gap-1 whitespace-nowrap">
             <span className="font-bold">
               {eventInfo?.name || "RunnerX Kota Marathon"}
             </span>
             <span className="opacity-60">|</span>
-            <span>{countdown}</span>
+            <span className="whitespace-nowrap">
+              {eventInfo?.date || "15th November 2026"}
+            </span>
           </div>
           <span className="hidden opacity-60 sm:inline">|</span>
-          <span className="whitespace-nowrap">
-            {eventInfo?.date || "15th November 2026"}
+          <span className="w-full text-center whitespace-nowrap sm:w-auto sm:text-left">
+            {countdown}
           </span>
         </div>
       </div>
@@ -90,7 +106,7 @@ export default function Header({
             <img
               src="/images/logo.png"
               alt="Kota"
-              className="h-14 w-auto rounded sm:h-16 md:h-20"
+              className="h-20 w-auto rounded sm:h-22 md:h-24"
             />
           </Link>
 
@@ -146,33 +162,33 @@ export default function Header({
                     : titleSponsor.image
                 }
                 alt={titleSponsor.title || "Sponsor"}
-                className="hidden h-8 w-auto rounded bg-white object-contain p-1 sm:block md:h-10"
+                className="hidden h-16 w-auto rounded bg-white object-contain p-1 sm:block md:h-20"
               />
             )}
 
-            {user ? (
+            {clientUser ? (
               <>
                 <Link
-                  href="/dashboard"
-                  className="hidden rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:bg-slate-200 sm:inline-flex"
+                  href={(process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3002') + "/dashboard"}
+                  className="hidden rounded-full bg-slate-100 px-5 py-2 text-sm font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:bg-slate-200 sm:inline-flex"
                 >
                   Hey,{" "}
                   <span className="ml-1 text-sky-600">
-                    {user.name.split(" ")[0]}
+                    {clientUser.name.split(" ")[0]}
                   </span>
                 </Link>
                 <Link
-                  href="/dashboard"
+                  href={(process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3002') + "/dashboard"}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#00a0ff] text-sm font-bold text-white shadow sm:hidden"
                   aria-label="Open dashboard"
                 >
-                  {user.name.charAt(0).toUpperCase()}
+                  {clientUser.name.charAt(0).toUpperCase()}
                 </Link>
               </>
             ) : (
               <Link
-                href="/auth"
-                className="hidden rounded-full btn-yellow px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition sm:inline-flex"
+                href="/login"
+                className="hidden rounded-full btn-yellow px-5 py-2 text-sm font-semibold uppercase tracking-[0.08em] transition sm:inline-flex"
               >
                 Sign In
               </Link>
@@ -210,7 +226,7 @@ export default function Header({
           <img
             src="/images/logo.png"
             alt="Kota"
-            className="h-12 w-auto rounded"
+            className="h-20 w-auto rounded"
           />
           <button
             type="button"
@@ -290,9 +306,9 @@ export default function Header({
         </nav>
 
         <div className="mt-6 border-t border-slate-200 pt-4">
-          {user ? (
+          {clientUser ? (
             <Link
-              href="/dashboard"
+              href={(process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3002') + "/dashboard"}
               className="inline-flex w-full items-center justify-center rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-800 transition hover:bg-slate-200"
               onClick={() => setMenuOpen(false)}
             >
@@ -300,7 +316,7 @@ export default function Header({
             </Link>
           ) : (
             <Link
-              href="/auth"
+              href="/login"
               className="inline-flex w-full items-center justify-center rounded-full btn-yellow px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition hover:bg-[#fff29b]"
               onClick={() => setMenuOpen(false)}
             >

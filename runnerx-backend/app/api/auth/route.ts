@@ -36,6 +36,13 @@ export async function POST(request: Request) {
         );
       }
 
+      if (!existingUser.emailVerified) {
+        return NextResponse.json(
+          { success: false, message: "Please verify your email before logging in." },
+          { status: 403 }
+        );
+      }
+
       if (existingUser.role !== "USER") {
         return NextResponse.json(
           {
@@ -66,34 +73,10 @@ export async function POST(request: Request) {
       });
     }
 
-    const hashedPassword = await hashPassword(password);
-    const user = await prisma.user.create({
-      data: {
-        email: lowerEmail,
-        name: email.split("@")[0],
-        password: hashedPassword,
-        role: "USER",
-      },
-    });
-
-    const token = signToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    });
-
-    return NextResponse.json({
-      success: true,
-      action: "register",
-      message: "Account created and logged in",
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    return NextResponse.json(
+      { success: false, message: "Account not found. Please register first." },
+      { status: 404 }
+    );
   } catch (error) {
     console.error("Auth error:", error);
     return NextResponse.json(

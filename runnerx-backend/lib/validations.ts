@@ -103,13 +103,25 @@ const participantSchema = z.object({
   isRegistrant: z.boolean().optional().default(false),
   virtualSubCategoryId: z.coerce.number().optional().nullable(),
   tshirtSize: z.string().optional().nullable(),
+  emergencyContactName: z.string().optional().nullable(),
+  emergencyContactPhone: z.string().optional().nullable(),
 });
 
 export const createRegistrationSchema = z.object({
   eventId: z.coerce.number().int().positive("Event is required"),
-  participants: z.array(participantSchema).min(1, "At least one participant is required"),
+  // Progressive mode: single participant at a time
+  participant: participantSchema.optional(),
+  // Legacy / batch mode: all participants at once
+  participants: z.array(participantSchema).optional(),
   couponCode: z.string().optional().nullable(),
+  registrationId: z.coerce.number().int().optional().nullable(),
+  generateOrder: z.boolean().optional().default(false),
+  // "progressive" = save one participant and return; "final" = legacy batch
+  saveMode: z.enum(["progressive", "final"]).optional().default("final"),
 });
+
+export type ParticipantInput = z.infer<typeof participantSchema>;
+export type CreateRegistrationInput = z.infer<typeof createRegistrationSchema>;
 
 export const validateCouponSchema = z.object({
   code: z.string().min(1, "Coupon code is required"),
@@ -117,8 +129,6 @@ export const validateCouponSchema = z.object({
   amount: z.number().min(0, "Amount must be non-negative"),
 });
 
-export type ParticipantInput = z.infer<typeof participantSchema>;
-export type CreateRegistrationInput = z.infer<typeof createRegistrationSchema>;
 export type ValidateCouponInput = z.infer<typeof validateCouponSchema>;
 
 // ─── Sponsor Validations ────────────────────────────────────────────────────
@@ -155,3 +165,19 @@ export const bulkUpsertPageContentSchema = z.object({
 
 export type UpsertPageContentInput = z.infer<typeof upsertPageContentSchema>;
 export type BulkUpsertPageContentInput = z.infer<typeof bulkUpsertPageContentSchema>;
+
+// ─── Runners Info Validations ───────────────────────────────────────────────
+
+export const createRunnersInfoSchema = z.object({
+  siteFor: z.string().min(1, "Site is required"),
+  title: z.string().min(1, "Title is required").max(200),
+  image: z.string().min(1, "Image is required"),
+  link: z.string().optional().nullable(),
+  sortOrder: z.number().int().optional().default(0),
+  isActive: z.boolean().optional().default(true),
+});
+
+export const updateRunnersInfoSchema = createRunnersInfoSchema.partial();
+
+export type CreateRunnersInfoInput = z.infer<typeof createRunnersInfoSchema>;
+export type UpdateRunnersInfoInput = z.infer<typeof updateRunnersInfoSchema>;

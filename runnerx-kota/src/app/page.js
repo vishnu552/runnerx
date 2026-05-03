@@ -2,18 +2,29 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { categories as fallbackCategories, eventInfo as fallbackEventInfo } from '@/data/categories';
 import CountdownTimer from '@/components/CountdownTimer';
-import { getPageContent, getGlobalContent, getCategories, getEvents, getSponsors, API_URL } from '@/lib/api';
+import CategorySlider from '@/components/CategorySlider';
+import { getPageContent, getGlobalContent, getCategories, getEvents, getSponsors, getRunnersInfo, API_URL } from '@/lib/api';
+import SponsorSlider from '@/components/SponsorSlider';
 
 export default async function HomePage() {
-  const [content, globalContent, categories, eventsData, sponsors] = await Promise.all([
+  const [content, globalContent, categories, eventsData, sponsors, runnersInfoData] = await Promise.all([
     getPageContent('home'),
     getGlobalContent(),
     getCategories(),
     getEvents(),
-    getSponsors()
+    getSponsors(),
+    getRunnersInfo('KTA')
   ]);
   
   const cats = categories || fallbackCategories;
+  const runnersInfo = (runnersInfoData && runnersInfoData.length > 0) ? runnersInfoData : [
+    { title: "Bib Collection", image: "/images/overview-runner.png", link: "/bib-collection" },
+    { title: "Race Start Timings", image: "/images/cat-half.png", link: "/event-rules" },
+    { title: "Route Maps", image: "/images/overview-runner.png", link: "/route" },
+    { title: "Venue Maps", image: "/images/cat-3k.png", link: "/venue" },
+    { title: "Runner's Guides", "image": "/images/overview-runner.png", link: "/guides" },
+    { title: "Medical Advisory", image: "/images/cat-half.png", link: "/medical-advisory" }
+  ];
   const hero = content?.hero;
   const overview = content?.overview;
   const ambassador = content?.ambassador;
@@ -22,17 +33,20 @@ export default async function HomePage() {
   const categoriesHeader = content?.categories_header;
   const sponsorsHeader = content?.sponsors_header;
   const aboutFooter = content?.about_footer;
-  
+  console.log(hero);
   const expectedParticipants = globalContent?.event_info?.expected_participants || fallbackEventInfo.expectedParticipants;
 
   let nearestEvent = null;
   if (eventsData && eventsData.length > 0) {
-    const futureEvents = eventsData.filter(e => new Date(e.date) > new Date());
+    // Filter for KOTA site only
+    const kotaEvents = eventsData.filter(e => e.siteFor === 'KOTA');
+    
+    const futureEvents = kotaEvents.filter(e => new Date(e.date) > new Date());
     if (futureEvents.length > 0) {
       futureEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
       nearestEvent = futureEvents[0];
-    } else {
-      nearestEvent = eventsData.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    } else if (kotaEvents.length > 0) {
+      nearestEvent = kotaEvents.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
     }
   }
 
@@ -41,7 +55,7 @@ export default async function HomePage() {
   }) : (hero?.date || "November 15, 2026");
 
   const dateIso = nearestEvent ? nearestEvent.date : (countdown?.target_date || "2026-11-15T05:30:00+05:30");
-
+  console.log(dateIso);
   // Helper to check if a section object has any meaningful content (not just empty strings)
   const hasValue = (obj) => {
     if (!obj) return false;
@@ -57,88 +71,193 @@ export default async function HomePage() {
     <>
       {/* ===== HERO BANNER (Full-width image like TMM) ===== */}
       {hasValue(hero) && (
-        <section className="hero-banner" id="hero">
+        <section className="hero-banner mt-[calc(var(--header-height,72px)+var(--countdown-height,42px))]" id="hero">
           <Image
-            src={hero.banner_image || "/images/hero-banner.png"}
-            alt={hero.banner_alt || "Marathon runners at dawn on a bridge"}
-            fill
+            src={hero.banner_image || ""}
+            alt={"runnerx kota half marathon"}
+            width={1920}
+            height={600}
             priority
+            unoptimized
             className="hero-banner-image"
-            style={{ objectFit: 'cover' }}
+            style={{ width: '100%', height: 'auto', display: 'block' }}
           />
-          <div className="hero-banner-overlay"></div>
-          <div className="hero-banner-content">
-            <div className="hero-banner-inner">
-              <div className="hero-race-day">{hero.label || "Race Day"}</div>
-              <div className="hero-date-big">{formattedDate}</div>
-              <div className="mt-8 flex justify-start">
-                <Link 
-                  href="/dashboard/register"
-                  className="btn btn-primary btn-lg"
-                  style={{ 
-                    padding: '16px 40px', 
-                    fontSize: '1.2rem', 
-                    fontWeight: 900,
-                    fontStyle: 'italic',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
-                    transform: 'skew(-10deg)',
-                  }}
-                >
-                  Register Now →
-                </Link>
-              </div>
-            </div>
-          </div>
+          {/* <div className="hero-banner-overlay"></div> */}
         </section>
       )}
 
       {/* ===== EVENT OVERVIEW (like TMM's Overview section) ===== */}
       {hasValue(overview) && (
-        <section className="overview-section" id="overview">
-          <div className="container">
-            <div className="grid items-start gap-12 md:grid-cols-2">
-              <div>
+        <section className="overview-section" id="overview" style={{ padding: 0 }}>
+          {/* Text Section with Background */}
+          <div className="py-16 md:py-32" style={{ position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+              <Image
+                src={overview.image || "/images/overview-runner.png"}
+                alt={overview.image_alt || "Aerial view of marathon runners"}
+                fill
+                unoptimized
+                style={{ objectFit: 'cover' }}
+              />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(255, 255, 255, 0.5)' }}></div>
+            </div>
+
+            <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ textAlign: 'left', maxWidth: '800px' }}>
                 <div className="overview-title">{overview.title_line1 || "EVENT"}</div>
                 <div className="overview-title-outline">{overview.title_line2 || "OVERVIEW"}</div>
-                <p className="overview-text">
+                <p className="overview-text" style={{ maxWidth: '100%', marginBottom: 0, color: 'black', fontWeight: 500 }}>
                   {overview.text || "Welcome to the 1st Edition of RunnerX Kota Marathon — a celebration of endurance, community, and the vibrant spirit of Hadoti. Run through the scenic Chambal Riverfront, past historic landmarks, and experience the energy of Kota like never before. With four race categories from a family-friendly 3K Fun Run to the ultimate Half Marathon challenge, there's a race for every runner."}
                 </p>
               </div>
-              <div className="overview-image-container overview-image-wrapper hidden md:block">
-                <Image
-                  src={overview.image || "/images/overview-runner.png"}
-                  alt={overview.image_alt || "Aerial view of marathon runners"}
-                  width={400}
-                  height={300}
-                  style={{ width: '100%', height: 'auto' }}
-                />
-              </div>
             </div>
+          </div>
 
-            {/* Feature Cards (like TMM's sponsor/feature cards) */}
-            <div className="overview-cards">
-              <div className="overview-card">
-                <div className="overview-card-title">{overview.card1_title || "4 Race Categories"}</div>
-                <div className="overview-card-desc">{overview.card1_desc || "3K Fun Run • 5K Sprint • 10K Challenge • Half Marathon"}</div>
-              </div>
-              <div className="overview-card accent-card">
-                <div className="overview-card-title">{overview.card2_title || `${expectedParticipants} Runners`}</div>
-                <div className="overview-card-desc">{overview.card2_desc || "Join the biggest running event in Hadoti region"}</div>
-              </div>
+          {/* Feature Cards Section */}
+          <div className="container" style={{marginBottom:'40px', marginTop: '40px' }}>
+            <div className="overview-cards" style={{ marginTop: 0 }}>
+              {(() => {
+                const getCardImage = (val, fallback) => {
+                  if (!val || typeof val !== 'string') return fallback;
+                  const cleanVal = val.trim();
+                  if (cleanVal.startsWith('/uploads')) return `${API_URL}${cleanVal}`;
+                  if (cleanVal.startsWith('/') || cleanVal.startsWith('http')) return cleanVal;
+                  return fallback;
+                };
+
+                return (
+                  <>
+                    <div className="overview-card">
+                      <div className="overview-card-image-wrapper">
+                        <Image
+                          src={getCardImage(overview.card1_desc, "/images/cat-3k.png")}
+                          alt={overview.card1_title || "Category"}
+                          width={600}
+                          height={400}
+                          unoptimized
+                          style={{ width: '100%', height: 'auto', display: 'block' }}
+                        />
+                      </div>
+                      <div className="overview-card-content">
+                        <div className="overview-card-title">{overview.card1_title}</div>
+                      </div>
+                    </div>
+                    <div className="overview-card accent-card">
+                      <div className="overview-card-image-wrapper">
+                        <Image
+                          src={getCardImage(overview.card2_desc, "/images/cat-half.png")}
+                          alt={overview.card2_title || "Participants"}
+                          width={600}
+                          height={400}
+                          unoptimized
+                          style={{ width: '100%', height: 'auto', display: 'block' }}
+                        />
+                      </div>
+                      {/* <div className="overview-card-content">
+                        <div className="overview-card-title">{overview.card2_title}</div>
+                      </div> */}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </section>
       )}
+      {hasValue(countdown) && (
+        <section className="section section-light" id="countdown">
+          <div className="container">
+            <div className="section-title" style={{ textAlign: 'center' }}>
+               {countdown.title}
+            </div>
+            <CountdownTimer targetDate={dateIso} />
+          </div>
+        </section>
+      )}
 
+      {/* ===== RACE CATEGORIES (Expanding Accordion with RunnersInfo Data) ===== */}
+      {hasValue(categoriesHeader) && (
+        <section className="section bg-white overflow-hidden" id="categories" style={{ paddingTop: '60px', paddingBottom: '60px' }}>
+          <div className="container">
+            <div className="section-header mb-12">
+              <h2 className="section-title">
+                {categoriesHeader.title || "RACE"} <span className="outline-text">{categoriesHeader.title_accent || "CATEGORIES"}</span>
+              </h2>
+            </div>
+
+            {/* Desktop Accordion */}
+            <div className="hidden md:flex md:flex-row gap-4 h-[500px] group/container">
+              {runnersInfo.map((item, idx) => (
+                <Link 
+                  key={idx}
+                  href={item.link || '#'}
+                  className={`relative overflow-hidden transition-all duration-700 ease-in-out cursor-pointer group rounded-2xl
+                    ${idx === 0 ? 'flex-[4] group-hover/container:flex-1' : 'flex-1'} 
+                    hover:!flex-[4] h-full`}
+                >
+                  {/* Background Image */}
+                  <div className="absolute inset-0">
+                    <Image
+                      src={item.image || "/images/overview-runner.png"}
+                      alt={item.title}
+                      fill
+                      unoptimized
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-500 group-hover:from-black/90" />
+                  </div>
+
+                  {/* Content Container */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8">
+                    
+                    {/* Vertical Title (Visible when card is narrow) - Instant toggle */}
+                    <div className={`absolute bottom-12 left-1/2 -translate-x-1/2
+                      ${idx === 0 
+                        ? 'opacity-0 group-hover/container:opacity-100 group-hover:!opacity-0' 
+                        : 'opacity-100 group-hover:opacity-0'} 
+                      pointer-events-none`}
+                    >
+                      <h3 className="text-white text-xl md:text-2xl font-bold uppercase tracking-[0.25em] -rotate-90 whitespace-nowrap drop-shadow-lg w-max origin-left translate-x-1/2">
+                        {item.title}
+                      </h3>
+                    </div>
+
+                    {/* Horizontal Title (Visible when expanded) - Instant toggle */}
+                    <div className={`w-full relative z-10
+                      ${idx === 0 
+                        ? 'opacity-100 group-hover/container:opacity-0 group-hover:!opacity-100' 
+                        : 'opacity-0 group-hover:opacity-100'}`}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <h3 className="text-white text-2xl md:text-3xl font-black italic uppercase leading-none drop-shadow-xl">
+                          {item.title}
+                        </h3>
+                        <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white flex items-center justify-center text-black flex-shrink-0 transition-transform duration-500 group-hover:rotate-45 shadow-lg">
+                          <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Mobile Slider */}
+            <CategorySlider items={runnersInfo} />
+          </div>
+        </section>
+      )}
       {/* ===== AMBASSADOR SECTION (like TMM's International Event Ambassador) ===== */}
       {hasValue(ambassador) && (
         <section className="ambassador-section" id="ambassador">
           <div className="ambassador-grid">
             <div className="ambassador-title-block">
-              <div className="ambassador-title">{ambassador.title_line1 || "LOCAL"}</div>
-              <div className="ambassador-title-italic">{ambassador.title_line2 || "EVENT AMBASSADOR"}</div>
+              <div className="ambassador-header-group">
+                <span className="ambassador-title">{ambassador.title_line1}</span>
+                <span className="ambassador-title-italic">{ambassador.title_line2}</span>
+              </div>
             </div>
             <div className="ambassador-image-wrap">
               <Image
@@ -146,16 +265,17 @@ export default async function HomePage() {
                 alt={ambassador.image_alt || "Event Ambassador"}
                 width={500}
                 height={600}
+                unoptimized
                 style={{ width: '100%', height: 'auto' }}
               />
             </div>
             <div>
-              <div className="ambassador-name">{ambassador.name || "Rajesh Sharma | 2026"}</div>
+              <div className="ambassador-name">{ambassador.name}</div>
               <p className="ambassador-text">
-                {ambassador.bio_paragraph1 || "A celebrated marathon runner from Rajasthan, Rajesh Sharma has been inspiring thousands of young athletes across the state. With multiple podium finishes in national marathons and a passion for community fitness, he embodies the spirit of RunnerX."}
+                {ambassador.bio_paragraph1}
               </p>
               <p className="ambassador-text">
-                {ambassador.bio_paragraph2 || "His dedication to promoting running culture in Kota and beyond has made him a natural choice as the ambassador for the inaugural edition of RunnerX Kota Marathon. He believes every journey to the finish line starts with a single brave step."}
+                {ambassador.bio_paragraph2}
               </p>
             </div>
           </div>
@@ -166,19 +286,38 @@ export default async function HomePage() {
       {hasValue(initiatives) && (
         <section className="initiatives-section" id="initiatives">
           <div className="initiatives-title">{initiatives.title || "INITIATIVES"}</div>
-          <div style={{ textAlign: 'center', maxWidth: '600px', margin: '-32px auto 48px', color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.7' }}>
+          <div className="px-5" style={{ textAlign: 'center', maxWidth: '600px', margin: '-32px auto 48px', color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.7' }}>
             {initiatives.subtitle || "Since its inception, RunnerX Kota Marathon has been committed to promoting health, sustainability, and the transformative power of running."}
           </div>
           <div className="initiatives-grid">
-            {(initiatives.items || [
-              { title: "Green Run Initiative", image: "/images/initiative-green.png", alt: "Green Run Initiative" },
-              { title: "Community Fitness Drive", image: "/images/initiative-community.png", alt: "Community Fitness Drive" }
-            ]).map((item, i) => (
+            {(() => {
+              let items = [];
+              if (initiatives) {
+                if (initiatives.item1_title || initiatives.item2_title) {
+                  if (initiatives.item1_title) {
+                    items.push({ title: initiatives.item1_title, image: initiatives.item1_image || "/images/initiative-green.png", alt: initiatives.item1_title });
+                  }
+                  if (initiatives.item2_title) {
+                    items.push({ title: initiatives.item2_title, image: initiatives.item2_image || "/images/initiative-community.png", alt: initiatives.item2_title });
+                  }
+                } else if (initiatives.items) {
+                  items = Array.isArray(initiatives.items) ? initiatives.items : [];
+                }
+              }
+              if (items.length === 0) {
+                items = [
+                  { title: "Green Run Initiative", image: "/images/initiative-green.png", alt: "Green Run Initiative" },
+                  { title: "Community Fitness Drive", image: "/images/initiative-community.png", alt: "Community Fitness Drive" }
+                ];
+              }
+              return items;
+            })().map((item, i) => (
               <div className="initiative-card" key={i}>
                 <Image
-                  src={item.image}
+                  src={item.image?.startsWith('/uploads') ? `${API_URL}${item.image}` : item.image}
                   alt={item.alt || item.title}
                   fill
+                  unoptimized
                   style={{ objectFit: 'cover' }}
                 />
                 <div className="initiative-card-overlay">
@@ -194,61 +333,6 @@ export default async function HomePage() {
       )}
 
       {/* ===== COUNTDOWN ===== */}
-      {hasValue(countdown) && (
-        <section className="section section-light" id="countdown">
-          <div className="container">
-            <div className="section-header">
-              <h2 className="section-title" style={{ color: 'var(--text)' }}>
-                 {countdown.title || "Event Starts"} <span className="accent">{countdown.title_accent || "In"}</span>
-              </h2>
-            </div>
-            <CountdownTimer targetDate={dateIso} />
-          </div>
-        </section>
-      )}
-
-      {/* ===== RACE CATEGORIES ===== */}
-      {hasValue(categoriesHeader) && (
-        <section className="section" id="categories" style={{ paddingTop: '40px' }}>
-          <div className="container">
-            <div className="section-header">
-              <div className="badge badge-primary">{categoriesHeader.badge || "Choose Your Race"}</div>
-              <h2 className="section-title" style={{ color: 'var(--text)' }}>
-                {categoriesHeader.title || "Race"} <span className="accent">{categoriesHeader.title_accent || "Categories"}</span>
-              </h2>
-              <p className="section-subtitle">
-                {categoriesHeader.subtitle || "From a family-friendly Fun Run to the ultimate Half Marathon challenge — there's a race for every runner."}
-              </p>
-            </div>
-
-            <div className="categories-grid">
-              {cats.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/categories/${cat.slug}`}
-                  className="category-card"
-                >
-                  <div className="category-card-body">
-                    <span className="category-card-icon">{cat.icon}</span>
-                    <span className="category-card-distance">
-                      {cat.distance}
-                    </span>
-                    <h3 className="category-card-name">{cat.name}</h3>
-                    <p className="category-card-desc">
-                      {cat.description?.slice(0, 120)}...
-                    </p>
-                  </div>
-                  <div className="category-card-footer">
-                    <span className="category-card-link">
-                      Details →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ===== SPONSORS ===== */}
       {hasValue(sponsorsHeader) && (
@@ -270,12 +354,19 @@ export default async function HomePage() {
                         alt={s.name || "Title Sponsor"} 
                         width={180}
                         height={70}
+                        unoptimized
                         style={{ objectFit: 'contain', width: '100%', height: '100%' }}
                       />
                     </div>
                   ))}
                 </div>
               </div>
+            )}
+
+            {/* Separator */}
+            {sponsors?.filter(s => s.title?.toLowerCase() === 'title sponsor').length > 0 && 
+             sponsors?.filter(s => s.title?.toLowerCase() === 'associate sponsor').length > 0 && (
+              <div style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.1)', margin: '48px 0' }}></div>
             )}
 
             {/* Associate Sponsors */}
@@ -290,6 +381,7 @@ export default async function HomePage() {
                         alt={s.name || "Associate Sponsor"} 
                         width={160}
                         height={60}
+                        unoptimized
                         style={{ objectFit: 'contain', width: '100%', height: '100%' }}
                       />
                     </div>
@@ -298,31 +390,20 @@ export default async function HomePage() {
               </div>
             )}
 
+            {/* Separator */}
+            {sponsors?.filter(s => s.title?.toLowerCase() === 'associate sponsor').length > 0 && 
+             sponsors?.filter(s => !['title sponsor', 'associate sponsor'].includes(s.title?.toLowerCase())).length > 0 && (
+              <div style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.1)', margin: '48px 0' }}></div>
+            )}
+
             {/* Partners / Regular Sponsors */}
             {sponsors?.filter(s => !['title sponsor', 'associate sponsor'].includes(s.title?.toLowerCase())).length > 0 && (
               <div className="sponsors-tier">
                 <div className="sponsors-tier-label">Partners</div>
-                <div className="partner-marquee-container">
-                  <div className="partner-marquee-track">
-                    {[...sponsors.filter(s => !['title sponsor', 'associate sponsor'].includes(s.title?.toLowerCase())), 
-                      ...sponsors.filter(s => !['title sponsor', 'associate sponsor'].includes(s.title?.toLowerCase())),
-                      ...sponsors.filter(s => !['title sponsor', 'associate sponsor'].includes(s.title?.toLowerCase()))
-                    ].map((s, idx) => (
-                      <div key={`${s.id}-${idx}`} className="partner-sponsor-item">
-                        <div className="partner-logo-box">
-                          <Image 
-                            src={s.image?.startsWith('/') ? `${API_URL}${s.image}` : s.image} 
-                            alt={s.name || "Partner"} 
-                            width={120}
-                            height={60}
-                            style={{ objectFit: 'contain', width: '100%', height: '100%' }}
-                          />
-                        </div>
-                        <div className="partner-sponsor-title">{s.title || "Partner"}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <SponsorSlider 
+                  sponsors={sponsors.filter(s => !['title sponsor', 'associate sponsor'].includes(s.title?.toLowerCase()))} 
+                  apiUrl={API_URL} 
+                />
               </div>
             )}
           </div>
@@ -336,6 +417,7 @@ export default async function HomePage() {
             src={aboutFooter.bg_image || "/images/about-runnerx.png"}
             alt={aboutFooter.bg_alt || "Marathon panoramic view"}
             fill
+            unoptimized
             className="about-footer-bg"
             style={{ objectFit: 'cover' }}
           />
@@ -344,7 +426,7 @@ export default async function HomePage() {
             <div className="about-footer-title">{aboutFooter.title_line1 || "ABOUT"}</div>
             <div className="about-footer-title-outline">{aboutFooter.title_line2 || "RUNNERX"}</div>
             <p className="about-footer-text">
-              {aboutFooter.text || "RunnerX is dedicated to building a vibrant running community in Rajasthan. Our events bring together runners of all levels, promote healthy lifestyles, and celebrate the unique cultural heritage of each host city."}
+              {aboutFooter.text }
             </p>
             <Link href="/about" className="btn btn-primary btn-lg">
               Know More

@@ -10,6 +10,8 @@ const JWT_SECRET = new TextEncoder().encode(
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
   "http://localhost:3001",
+  "http://localhost:3002",
+  "http://127.0.0.1:3002",
   process.env.FRONTEND_URL,
 ].filter(Boolean) as string[];
 

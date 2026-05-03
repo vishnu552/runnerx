@@ -1,68 +1,61 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
+import { mkdir } from "fs/promises";
+import { createWriteStream } from "fs";
 import { join } from "path";
 import { getSession } from "@/lib/auth";
+import { Readable } from "stream";
+import { pipeline } from "stream/promises";
 
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
+
+// Client sends: POST /api/upload?filename=photo.png
+// with raw file as body (Content-Type: image/png)
 export async function POST(request: Request) {
   try {
-    const session = await getSession();
+    const session = await getSession(request);
     if (!session) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    const data = await request.formData();
-    const file: File | null = data.get("file") as unknown as File;
-
-    if (!file) {
+    if (!request.body) {
       return NextResponse.json({ success: false, message: "No file provided" }, { status: 400 });
     }
 
-    // Validation: Type
+    // Get file metadata from query params
+    const { searchParams } = new URL(request.url);
+    const originalName = searchParams.get("filename") || "upload";
+    const mimeType = request.headers.get("content-type") || "";
+
+    // Validate file type
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/svg+xml"];
-    if (!allowedTypes.includes(file.type)) {
+    if (!allowedTypes.includes(mimeType)) {
       return NextResponse.json(
         { success: false, message: "Invalid file type. Only JPG, PNG, WebP and SVG are allowed." },
         { status: 400 }
       );
     }
 
-    // Validation: Size (20MB)
-    const maxSize = 20 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { success: false, message: "File too large. Max size is 20MB." },
-        { status: 400 }
-      );
-    }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Sanitize filename and add timestamp to avoid collisions
-    const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    // Sanitize filename and make unique
+    const safeName = originalName.replace(/[^a-zA-Z0-9.-]/g, "_");
     const uniqueName = `${Date.now()}_${safeName}`;
-    
-    // Directory is public/uploads
+
+    // Ensure uploads directory exists
     const uploadDir = join(process.cwd(), "public", "uploads");
-    
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch {
-      // Directory exists or other non-fatal error
-    }
+    await mkdir(uploadDir, { recursive: true });
 
-    const path = join(uploadDir, uniqueName);
-    await writeFile(path, buffer);
+    // Stream request body directly to disk — no buffering, no size limits
+    const filePath = join(uploadDir, uniqueName);
+    const fileStream = createWriteStream(filePath);
+    const nodeReadable = Readable.fromWeb(request.body as any);
+    await pipeline(nodeReadable, fileStream);
 
-    return NextResponse.json({ 
-      success: true, 
-      url: `/uploads/${uniqueName}` 
-    });
+    return NextResponse.json({ success: true, url: `/uploads/${uniqueName}` });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload error:", error);
     return NextResponse.json(
-      { success: false, message: "Failed to upload file" },
+      { success: false, message: error.message || "Failed to upload file" },
       { status: 500 }
     );
   }

@@ -47,8 +47,7 @@ export async function POST(request: Request) {
     // In production, REMOVE THIS.
     return NextResponse.json({ 
       success: true, 
-      message: "Reset link sent to your email.",
-      debugToken: token // ONLY FOR DEVELOPMENT
+      message: "Reset link sent to your email."
     });
   } catch (error) {
     console.error("Forgot password error:", error);

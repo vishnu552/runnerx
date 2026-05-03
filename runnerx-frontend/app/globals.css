@@ -1,0 +1,311 @@
+/* ─── RunnerX Frontend — Dashboard Styles ─── */
+
+:root {
+  --primary: #ffc83c;
+  --primary-dark: #e6b430;
+  --accent: #1e293b;
+  --accent-dark: #0f172a;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --background: #ffffff;
+  --bg-alt: #f8fafc;
+  --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+  --border: #e2e8f0;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --font-heading: var(--font-roboto-condensed), 'Roboto Condensed', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-roboto), 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.6;
+}
+
+/* ─── Card ─── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.hover-elevate {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-elevate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* ─── Buttons ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #0f172a;
+  box-shadow: 0 4px 12px rgba(255, 200, 60, 0.2);
+}
+.btn-primary:hover {
+  background: var(--primary-dark);
+  box-shadow: 0 6px 16px rgba(255, 200, 60, 0.3);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+}
+
+/* ─── Form Styles ─── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--background);
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 200, 60, 0.1);
+}
+
+/* ─── Dashboard Grid Layout ─── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.dashboard-sidebar-desktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 250px 1fr;
+    gap: 32px;
+  }
+  .dashboard-sidebar-desktop {
+    display: block;
+  }
+  .mb-4.lg\:hidden {
+    display: none !important;
+  }
+}
+
+/* ─── Container ─── */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ─── Utility ─── */
+.w-full { width: 100%; }
+.mb-4 { margin-bottom: 1rem; }
+
+/* ─── Animations ─── */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Registration Styles (Ported from Kota) ─── */
+.registration-main-card {
+  align-self: start;
+  border-radius: 12px;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+@media (min-width: 640px) {
+  .registration-main-card { padding: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .registration-main-card { padding: 2rem; }
+}
+
+.registration-two-col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+@media (min-width: 640px) {
+  .registration-two-col { grid-template-columns: 1fr 1fr; }
+}
+
+.fade-in {
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header-user-info {
+  display: none;
+}
+@media (min-width: 640px) {
+  .header-user-info {
+    display: block;
+  }
+}
+
+/* ─── Legal Page Hero ─── */
+.legal-page-hero {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 220px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+}
+.legal-page-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 50%, rgba(255, 200, 60, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.legal-page-hero-inner {
+  position: relative;
+  z-index: 2;
+  padding: 48px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.legal-page-hero h1 {
+  font-family: var(--font-heading);
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 2.2rem;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+@media (min-width: 768px) {
+  .legal-page-hero {
+    min-height: 280px;
+  }
+  .legal-page-hero h1 {
+    font-size: 3rem;
+  }
+  .legal-page-hero-inner {
+    padding: 64px 24px;
+  }
+}
+
+/* ─── Legal Content ─── */
+.legal-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 16px;
+  text-align: left;
+}
+@media (min-width: 640px) {
+  .legal-content { padding: 48px 24px; }
+}
+@media (min-width: 1024px) {
+  .legal-content { padding: 48px 32px; }
+}
+.legal-content h2 {
+  font-family: var(--font-heading);
+  color: var(--accent-dark);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+.legal-content h2:first-child {
+  margin-top: 0;
+}
+.legal-content p {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 2;
+  margin-bottom: 8px;
+  white-space: pre-line;
+}
+.legal-content ul,
+.legal-content ol {
+  margin-bottom: 16px;
+  margin-left: 20px;
+  list-style: disc;
+}
+.legal-content ol {
+  list-style: decimal;
+}
+.legal-content li {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 2;
+  margin-bottom: 8px;
+}
+.last-updated {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-style: italic;
+  margin-bottom: 32px;
+}

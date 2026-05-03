@@ -1,4 +1,5 @@
 import { getPageContent } from '@/lib/api';
+import PageHero from '@/components/PageHero';
 
 export const metadata = {
   title: 'Route & Venue',
@@ -16,15 +17,11 @@ export default async function RoutePage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="container">
-          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>{hero.badge || "Course Map"}</div>
-          <h1 className="page-hero-title">{hero.title || "Route &"} <span style={{ color: 'var(--primary)' }}>{hero.title_accent || "Venue"}</span></h1>
-          <p className="page-hero-subtitle">
-            {hero.subtitle || "Run through the most scenic parts of Kota along the Chambal River."}
-          </p>
-        </div>
-      </section>
+      <PageHero 
+        title={hero.title || "Route &"}
+        titleAccent={hero.title_accent || "Venue"}
+        bgImage={hero.bg_image}
+      />
 
       <section className="section">
         <div className="container">

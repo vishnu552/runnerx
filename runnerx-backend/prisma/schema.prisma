@@ -16,6 +16,10 @@ model User {
   role      String   @default("USER")
   resetToken       String?  @unique
   resetTokenExpiry DateTime?
+  verifyToken      String?  @unique
+  verifyTokenExpiry DateTime?
+  emailVerified    Boolean  @default(false)
+
 
   // Profile fields
   gender                String?
@@ -235,6 +239,9 @@ model RegistrationLineItem {
   eventCategory       EventCategory @relation(fields: [eventCategoryId], references: [id])
   status              String   @default("PENDING")  // PENDING, CONFIRMED, CANCELLED, REFUNDED
 
+  // Unique registration ID per participant (e.g. "KTA-2026-00001")
+  uniqueRegId         String?  @unique
+
   // Participant personal info (one line item per participant)
   participantName     String
   participantEmail    String
@@ -248,11 +255,16 @@ model RegistrationLineItem {
   participantAddress  String?
   isRegistrant        Boolean  @default(false)  // true = logged-in user themselves
 
+  // Emergency contact (for ground race participants)
+  emergencyContactName  String?
+  emergencyContactPhone String?
+
   // Bib & T-Shirt
   bibNumber           String?  // Auto-generated 4-digit bib (category series)
   isCustomBib         Boolean  @default(false)
   tshirtSize          String?
   tshirtChangeCount   Int      @default(0)
+  isProfileUpdated    Boolean  @default(false) // Track if the user has updated their entry once
 
   // Price snapshots (frozen at registration time)
   categoryNameSnapshot    String   // e.g. "3K Fun Run"
@@ -269,6 +281,7 @@ model RegistrationLineItem {
   @@index([eventCategoryId])
   @@index([bibNumber])
 }
+
 
 // ─── Unified Order System ───────────────────────────────────────────────────
 // Tracks ALL transactions: registrations, coupon purchases, donations, bib upgrades
@@ -453,4 +466,52 @@ model InfoSection {
   updatedAt   DateTime @updatedAt
 
   @@index([siteFor, pageType])
+}
+
+// ─── Gallery Images ─────────────────────────────────────────────────────────
+
+model GalleryImage {
+  id          Int      @id @default(autoincrement())
+  siteFor     String   // e.g. "KTA", "JDH", "UDR"
+  year        String?  // e.g. "2024", "2025"
+  mediaType   String   @default("IMAGE") // IMAGE or VIDEO
+  imagePath   String
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([siteFor])
+}
+
+// ─── Runners Information (Expanding Cards) ──────────────────────────────────
+model RunnersInfo {
+  id          Int      @id @default(autoincrement())
+  siteFor     String   @default("KTA")
+  title       String
+  image       String   // Path to uploaded image
+  link        String?  // Optional target URL
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([siteFor])
+}
+
+model ContactInquiry {
+  id          Int      @id @default(autoincrement())
+  siteFor     String   @default("GLOBAL")
+  name        String
+  email       String
+  phone       String?
+  subject     String?
+  message     String   @db.Text
+  status      String   @default("NEW") // NEW, READ, REPLIED, CLOSED
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
 }

@@ -45,7 +45,14 @@ export async function PATCH(
       return NextResponse.json({ success: false, message: "Unauthorized to edit this registration" }, { status: 403 });
     }
 
-    // 3. Check if registration date has passed
+    if (lineItem.isProfileUpdated) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "Your profile has already been updated once and cannot be modified again." 
+      }, { status: 400 });
+    }
+
+    // 4. Check if registration date has passed
     const now = new Date();
     const registrationEnd = new Date(lineItem.registration.event.registrationEnd);
     if (now > registrationEnd) {
@@ -55,10 +62,43 @@ export async function PATCH(
       }, { status: 400 });
     }
 
-    // 4. Update allowed fields
+    // 5. If eventCategoryId or virtualSubCategoryId is provided, fetch it to update snapshots
+    let categoryUpdateData = {};
+    if (body.virtualSubCategoryId && lineItem.raceTypeSnapshot.toLowerCase().includes('virtual')) {
+      const category = await prisma.eventCategory.findUnique({
+        where: { id: Number(lineItem.eventCategoryId) }
+      });
+      if (category && Array.isArray(category.virtualSettings)) {
+        const settings = category.virtualSettings as any[];
+        const sub = settings.find((s) => Number(s.categoryId) === Number(body.virtualSubCategoryId));
+        if (sub) {
+          categoryUpdateData = {
+            categoryNameSnapshot: `${category.raceType} - ${sub.categoryName}`,
+            distanceSnapshot: sub.categoryName,
+          };
+        }
+      }
+    } else if (body.eventCategoryId && body.eventCategoryId !== lineItem.eventCategoryId) {
+      const category = await prisma.eventCategory.findUnique({
+        where: { id: Number(body.eventCategoryId) },
+        include: { category: true }
+      });
+      if (category) {
+        categoryUpdateData = {
+          eventCategoryId: category.id,
+          categoryNameSnapshot: category.category?.name || category.raceType,
+          distanceSnapshot: category.category?.distanceLabel || `${category.distance}K`,
+          raceTypeSnapshot: category.raceType,
+          // We assume price differences are handled elsewhere or ignored for simple updates
+        };
+      }
+    }
+
+    // 6. Update allowed fields
     const updatedLineItem = await prisma.registrationLineItem.update({
       where: { id: Number(id) },
       data: {
+        ...categoryUpdateData,
         participantName: body.participantName,
         participantEmail: body.participantEmail,
         participantPhone: body.participantPhone,
@@ -69,6 +109,8 @@ export async function PATCH(
         participantPinCode: body.participantPinCode,
         participantAddress: body.participantAddress,
         tshirtSize: body.tshirtSize,
+        bibNumber: body.bibNumber,
+        isProfileUpdated: true,
       }
     });
 

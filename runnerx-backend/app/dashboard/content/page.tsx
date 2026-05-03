@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 interface ContentBlock {
   id: string;
@@ -23,7 +23,8 @@ const PAGES = [
   { value: "global", label: "Global (Shared)", desc: "Brand info, contact details, standard assets." },
   { value: "home", label: "Home Page", desc: "Hero banners, overview, generic home strings." },
   { value: "about", label: "About Page", desc: "Mission, vision, team bios, and timeline." },
-  { value: "faq", label: "FAQ Page", desc: "Frequently asked questions and answers." },
+  { value: "event-rules", label: "Event Rules Page", desc: "Rules, regulations, and guidelines for participants." },
+  { value: "philanthropy", label: "Philanthropy Page", desc: "Charity partners, impact, and donation info." },
   { value: "contact", label: "Contact Page", desc: "Contact forms, addresses, and social links." },
   { value: "gallery", label: "Gallery Page", desc: "Event photos and showcase." },
   { value: "route", label: "Route & Venue Page", desc: "Course maps, landmarks, and aid stations." },
@@ -58,7 +59,14 @@ export default function ContentManagerPage() {
   const [selectedPage, setSelectedPage] = useState<string | null>(null);
   
   const [content, setContent] = useState<ContentBlock[]>([]);
-  const [grouped, setGrouped] = useState<GroupedContent>({});
+  const grouped = useMemo(() => {
+    const groups: GroupedContent = {};
+    for (const item of content) {
+      if (!groups[item.section]) groups[item.section] = [];
+      groups[item.section].push(item);
+    }
+    return groups;
+  }, [content]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const [saveAll, setSaveAll] = useState(false);
@@ -90,13 +98,6 @@ export default function ContentManagerPage() {
       const data = await res.json();
       if (data.success) {
         setContent(data.content);
-        // Group by section
-        const groups: GroupedContent = {};
-        for (const item of data.content) {
-          if (!groups[item.section]) groups[item.section] = [];
-          groups[item.section].push(item);
-        }
-        setGrouped(groups);
         setEditedValues({});
       }
     } catch {
@@ -122,7 +123,6 @@ export default function ContentManagerPage() {
     setView("list");
     setSelectedPage(null);
     setContent([]);
-    setGrouped({});
     setEditedValues({});
     setMessage(null);
   }
@@ -137,13 +137,12 @@ export default function ContentManagerPage() {
     setUploading(id);
     setMessage(null);
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/upload", {
+      // Send file as raw binary — no FormData, no multipart parsing issues
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": file.type },
+        body: file,
       });
       const data = await res.json();
       if (data.success) {
@@ -238,10 +237,52 @@ export default function ContentManagerPage() {
       editedValues[item.id] !== undefined ? editedValues[item.id] : item.value;
     const isChanged = editedValues[item.id] !== undefined;
 
-    if (item.type === "IMAGE") {
+    // Special case for countdown target date
+    if (item.section === "countdown" && item.key === "target_date") {
+      // datetime-local expects YYYY-MM-DDThh:mm
+      // If we have "2026-11-15T05:30:00+05:30", we need to truncate or convert
+      let displayValue = currentValue;
+      if (currentValue && currentValue.includes(':')) {
+         // Simplified: just take the first 16 chars if it matches ISO format roughly
+         // "2026-11-15T05:30:00+05:30" -> "2026-11-15T05:30"
+         displayValue = currentValue.substring(0, 16);
+      }
+
       return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center", width: "100%" }}>
+          <input
+            type="datetime-local"
+            className="form-input"
+            value={displayValue}
+            onChange={(e) => handleValueChange(item.id, e.target.value)}
+            style={{ 
+              flex: 1,
+              padding: "12px 16px",
+              fontSize: "1rem",
+              borderColor: isChanged ? "#f59e0b" : undefined 
+            }}
+          />
+          {isChanged && (
+            <button
+              className="btn btn-primary"
+              onClick={() => handleSaveItem(item)}
+              disabled={saving === item.id}
+              style={{ whiteSpace: "nowrap", minWidth: "80px" }}
+            >
+              {saving === item.id ? "..." : "Save"}
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    // Special case for overview cards being replaced with images
+    const isOverviewImage = (item.section === "overview" && (item.key === "card1_desc" || item.key === "card2_desc"));
+
+    if (item.type === "IMAGE" || isOverviewImage) {
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center", width: "100%" }}>
             <input
               type="text"
               className="form-input"
@@ -540,7 +581,12 @@ export default function ContentManagerPage() {
               No content found for this page. Seed the database or create content blocks.
             </div>
           ) : (
-            Object.entries(grouped).map(([section, items]) => (
+            Object.entries(grouped)
+              .filter(([section]) => {
+                if (selectedPage === "about" && (section === "timeline" || section === "team")) return false;
+                return true;
+              })
+              .map(([section, items]) => (
               <div key={section} className="content-section-card" style={{ marginBottom: "24px" }}>
                 <div className="content-section-header">
                   <h3 className="content-section-title" style={{ fontSize: "1.3rem" }}>{humanizeSection(section)}</h3>
@@ -549,10 +595,49 @@ export default function ContentManagerPage() {
                 <div className="content-section-body">
                   {items
                     .filter((item) => {
+                      // Hide alt text fields
+                      if (item.key.toLowerCase().includes("alt")) return false;
                       // Hide fields that are now managed by InfoSections
                       if (["faq", "terms", "privacy"].includes(selectedPage || "")) {
                         if (item.key === "items" || item.key === "body") return false;
                       }
+                      // Hide legacy initiatives json items
+                      if (selectedPage === "home" && item.section === "initiatives" && item.key === "items") {
+                        return false;
+                      }
+
+                      // User requested removals for Home Page
+                      if (selectedPage === "home" && selectedSite === "KTA") {
+                        if (item.section === "ambassadors" && item.key === "title_line1") return false;
+                        if (item.section === "categories" && (item.key === "badge" || item.key === "subtitle")) return false;
+                        if (item.section === "overview" && (item.key === "card1_title" || item.key === "card2_title")) return false;
+                        if (item.section === "hero" && !["banner_image", "label"].includes(item.key)) return false;
+                        if (item.section === "countdown" && item.key === "title_accent") return false;
+                      }
+
+                      // User requested removals for Global Content (Kota)
+                      if (selectedPage === "global" && selectedSite === "KTA") {
+                        const keysToRemove = ["tagline", "edition", "start_venue", "expected_participants", "date"];
+                        if (keysToRemove.includes(item.key)) return false;
+                      }
+
+                      // User requested removals for About Us (Kota)
+                      if (selectedPage === "about" && selectedSite === "KTA") {
+                        if (item.section === "hero" && ["subtitle", "badge", "title_accent"].includes(item.key)) return false;
+                        if (item.section === "vision" && ["features", "badge", "subtitle"].includes(item.key)) return false;
+                      }
+
+                      // User requested removals for Gallery (Kota)
+                      if (selectedPage === "gallery" && selectedSite === "KTA") {
+                        if (item.section === "content") return false;
+                        if (item.section === "hero" && ["badge", "subtitle"].includes(item.key)) return false;
+                      }
+
+                      // User requested removals for Privacy/Terms (Kota)
+                      if (["privacy", "terms"].includes(selectedPage || "") && selectedSite === "KTA") {
+                        if (item.section === "hero" && item.key === "subtitle") return false;
+                      }
+
                       return true;
                     })
                     .map((item) => (

@@ -20,13 +20,12 @@ export function ImageUpload({ name, defaultValue, placeholder, onUploadSuccess }
 
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const res = await fetch("/api/upload", {
+      // Send file as raw binary — no FormData, no multipart parsing issues
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": file.type },
+        body: file,
       });
 
       const data = await res.json();
@@ -41,7 +40,6 @@ export function ImageUpload({ name, defaultValue, placeholder, onUploadSuccess }
       alert("An error occurred during upload.");
     } finally {
       setUploading(false);
-      // Reset input so the same file could be selected again if needed
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
