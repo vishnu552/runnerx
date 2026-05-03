@@ -2,6 +2,8 @@ import { eventInfo as fallbackEventInfo } from '@/data/categories';
 import { getGlobalContent, getInfoSections } from '@/lib/api';
 import PageHero from '@/components/PageHero';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Liability Waiver',
   description: 'Liability waiver and release form for the RunnerX Kota Marathon.',

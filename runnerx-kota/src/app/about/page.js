@@ -1,6 +1,8 @@
 import { getPageContent } from '@/lib/api';
 import PageHero from '@/components/PageHero';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'About',
   description: 'Learn about RunnerX Kota Marathon — our mission, story, and vision for Kota\'s biggest running event.',

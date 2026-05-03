@@ -6,6 +6,8 @@ import CategorySlider from '@/components/CategorySlider';
 import { getPageContent, getGlobalContent, getCategories, getEvents, getSponsors, getRunnersInfo, PUBLIC_API_URL } from '@/lib/api';
 import SponsorSlider from '@/components/SponsorSlider';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const [content, globalContent, categories, eventsData, sponsors, runnersInfoData] = await Promise.all([
     getPageContent('home'),

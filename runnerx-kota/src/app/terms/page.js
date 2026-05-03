@@ -2,6 +2,8 @@ import { eventInfo as fallbackEventInfo } from '@/data/categories';
 import { getPageContent, getGlobalContent, getInfoSections } from '@/lib/api';
 import PageHero from '@/components/PageHero';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Terms & Conditions',
   description: 'Terms and conditions for participating in the RunnerX Kota Marathon.',

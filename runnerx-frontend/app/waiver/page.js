@@ -1,5 +1,7 @@
 import { getGlobalContent, getInfoSections } from '@/app/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Liability Waiver',
   description: 'Liability waiver and release form for RunnerX events.',

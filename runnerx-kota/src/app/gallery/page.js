@@ -2,6 +2,8 @@ import { getPageContent, getGalleryImages } from '@/lib/api';
 import GalleryClient from './GalleryClient';
 import PageHero from '@/components/PageHero';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Gallery',
   description: 'Photos and memories from the RunnerX Kota Marathon.',

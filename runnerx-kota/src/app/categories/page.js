@@ -3,6 +3,8 @@ import { categories as fallbackCategories } from '@/data/categories';
 import PageHero from '@/components/PageHero';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Race Categories — RunnerX Kota Marathon',
   description: 'Choose your challenge: Half Marathon, 10K, 5K, or 3K Fun Run.',

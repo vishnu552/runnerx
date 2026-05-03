@@ -33,7 +33,7 @@ export async function authenticatedFetch(path, options = {}) {
 export async function getPageContent(page, siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/page-content?page=${page}&siteFor=${siteFor}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -83,7 +83,7 @@ export async function getGalleryImages(siteFor = 'KTA', year = null) {
     if (year) params.append('year', year);
     
     const res = await fetch(`${API_URL}/api/gallery-images?${params.toString()}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -107,7 +107,7 @@ export async function getGalleryImages(siteFor = 'KTA', year = null) {
 export async function getCategories(siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/categories?siteFor=${siteFor}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -150,7 +150,7 @@ export async function getCategories(siteFor = 'KTA') {
 export async function getCategoryBySlug(slug, siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/categories/${slug}?siteFor=${siteFor}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -198,7 +198,7 @@ export async function getEvents(siteFor = null) {
       : `${API_URL}/api/events/public`;
       
     const res = await fetch(url, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -222,7 +222,7 @@ export async function getEvents(siteFor = null) {
 export async function getActiveEvent(siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/events/public/active?siteFor=${siteFor}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) return null;
@@ -241,7 +241,7 @@ export async function getActiveEvent(siteFor = 'KTA') {
 export async function getEventById(eventId) {
   try {
     const res = await fetch(`${API_URL}/api/events/public/${eventId}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) return null;
@@ -302,7 +302,7 @@ export async function getSponsors(siteFor = 'KTA') {
 export async function getRunnersInfo(siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/runners-info?siteFor=${siteFor}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -400,7 +400,7 @@ export async function getInfoSections(pageType, siteFor = 'KTA') {
   try {
     const res = await fetch(
       `${API_URL}/api/info-sections?siteFor=${siteFor}&pageType=${pageType}`,
-      { next: { revalidate: 60 } }
+      { cache: 'no-store' }
     );
     if (!res.ok) return [];
     const data = await res.json();

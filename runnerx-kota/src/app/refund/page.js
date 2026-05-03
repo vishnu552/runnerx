@@ -2,6 +2,8 @@ import { eventInfo as fallbackEventInfo } from '@/data/categories';
 import { getGlobalContent, getInfoSections } from '@/lib/api';
 import PageHero from '@/components/PageHero';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Refund Policy',
   description: 'Refund and cancellation policy for the RunnerX Kota Marathon.',

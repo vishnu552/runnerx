@@ -33,7 +33,7 @@ export async function authenticatedFetch(path, options = {}) {
 export async function getPageContent(page, siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/page-content?page=${page}&siteFor=${siteFor}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -84,7 +84,7 @@ export async function getEvents(siteFor = null) {
       : `${API_URL}/api/events/public`;
       
     const res = await fetch(url, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) {
@@ -107,7 +107,7 @@ export async function getEvents(siteFor = null) {
 export async function getEventById(id) {
   try {
     const res = await fetch(`${API_URL}/api/events/public/${id}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) return null;
@@ -126,7 +126,7 @@ export async function getEventById(id) {
 export async function getActiveEvent(siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/events/public/active?siteFor=${siteFor}`, {
-      next: { revalidate: 60 }
+      cache: 'no-store'
     });
 
     if (!res.ok) return null;
@@ -218,7 +218,7 @@ export async function getInfoSections(pageType, siteFor = 'KTA') {
   try {
     const res = await fetch(
       `${API_URL}/api/info-sections?siteFor=${siteFor}&pageType=${pageType}`,
-      { next: { revalidate: 60 } }
+      { cache: 'no-store' }
     );
     if (!res.ok) return [];
     const data = await res.json();

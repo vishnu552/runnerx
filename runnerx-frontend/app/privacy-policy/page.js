@@ -1,5 +1,7 @@
 import { getPageContent, getGlobalContent, getInfoSections } from '@/app/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Privacy Policy',
   description: 'Privacy policy for RunnerX — how we collect, use, and protect your data.',

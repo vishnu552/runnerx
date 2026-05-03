@@ -1,6 +1,8 @@
 import { getPageContent, getGlobalContent, getInfoSections } from '@/lib/api';
 import PageHero from '@/components/PageHero';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Privacy Policy',
   description: 'Privacy policy for RunnerX Kota Marathon — how we collect, use, and protect your data.',

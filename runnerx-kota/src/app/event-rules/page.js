@@ -1,6 +1,8 @@
 import { getPageContent, getInfoSections } from '@/lib/api';
 import PageHero from '@/components/PageHero';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Event Rules — RunnerX Kota',
   description: 'Rules, regulations, and guidelines for the RunnerX Kota Marathon.',

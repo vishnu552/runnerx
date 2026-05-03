@@ -2,6 +2,8 @@ import { getPageContent, getInfoSections } from '@/lib/api';
 import TabsViewer from '@/components/TabsViewer';
 import PageHero from '@/components/PageHero';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Philanthropy — RunnerX Kota',
   description: 'Our impact and charity partners at RunnerX Kota Marathon.',
