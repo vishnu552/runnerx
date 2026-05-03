@@ -19,11 +19,11 @@ export default async function HomePage() {
   const cats = categories || fallbackCategories;
   const runnersInfo = (runnersInfoData && runnersInfoData.length > 0) ? runnersInfoData : [
     { title: "Bib Collection", image: "/images/overview-runner.png", link: "/bib-collection" },
-    { title: "Race Start Timings", image: "/images/cat-half.png", link: "/event-rules" },
+    { title: "Race Start Timings", image: "/images/overview-runner.png", link: "/event-rules" },
     { title: "Route Maps", image: "/images/overview-runner.png", link: "/route" },
-    { title: "Venue Maps", image: "/images/cat-3k.png", link: "/venue" },
-    { title: "Runner's Guides", "image": "/images/overview-runner.png", link: "/guides" },
-    { title: "Medical Advisory", image: "/images/cat-half.png", link: "/medical-advisory" }
+    { title: "Venue Maps", image: "/images/overview-runner.png", link: "/venue" },
+    { title: "Runner's Guides", image: "/images/overview-runner.png", link: "/guides" },
+    { title: "Medical Advisory", image: "/images/overview-runner.png", link: "/medical-advisory" }
   ];
   const hero = content?.hero;
   const overview = content?.overview;
