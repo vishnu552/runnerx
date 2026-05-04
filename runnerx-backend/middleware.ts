@@ -12,8 +12,21 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3001",
   "http://localhost:3002",
   "http://127.0.0.1:3002",
-  process.env.FRONTEND_URL,
-].filter(Boolean) as string[];
+  ...(process.env.FRONTEND_URL || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+];
+
+// Auto-allow any runnerx.in subdomain (runnerx.in, www.runnerx.in, dashboard.runnerx.in, etc.)
+const ALLOWED_ORIGIN_PATTERN = /^https:\/\/([a-z0-9-]+\.)*runnerx\.in$/i;
+
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return false;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  if (ALLOWED_ORIGIN_PATTERN.test(origin)) return true;
+  return false;
+}
 
 function corsHeaders(origin: string | null) {
   const headers: Record<string, string> = {
@@ -21,9 +34,10 @@ function corsHeaders(origin: string | null) {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Allow-Credentials": "true",
     "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
   };
-  if (origin && ALLOWED_ORIGINS.includes(origin)) {
-    headers["Access-Control-Allow-Origin"] = origin;
+  if (isAllowedOrigin(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin as string;
   }
   return headers;
 }
