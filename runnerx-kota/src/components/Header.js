@@ -143,22 +143,27 @@ export default function Header({
               if (link.isDropdown) {
                 const isOpen = expandedNav === link.label;
                 return (
-                  <div key={link.label} className="relative">
+                  <div 
+                    key={link.label} 
+                    className="relative"
+                    onMouseEnter={() => setExpandedNav(link.label)}
+                    onMouseLeave={() => setExpandedNav(null)}
+                  >
                     <button
                       type="button"
-                      onClick={() => setExpandedNav(isOpen ? null : link.label)}
                       className={`inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-[0.08em] transition ${pathname.startsWith("/categories") ? "text-[#00a0ff]" : "text-slate-600 hover:text-[#00a0ff]"}`}
                     >
                       {link.label}
-                      <span className="text-xs">{isOpen ? "▲" : "▼"}</span>
+                      <span className="text-xs transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                     </button>
                     {isOpen && (
-                      <div className="absolute left-1/2 top-full mt-2 flex min-w-[240px] -translate-x-1/2 flex-col rounded-b-md border border-slate-200 border-t-2 border-t-[#00a0ff] bg-white py-1 shadow-xl">
+                      <div className="absolute left-1/2 top-full mt-0 pt-2 flex min-w-[240px] -translate-x-1/2 flex-col rounded-b-md border border-slate-200 border-t-2 border-t-[#00a0ff] bg-white py-1 shadow-xl">
                         {categories.map((cat) => (
                           <Link
                             key={cat.slug}
                             href={`/categories/${cat.slug}`}
                             className="border-b border-slate-100 px-5 py-3 text-sm font-semibold uppercase tracking-[0.07em] text-slate-700 transition hover:bg-slate-50 hover:text-[#00a0ff] last:border-b-0"
+                            onClick={() => setExpandedNav(null)}
                           >
                             {cat.name}
                           </Link>
