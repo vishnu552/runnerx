@@ -135,7 +135,7 @@ body {
   .dashboard-sidebar-desktop {
     display: block;
   }
-  .mb-4.lg\:hidden {
+  .lg-hidden {
     display: none !important;
   }
 }
@@ -386,9 +386,98 @@ body {
   }
 }
 
-/* Hide back link icon on desktop */
-@media (min-width: 641px) {
-  .back-link-icon {
-    display: none !important;
+/* ─── Registration Flow Responsiveness ─── */
+.registration-container {
+  width: 100%;
+  max-width: 850px !important;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .registration-container {
+    @apply !mt-4 !mb-8 !px-4;
   }
 }
+
+.registration-header {
+  width: 100%;
+  max-width: 850px;
+  margin-bottom: 24px;
+}
+
+.registration-header h2 {
+  @apply text-2xl md:text-3xl font-black uppercase tracking-tight;
+  line-height: 1.1;
+}
+
+@media (max-width: 640px) {
+  .registration-header h2 {
+    font-size: 1.5rem !important;
+  }
+}
+
+.registration-form-section {
+  padding: 32px;
+  background: var(--surface);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .registration-form-section {
+    padding: 20px !important;
+    border-radius: 12px !important;
+  }
+}
+
+.registration-input {
+  @apply w-full !text-base !py-3 !px-4 !rounded-xl transition-all duration-200 border-slate-200;
+  font-family: inherit;
+}
+
+.registration-input:focus {
+  @apply border-[#ffc83c] ring-4 ring-[#ffc83c]/10 outline-none;
+}
+
+.registration-label {
+  @apply block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1;
+}
+
+.summary-cart-bar {
+  @apply rounded-2xl;
+}
+
+@media (max-width: 640px) {
+  .summary-cart-bar {
+    @apply fixed bottom-0 left-0 right-0 !m-0 !w-full !rounded-none z-[1001];
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.1);
+  }
+
+  .summary-breakdown-popup {
+    @apply !p-4 !rounded-xl !mx-0; 
+    width: calc(100vw - 32px) !important;
+    left: 16px !important;
+    right: 16px !important;
+  }
+  
+  .registration-btn-group {
+    @apply flex justify-between items-center px-6 py-4;
+  }
+
+  @media (max-width: 640px) {
+    .registration-btn-group {
+      @apply !p-4 !h-auto flex-col gap-3 items-stretch;
+    }
+  }
+}
+
+.edit-modal-content {
+  @apply p-8;
+}
+
+@media (max-width: 640px) {
+  .edit-modal-content {
+    @apply p-5;
+  }
+}
+

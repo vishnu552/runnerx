@@ -551,12 +551,13 @@ export default function RegistrationClient({ currentUser, event }) {
   }) : '';
 
   const inputStyle = (field) => ({
-    width: '100%', padding: '10px 14px', borderRadius: '6px',
+    width: '100%', padding: '12px 16px', borderRadius: '10px',
     border: errors[field] ? '1px solid #ef4444' : '1px solid var(--border)',
-    background: 'var(--background)', color: 'var(--text)', fontSize: '0.95rem',
+    background: 'var(--background)', color: 'var(--text)', fontSize: '1rem',
     outline: errors[field] ? '2px solid rgba(239,68,68,0.2)' : undefined,
+    transition: 'all 0.2s',
   });
-  const labelStyle = { display: 'block', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text)', marginBottom: '4px' };
+  const labelStyle = { display: 'block', fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' };
   const errorStyle = { color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' };
   const btnPrimary = { backgroundColor: '#ffc83c', color: 'white', padding: '12px 24px', fontSize: '1.1rem', fontWeight: 600, border: 'none', borderRadius: '8px', cursor: 'pointer' };
   const btnBack = { background: 'none', border: 'none', color: '#ffc83c', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px', padding: '0', marginBottom: '24px', fontWeight: 700 };
@@ -592,13 +593,13 @@ export default function RegistrationClient({ currentUser, event }) {
         </div>
       </section> */}
 
-      <section className="section" style={{ minHeight: '60vh', padding: '0 60px' }}>
-        <div className="container">
+      <section className="section" style={{ minHeight: '60vh', padding: '0' }}>
+        <div className="container registration-container">
           {/* Progress Bar */}
 
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: '100%', maxWidth: '850px', marginBottom: '24px' }}>
+            <div className="registration-header">
               {step > 1 && step < 7 && (
                 <button onClick={goBack} style={btnBack}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
@@ -608,32 +609,32 @@ export default function RegistrationClient({ currentUser, event }) {
 
               {/* Outside Headings */}
               {step === 1 && (
-                <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px', color: 'var(--text)', textTransform: 'uppercase' }}>Register Participants</h2>
+                <h2 style={{ fontWeight: 900, marginBottom: '8px', color: 'var(--text)', textTransform: 'uppercase' }}>Register Participants</h2>
               )}
               {step === 2 && (
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>
+                  <h2 style={{ fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>
                     Participant {currentIndex + 1} of {participantCount} — Details
                   </h2>
                 </div>
               )}
               {step === 3 && (
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>
+                  <h2 style={{ fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>
                     Participant {currentIndex + 1} — Select Category
                   </h2>
                 </div>
               )}
               {step === 4 && (
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>
+                  <h2 style={{ fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>
                     Support a Cause
                   </h2>
                 </div>
               )}
               {step === 5 && (
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>
+                  <h2 style={{ fontWeight: 900, color: 'var(--text)', margin: 0, textTransform: 'uppercase' }}>
                     Review & Submit
                   </h2>
                 </div>
@@ -668,16 +669,17 @@ export default function RegistrationClient({ currentUser, event }) {
               {!isVerifying && step === 1 && (
                 <>
 
-                  <div style={{ padding: '32px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c', marginBottom: '32px' }}>
+                  <div className="registration-form-section card" style={{ border: '2px solid #ffc83c', marginBottom: '32px' }}>
                     <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', marginBottom: '24px', fontWeight: 600 }}>
                       How many people would you like to register for this event?
                     </p>
                     
                     <div style={{ marginBottom: '32px' }}>
-                      <label style={labelStyle}>Number of Participants</label>
+                      <label className="registration-label" style={labelStyle}>Number of Participants</label>
                       <select 
                         value={participantCount} 
                         onChange={(e) => setParticipantCount(Number(e.target.value))}
+                        className="registration-input"
                         style={{ ...inputStyle(''), maxWidth: '120px' }}
                       >
                         {[...Array(10)].map((_, i) => (
@@ -703,7 +705,7 @@ export default function RegistrationClient({ currentUser, event }) {
               {/* ═══════════════ STEP 2: PARTICIPANT DETAILS ═══════════════ */}
               {!isVerifying && step === 2 && (
                 <>
-                  <div style={{ padding: '32px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c' }}>
+                  <div className="registration-form-section card" style={{ border: '2px solid #ffc83c' }}>
 
 
                   {currentIndex === 0 && (
@@ -717,29 +719,29 @@ export default function RegistrationClient({ currentUser, event }) {
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div>
-                      <label style={labelStyle}>Full Name *</label>
-                      <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} style={inputStyle('fullName')} />
+                      <label className="registration-label" style={labelStyle}>Full Name *</label>
+                      <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="registration-input" style={inputStyle('fullName')} />
                       {errors.fullName && <p style={errorStyle}>{errors.fullName}</p>}
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px' }}>Enter details as per gov ID (Aadhaar/PAN/Passport).</p>
                     </div>
 
                     <div className="registration-two-col">
                       <div>
-                        <label style={labelStyle}>Email Address *</label>
-                        <input type="email" name="email" value={formData.email} onChange={handleChange} style={inputStyle('email')} />
+                        <label className="registration-label" style={labelStyle}>Email Address *</label>
+                        <input type="email" name="email" value={formData.email} onChange={handleChange} className="registration-input" style={inputStyle('email')} />
                         {errors.email && <p style={errorStyle}>{errors.email}</p>}
                       </div>
                       <div>
-                        <label style={labelStyle}>Mobile No. *</label>
-                        <input type="tel" name="phone" value={formData.phone} onChange={handleChange} style={inputStyle('phone')} />
+                        <label className="registration-label" style={labelStyle}>Mobile No. *</label>
+                        <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="registration-input" style={inputStyle('phone')} />
                         {errors.phone && <p style={errorStyle}>{errors.phone}</p>}
                       </div>
                     </div>
 
                     <div className="registration-two-col">
                       <div>
-                        <label style={labelStyle}>Gender *</label>
-                        <select name="gender" value={formData.gender} onChange={handleChange} style={inputStyle('gender')}>
+                        <label className="registration-label" style={labelStyle}>Gender *</label>
+                        <select name="gender" value={formData.gender} onChange={handleChange} className="registration-input" style={inputStyle('gender')}>
                           <option value="">Select Gender</option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
@@ -748,40 +750,40 @@ export default function RegistrationClient({ currentUser, event }) {
                         {errors.gender && <p style={errorStyle}>{errors.gender}</p>}
                       </div>
                       <div>
-                        <label style={labelStyle}>Date of Birth *</label>
-                        <input type="date" name="dob" value={formData.dob} onChange={handleChange} style={inputStyle('dob')} />
+                        <label className="registration-label" style={labelStyle}>Date of Birth *</label>
+                        <input type="date" name="dob" value={formData.dob} onChange={handleChange} className="registration-input" style={inputStyle('dob')} />
                         {errors.dob && <p style={errorStyle}>{errors.dob}</p>}
                       </div>
                     </div>
 
                     <div className="registration-two-col">
                       <div>
-                        <label style={labelStyle}>Pin Code *</label>
-                        <input type="text" name="pinCode" value={formData.pinCode} onChange={handleChange} style={inputStyle('pinCode')} />
+                        <label className="registration-label" style={labelStyle}>Pin Code *</label>
+                        <input type="text" name="pinCode" value={formData.pinCode} onChange={handleChange} className="registration-input" style={inputStyle('pinCode')} />
                         {errors.pinCode && <p style={errorStyle}>{errors.pinCode}</p>}
                       </div>
                       <div>
-                        <label style={labelStyle}>Country *</label>
-                        <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder="India" style={inputStyle('country')} />
+                        <label className="registration-label" style={labelStyle}>Country *</label>
+                        <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder="India" className="registration-input" style={inputStyle('country')} />
                         {errors.country && <p style={errorStyle}>{errors.country}</p>}
                       </div>
                     </div>
 
                     <div className="registration-two-col">
                       <div>
-                        <label style={labelStyle}>State *</label>
-                        <input type="text" name="state" value={formData.state} onChange={handleChange} style={inputStyle('state')} />
+                        <label className="registration-label" style={labelStyle}>State *</label>
+                        <input type="text" name="state" value={formData.state} onChange={handleChange} className="registration-input" style={inputStyle('state')} />
                         {errors.state && <p style={errorStyle}>{errors.state}</p>}
                       </div>
                       <div>
-                        <label style={labelStyle}>City *</label>
-                        <input type="text" name="city" value={formData.city} onChange={handleChange} style={inputStyle('city')} />
+                        <label className="registration-label" style={labelStyle}>City *</label>
+                        <input type="text" name="city" value={formData.city} onChange={handleChange} className="registration-input" style={inputStyle('city')} />
                         {errors.city && <p style={errorStyle}>{errors.city}</p>}
                       </div>
                     </div>
 
                     <div>
-                      <label style={labelStyle}>Full Address *</label>
+                      <label className="registration-label" style={labelStyle}>Full Address *</label>
                       <textarea name="address" value={formData.address} onChange={handleChange} rows="3" style={{ ...inputStyle('address'), resize: 'vertical' }} />
                       {errors.address && <p style={errorStyle}>{errors.address}</p>}
                     </div>
@@ -799,10 +801,10 @@ export default function RegistrationClient({ currentUser, event }) {
                   {/* 1. On-Ground Participation Section */}
                   {groundCategories.length > 0 && (
                     <div style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      <h3 style={{ fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         On-Ground Race
                       </h3>
-                      <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c' }}>
+                      <div className="registration-form-section card" style={{ border: '2px solid #ffc83c' }}>
                         <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '20px', fontWeight: 600 }}>Participate in On-Ground Race?</p>
                         <div style={{ display: 'flex', gap: '24px', marginBottom: formData.wantsGround ? '24px' : '0' }}>
                           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '1rem', fontWeight: 700 }}>
@@ -817,8 +819,8 @@ export default function RegistrationClient({ currentUser, event }) {
 
                         {formData.wantsGround && (
                           <div style={{ padding: '20px', background: 'var(--surface-alt)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                            <label style={labelStyle}>Select Ground Race Category</label>
-                            <select value={formData.selectedCategoryId || ''} onChange={(e) => setFormData(prev => ({ ...prev, selectedCategoryId: Number(e.target.value) || null }))} style={inputStyle('selectedCategoryId')}>
+                            <label className="registration-label" style={labelStyle}>Select Ground Race Category</label>
+                            <select value={formData.selectedCategoryId || ''} onChange={(e) => setFormData(prev => ({ ...prev, selectedCategoryId: Number(e.target.value) || null }))} className="registration-input" style={inputStyle('selectedCategoryId')}>
                               <option value="">— Choose Distance —</option>
                               {groundCategories.map(ec => {
                                 const isFull = ec.maxParticipants && ec.registeredCount >= ec.maxParticipants;
@@ -842,10 +844,10 @@ export default function RegistrationClient({ currentUser, event }) {
                   {/* 2. Virtual Participation Section */}
                   {virtualCategories.length > 0 && (
                     <div style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      <h3 style={{ fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Virtual Marathon Challenge
                       </h3>
-                      <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c' }}>
+                      <div className="registration-form-section card" style={{ border: '2px solid #ffc83c' }}>
                         <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '20px', fontWeight: 600 }}>Participate in Virtual Marathon Challenge?</p>
                         <div style={{ display: 'flex', gap: '24px', marginBottom: formData.wantsVirtual ? '24px' : '0' }}>
                           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '1rem', fontWeight: 700 }}>
@@ -860,8 +862,8 @@ export default function RegistrationClient({ currentUser, event }) {
 
                         {formData.wantsVirtual && (
                           <div style={{ padding: '20px', background: 'var(--surface-alt)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                            <label style={labelStyle}>Select Virtual Distance</label>
-                            <select style={inputStyle('virtualSubCategoryId')} value={formData.virtualSubCategoryId} onChange={(e) => setFormData(p => ({ ...p, virtualSubCategoryId: e.target.value }))}>
+                            <label className="registration-label" style={labelStyle}>Select Virtual Distance</label>
+                            <select className="registration-input" style={inputStyle('virtualSubCategoryId')} value={formData.virtualSubCategoryId} onChange={(e) => setFormData(p => ({ ...p, virtualSubCategoryId: e.target.value }))}>
                               <option value="">— Choose Distance —</option>
                               {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => {
                                 const ageReason = ageMismatchReason(virtualCategories[0], getAgeFromDob(formData.dob));
@@ -886,31 +888,31 @@ export default function RegistrationClient({ currentUser, event }) {
 
                   {/* 3. Additional Information Section */}
                   <div style={{ marginBottom: '0' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <h3 style={{ fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       Additional Information
                     </h3>
-                    <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c' }}>
+                    <div className="registration-form-section card" style={{ border: '2px solid #ffc83c' }}>
                       <div style={{ marginBottom: formData.wantsGround ? '24px' : '0' }}>
-                        <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          Confirm T-Shirt Size *
-                          <button 
-                            type="button" 
-                            onClick={() => setShowTshirtChart(true)}
-                            style={{ 
-                              background: 'none', border: 'none', padding: 0, cursor: 'pointer', 
-                              color: '#00a0ff', display: 'flex', alignItems: 'center' 
-                            }}
-                            title="View Size Chart"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10"></circle>
-                              <line x1="12" y1="16" x2="12" y2="12"></line>
-                              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                            </svg>
-                          </button>
-                        </label>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>This T-shirt is included with your registration.</p>
-                         <select name="tshirtSize" value={formData.tshirtSize} onChange={handleChange} style={{ ...inputStyle('tshirtSize'), maxWidth: '300px' }}>
+                          <label className="registration-label" style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            Confirm T-Shirt Size *
+                            <button 
+                              type="button" 
+                              onClick={() => setShowTshirtChart(true)}
+                              style={{ 
+                                background: 'none', border: 'none', padding: 0, cursor: 'pointer', 
+                                color: '#00a0ff', display: 'flex', alignItems: 'center' 
+                              }}
+                              title="View Size Chart"
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                              </svg>
+                            </button>
+                          </label>
+                          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>This T-shirt is included with your registration.</p>
+                           <select name="tshirtSize" value={formData.tshirtSize} onChange={handleChange} className="registration-input" style={{ ...inputStyle('tshirtSize'), maxWidth: '300px' }}>
                            <option value="">Select Size</option>
                            <option value="XXS - 32 Inch">XXS - 32 Inch</option>
                            <option value="XS - 34 Inch">XS - 34 Inch</option>
@@ -928,13 +930,13 @@ export default function RegistrationClient({ currentUser, event }) {
                           <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', marginBottom: '16px' }}>Emergency Contact</h4>
                           <div className="registration-two-col">
                             <div>
-                              <label style={labelStyle}>Contact Name *</label>
-                              <input type="text" name="emergencyName" value={formData.emergencyName} onChange={handleChange} placeholder="Relation/Name" style={inputStyle('emergencyName')} />
+                              <label className="registration-label" style={labelStyle}>Contact Name *</label>
+                              <input type="text" name="emergencyName" value={formData.emergencyName} onChange={handleChange} placeholder="Relation/Name" className="registration-input" style={inputStyle('emergencyName')} />
                               {errors.emergencyName && <p style={errorStyle}>{errors.emergencyName}</p>}
                             </div>
                             <div>
-                              <label style={labelStyle}>Contact Mobile *</label>
-                              <input type="tel" name="emergencyPhone" value={formData.emergencyPhone} onChange={handleChange} placeholder="10-digit number" style={inputStyle('emergencyPhone')} />
+                              <label className="registration-label" style={labelStyle}>Contact Mobile *</label>
+                              <input type="tel" name="emergencyPhone" value={formData.emergencyPhone} onChange={handleChange} placeholder="10-digit number" className="registration-input" style={inputStyle('emergencyPhone')} />
                               {errors.emergencyPhone && <p style={errorStyle}>{errors.emergencyPhone}</p>}
                             </div>
                           </div>
@@ -950,10 +952,10 @@ export default function RegistrationClient({ currentUser, event }) {
               {!isVerifying && SHOW_DONATION_STEP && step === 4 && (
                 <>
                   <div style={{ marginBottom: '32px' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <h3 style={{ fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       Support a Cause
                     </h3>
-                    <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c' }}>
+                    <div className="registration-form-section card" style={{ border: '2px solid #ffc83c' }}>
                       <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '20px', fontWeight: 600 }}>
                         Contribute to a cause and make your run more meaningful. Would you like to donate?
                       </p>
@@ -978,11 +980,11 @@ export default function RegistrationClient({ currentUser, event }) {
                           {/* Cause Selection (Commented for now) */}
                           {/* 
                           <div style={{ padding: '20px', background: 'var(--surface-alt)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                            <label style={labelStyle}>Choose a Cause *</label>
+                            <label className="registration-label" style={labelStyle}>Choose a Cause *</label>
                             <select 
                               value={donationData.causeName} 
                               onChange={(e) => setDonationData(prev => ({ ...prev, causeName: e.target.value }))}
-                              style={inputStyle('causeName')}
+                              className="registration-input" style={inputStyle('causeName')}
                             >
                               <option value="">— Select Cause —</option>
                               {causes.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
@@ -1000,7 +1002,7 @@ export default function RegistrationClient({ currentUser, event }) {
 
                           {/* Donation Amount */}
                           <div style={{ padding: '20px', background: 'var(--surface-alt)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                            <label style={labelStyle}>Donation Amount (₹) *</label>
+                            <label className="registration-label" style={labelStyle}>Donation Amount (₹) *</label>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
                               {donationAmountOptions.map(amt => (
                                 <button
@@ -1023,7 +1025,7 @@ export default function RegistrationClient({ currentUser, event }) {
                               placeholder="Or enter custom amount" 
                               value={donationData.amount}
                               onChange={(e) => setDonationData(prev => ({ ...prev, amount: Math.max(0, Number(e.target.value)) || '' }))}
-                              style={inputStyle('amount')}
+                              className="registration-input" style={inputStyle('amount')}
                             />
                             {errors.amount && <p style={errorStyle}>{errors.amount}</p>}
                           </div>
@@ -1034,19 +1036,19 @@ export default function RegistrationClient({ currentUser, event }) {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                               <div className="registration-two-col">
                                 <div>
-                                  <label style={labelStyle}>Donor Name *</label>
-                                  <input type="text" value={donationData.donorName} onChange={(e) => setDonationData(p => ({ ...p, donorName: e.target.value }))} style={inputStyle('donorName')} />
+                                  <label className="registration-label" style={labelStyle}>Donor Name *</label>
+                                  <input type="text" value={donationData.donorName} onChange={(e) => setDonationData(p => ({ ...p, donorName: e.target.value }))} className="registration-input" style={inputStyle('donorName')} />
                                   {errors.donorName && <p style={errorStyle}>{errors.donorName}</p>}
                                 </div>
                                 <div>
-                                  <label style={labelStyle}>Donor Email *</label>
-                                  <input type="email" value={donationData.donorEmail} onChange={(e) => setDonationData(p => ({ ...p, donorEmail: e.target.value }))} style={inputStyle('donorEmail')} />
+                                  <label className="registration-label" style={labelStyle}>Donor Email *</label>
+                                  <input type="email" value={donationData.donorEmail} onChange={(e) => setDonationData(p => ({ ...p, donorEmail: e.target.value }))} className="registration-input" style={inputStyle('donorEmail')} />
                                   {errors.donorEmail && <p style={errorStyle}>{errors.donorEmail}</p>}
                                 </div>
                               </div>
                               <div style={{ maxWidth: '300px' }}>
-                                <label style={labelStyle}>Donor Phone *</label>
-                                <input type="tel" value={donationData.donorPhone} onChange={(e) => setDonationData(p => ({ ...p, donorPhone: e.target.value }))} placeholder="10-digit number" style={inputStyle('donorPhone')} />
+                                <label className="registration-label" style={labelStyle}>Donor Phone *</label>
+                                <input type="tel" value={donationData.donorPhone} onChange={(e) => setDonationData(p => ({ ...p, donorPhone: e.target.value }))} placeholder="10-digit number" className="registration-input" style={inputStyle('donorPhone')} />
                                 {errors.donorPhone && <p style={errorStyle}>{errors.donorPhone}</p>}
                               </div>
                             </div>
@@ -1072,13 +1074,13 @@ export default function RegistrationClient({ currentUser, event }) {
                               <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border)', animation: 'fadeIn 0.3s ease' }}>
                                 <div className="registration-two-col">
                                   <div>
-                                    <label style={labelStyle}>PAN Card Name *</label>
-                                    <input type="text" value={donationData.panCardName} onChange={(e) => setDonationData(p => ({ ...p, panCardName: e.target.value }))} placeholder="As on PAN" style={inputStyle('panCardName')} />
+                                    <label className="registration-label" style={labelStyle}>PAN Card Name *</label>
+                                    <input type="text" value={donationData.panCardName} onChange={(e) => setDonationData(p => ({ ...p, panCardName: e.target.value }))} placeholder="As on PAN" className="registration-input" style={inputStyle('panCardName')} />
                                     {errors.panCardName && <p style={errorStyle}>{errors.panCardName}</p>}
                                   </div>
                                   <div>
-                                    <label style={labelStyle}>PAN Number *</label>
-                                    <input type="text" value={donationData.panCardNumber} onChange={(e) => setDonationData(p => ({ ...p, panCardNumber: e.target.value.toUpperCase() }))} placeholder="ABCDE1234F" maxLength={10} style={inputStyle('panCardNumber')} />
+                                    <label className="registration-label" style={labelStyle}>PAN Number *</label>
+                                    <input type="text" value={donationData.panCardNumber} onChange={(e) => setDonationData(p => ({ ...p, panCardNumber: e.target.value.toUpperCase() }))} placeholder="ABCDE1234F" maxLength={10} className="registration-input" style={inputStyle('panCardNumber')} />
                                     {errors.panCardNumber && <p style={errorStyle}>{errors.panCardNumber}</p>}
                                   </div>
                                 </div>
@@ -1494,7 +1496,7 @@ export default function RegistrationClient({ currentUser, event }) {
 
           {/* Breakdown Popover */}
           {showBreakdown && (
-            <div style={{ 
+            <div className="summary-breakdown-popup" style={{ 
               position: 'absolute', bottom: 'calc(100% + 12px)', left: 0, right: 0,
               background: 'white', border: '2px solid #ffc83c',
               borderRadius: '20px', padding: '28px',
@@ -1555,7 +1557,7 @@ export default function RegistrationClient({ currentUser, event }) {
           )}
 
           {/* Main Bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', height: '80px', position: 'relative', zIndex: 1000 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '80px', position: 'relative', zIndex: 1000 }} className="registration-btn-group">
             <div 
               onClick={() => setShowBreakdown(!showBreakdown)}
               style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer', color: 'white' }}
@@ -1676,7 +1678,7 @@ export default function RegistrationClient({ currentUser, event }) {
             <button onClick={() => setIsEditModalOpen(false)} style={{ background: 'rgba(0,0,0,0.1)', border: 'none', color: 'white', width: '32px', height: '32px', borderRadius: '50%', fontSize: '1.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
           </div>
           
-          <div style={{ padding: '32px', overflowY: 'auto', flex: 1 }}>
+          <div className="edit-modal-content" style={{ overflowY: 'auto', flex: 1 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
               {/* Section: Personal Info */}
@@ -1684,31 +1686,31 @@ export default function RegistrationClient({ currentUser, event }) {
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '16px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>Personal Information</h4>
                 <div className="registration-two-col">
                   <div>
-                    <label style={labelStyle}>Full Name *</label>
-                    <input type="text" name="fullName" value={tempEditData.fullName} onChange={handleEditChange} style={inputStyle('')} />
+                    <label className="registration-label" style={labelStyle}>Full Name *</label>
+                    <input type="text" name="fullName" value={tempEditData.fullName} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                     {editErrors.fullName && <p style={errorStyle}>{editErrors.fullName}</p>}
                   </div>
                   <div>
-                    <label style={labelStyle}>Email *</label>
-                    <input type="email" name="email" value={tempEditData.email} onChange={handleEditChange} style={inputStyle('')} />
+                    <label className="registration-label" style={labelStyle}>Email *</label>
+                    <input type="email" name="email" value={tempEditData.email} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                     {editErrors.email && <p style={errorStyle}>{editErrors.email}</p>}
                   </div>
                 </div>
                 <div className="registration-two-col" style={{ marginTop: '16px' }}>
                   <div>
-                    <label style={labelStyle}>Phone *</label>
-                    <input type="tel" name="phone" value={tempEditData.phone} onChange={handleEditChange} style={inputStyle('')} />
+                    <label className="registration-label" style={labelStyle}>Phone *</label>
+                    <input type="tel" name="phone" value={tempEditData.phone} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                     {editErrors.phone && <p style={errorStyle}>{editErrors.phone}</p>}
                   </div>
                   <div>
-                    <label style={labelStyle}>Date of Birth *</label>
-                    <input type="date" name="dob" value={tempEditData.dob} onChange={handleEditChange} style={inputStyle('')} />
+                    <label className="registration-label" style={labelStyle}>Date of Birth *</label>
+                    <input type="date" name="dob" value={tempEditData.dob} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                   </div>
                 </div>
                 <div className="registration-two-col" style={{ marginTop: '16px' }}>
                   <div>
-                    <label style={labelStyle}>Gender</label>
-                    <select name="gender" value={tempEditData.gender} onChange={handleEditChange} style={inputStyle('')}>
+                    <label className="registration-label" style={labelStyle}>Gender</label>
+                    <select name="gender" value={tempEditData.gender} onChange={handleEditChange} className="registration-input" style={inputStyle('')}>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
@@ -1733,7 +1735,7 @@ export default function RegistrationClient({ currentUser, event }) {
                         </svg>
                       </button>
                     </label>
-                    <select name="tshirtSize" value={tempEditData.tshirtSize} onChange={handleEditChange} style={inputStyle('')}>
+                    <select name="tshirtSize" value={tempEditData.tshirtSize} onChange={handleEditChange} className="registration-input" style={inputStyle('')}>
                       <option value="">Select Size</option>
                       <option value="XXS - 32 Inch">XXS - 32 Inch</option>
                       <option value="XS - 34 Inch">XS - 34 Inch</option>
@@ -1752,26 +1754,26 @@ export default function RegistrationClient({ currentUser, event }) {
                 <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '16px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>Address</h4>
                 <div className="registration-two-col">
                   <div>
-                    <label style={labelStyle}>Pin Code</label>
-                    <input type="text" name="pinCode" value={tempEditData.pinCode} onChange={handleEditChange} style={inputStyle('')} />
+                    <label className="registration-label" style={labelStyle}>Pin Code</label>
+                    <input type="text" name="pinCode" value={tempEditData.pinCode} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                   </div>
                   <div>
-                    <label style={labelStyle}>Country</label>
-                    <input type="text" name="country" value={tempEditData.country} onChange={handleEditChange} style={inputStyle('')} />
+                    <label className="registration-label" style={labelStyle}>Country</label>
+                    <input type="text" name="country" value={tempEditData.country} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                   </div>
                 </div>
                 <div className="registration-two-col" style={{ marginTop: '16px' }}>
                   <div>
-                    <label style={labelStyle}>City</label>
-                    <input type="text" name="city" value={tempEditData.city} onChange={handleEditChange} style={inputStyle('')} />
+                    <label className="registration-label" style={labelStyle}>City</label>
+                    <input type="text" name="city" value={tempEditData.city} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                   </div>
                   <div>
-                    <label style={labelStyle}>State</label>
-                    <input type="text" name="state" value={tempEditData.state} onChange={handleEditChange} style={inputStyle('')} />
+                    <label className="registration-label" style={labelStyle}>State</label>
+                    <input type="text" name="state" value={tempEditData.state} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                   </div>
                 </div>
                 <div style={{ marginTop: '16px' }}>
-                  <label style={labelStyle}>Full Address</label>
+                  <label className="registration-label" style={labelStyle}>Full Address</label>
                   <textarea name="address" value={tempEditData.address} onChange={handleEditChange} rows="2" style={{ ...inputStyle(''), resize: 'vertical' }} />
                 </div>
               </div>
@@ -1803,7 +1805,7 @@ export default function RegistrationClient({ currentUser, event }) {
                             selectedCategoryId: id
                           }));
                         }} 
-                        style={inputStyle('')}
+                        className="registration-input" style={inputStyle('')}
                       >
                         <option value="">— Choose Distance —</option>
                         {groundCategories.map(ec => {
@@ -1843,7 +1845,7 @@ export default function RegistrationClient({ currentUser, event }) {
                               virtualSubCategoryId: e.target.value 
                             }));
                           }} 
-                          style={inputStyle('')}
+                          className="registration-input" style={inputStyle('')}
                         >
                           <option value="">— Choose Distance —</option>
                           {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => {
@@ -1873,13 +1875,13 @@ export default function RegistrationClient({ currentUser, event }) {
                   <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '16px', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>Emergency Contact</h4>
                   <div className="registration-two-col">
                     <div>
-                      <label style={labelStyle}>Contact Name *</label>
-                      <input type="text" name="emergencyName" value={tempEditData.emergencyName} onChange={handleEditChange} style={inputStyle('')} />
+                      <label className="registration-label" style={labelStyle}>Contact Name *</label>
+                      <input type="text" name="emergencyName" value={tempEditData.emergencyName} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                       {editErrors.emergency && <p style={errorStyle}>{editErrors.emergency}</p>}
                     </div>
                     <div>
-                      <label style={labelStyle}>Contact Phone *</label>
-                      <input type="tel" name="emergencyPhone" value={tempEditData.emergencyPhone} onChange={handleEditChange} style={inputStyle('')} />
+                      <label className="registration-label" style={labelStyle}>Contact Phone *</label>
+                      <input type="tel" name="emergencyPhone" value={tempEditData.emergencyPhone} onChange={handleEditChange} className="registration-input" style={inputStyle('')} />
                     </div>
                   </div>
                 </div>

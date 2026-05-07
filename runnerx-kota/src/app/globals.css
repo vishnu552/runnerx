@@ -1189,19 +1189,33 @@
     }
 
     .registration-btn-group {
-      @apply !flex-col !gap-3;
+      @apply flex justify-between items-center px-6 py-4;
+    }
+
+    @media (max-width: 1023px) {
+      .registration-btn-group {
+        @apply !flex-col !gap-3 !p-4 !h-auto;
+      }
     }
 
     .registration-btn-group button {
-      @apply !w-full !py-4 !text-base;
+      @apply !w-full !py-4 !px-4 !text-base;
     }
 
     .summary-cart-bar {
-      @apply !px-4 !py-3 !h-auto !flex-col !gap-3 !rounded-t-2xl !rounded-b-none !mb-0 !bottom-0 !fixed;
+      @apply !left-0 !right-0 !mx-0 !w-full !px-4 !py-3 !h-auto !flex-col !gap-3 !rounded-t-2xl !rounded-b-none !mb-0 !bottom-0 !fixed;
+      box-shadow: 0 -10px 25px rgba(0,0,0,0.15);
+    }
+
+    .summary-breakdown-popup {
+      @apply !p-4 !rounded-xl !mx-0; 
+      width: calc(100vw - 32px) !important;
+      left: 16px !important;
+      right: 16px !important;
     }
 
     .summary-cart-bar button {
-      @apply !w-full !py-3;
+      @apply !w-full !py-3 !px-4 !text-base;
     }
     
     .edit-modal-content {

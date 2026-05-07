@@ -1477,7 +1477,7 @@ export default function RegistrationClient({ currentUser, event }) {
 
           {/* Breakdown Popover */}
           {showBreakdown && (
-            <div style={{ 
+            <div className="summary-breakdown-popup" style={{ 
               position: 'absolute', bottom: 'calc(100% + 12px)', left: 0, right: 0,
               background: 'white', border: '2px solid #ffc83c',
               borderRadius: '20px', padding: '28px',
@@ -1530,7 +1530,7 @@ export default function RegistrationClient({ currentUser, event }) {
           )}
 
           {/* Main Bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', minHeight: '80px', position: 'relative', zIndex: 1000 }} className="registration-btn-group">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '80px', position: 'relative', zIndex: 1000 }} className="registration-btn-group">
             <div 
               onClick={() => setShowBreakdown(!showBreakdown)}
               style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer', color: 'white' }}

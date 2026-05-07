@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
-const navItems = [
+export const navItems = [
   { href: '/dashboard/profile', label: 'Profile', icon: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
   )},
@@ -31,160 +31,23 @@ const navItems = [
   )},
 ];
 
-export default function DashboardSidebar({ user, logoutAction, mobile = false }) {
+export default function DashboardSidebar({ user, logoutAction }) {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActiveLink = (href) => {
     if (href === '/dashboard') return pathname === '/dashboard';
     return pathname.startsWith(href);
   };
 
-  const firstName = user.name?.split(' ')[0] || 'Runner';
-
-  if (mobile) {
-    return (
-      <>
-        {/* Mobile top bar trigger */}
-        <section
-          className="card"
-          style={{ padding: '12px 16px', borderRadius: '12px' }}
-        >
-          <button
-            onClick={() => setMobileOpen(true)}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: '10px', padding: 0,
-              width: '100%',
-            }}
-          >
-            <div style={{
-              width: 36, height: 36, borderRadius: '8px', background: 'rgba(255,200,60,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffc83c'
-            }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-              </svg>
-            </div>
-            <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text)' }}>
-              Dashboard Menu
-            </span>
-          </button>
-        </section>
-
-        {/* Mobile drawer overlay */}
-        {mobileOpen && (
-          <div
-            style={{
-              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-              zIndex: 9999, display: 'flex',
-            }}
-          >
-            <div
-              onClick={() => setMobileOpen(false)}
-              style={{
-                position: 'absolute', inset: 0,
-                background: 'rgba(0,0,0,0.5)',
-                backdropFilter: 'blur(4px)',
-              }}
-            />
-            <div
-              style={{
-                position: 'relative', width: '85%', maxWidth: 340,
-                background: 'white', height: '100%',
-                boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
-                display: 'flex', flexDirection: 'column',
-                animation: 'slideInLeft 0.25s ease-out',
-                overflowY: 'auto',
-              }}
-            >
-              <div style={{
-                padding: '20px 24px', display: 'flex', justifyContent: 'space-between',
-                alignItems: 'center', borderBottom: '1px solid var(--border)',
-                background: '#fafafa'
-              }}>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text)' }}>Menu</h3>
-                <button
-                  onClick={() => setMobileOpen(false)}
-                  style={{ background: 'rgba(0,0,0,0.05)', border: 'none', borderRadius: '50%', cursor: 'pointer', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                  </svg>
-                </button>
-              </div>
-
-              <nav style={{ flex: 1, padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                {navItems.map((item) => {
-                  const isActive = isActiveLink(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileOpen(false)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '12px',
-                        padding: '12px 14px', borderRadius: '8px',
-                        textDecoration: 'none', fontSize: '0.95rem',
-                        fontWeight: isActive ? 600 : 400,
-                        color: isActive ? 'var(--primary)' : 'var(--text)',
-                        background: isActive ? 'rgba(255,200,60,0.06)' : 'transparent',
-                        transition: 'all 0.15s',
-                      }}
-                    >
-                      <span style={{ color: isActive ? 'var(--primary)' : 'var(--text-muted)', display: 'flex' }}>{item.icon}</span>
-                      {item.label}
-                    </Link>
-                  );
-                })}
-
-                <div style={{ height: 1, background: 'var(--border)', margin: '8px 0' }} />
-
-                <form action={logoutAction}>
-                  <button
-                    type="submit"
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '12px',
-                      padding: '12px 14px', borderRadius: '8px',
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      width: '100%', textAlign: 'left',
-                      fontSize: '0.95rem', color: '#ef4444', fontWeight: 400,
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Logout
-                  </button>
-                </form>
-              </nav>
-
-              <div style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
-                <Link
-                  href="/dashboard/register"
-                  onClick={() => setMobileOpen(false)}
-                  style={{
-                    display: 'block', textAlign: 'center',
-                    background: 'var(--primary)', color: 'white',
-                    padding: '14px', borderRadius: '10px',
-                    fontSize: '1rem', fontWeight: 700,
-                    textDecoration: 'none',
-                    boxShadow: '0 2px 8px rgba(255,200,60,0.25)',
-                  }}
-                >
-                  Register Now
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }
-
   // ─── Desktop sidebar ───
   return (
     <aside
       className="card"
-      style={{ borderRadius: '12px', position: 'sticky', top: 88 }}
+      style={{ 
+        borderRadius: '12px', position: 'sticky', top: 88, 
+        background: 'white', 
+        boxShadow: '0 4px 12px rgba(0,0,0,0.05)' 
+      }}
     >
 
       <nav style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '1px' }}>
