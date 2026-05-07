@@ -107,19 +107,19 @@ export default function Header({
 
   return (
     <>
-    {eventInfo?.headerHighlight ? (
       <div
         className={`fixed inset-x-0 top-0 z-[1001] bg-sky-500 text-white transition-transform duration-300 ${scrolled ? "-translate-y-full" : "translate-y-0"}`}
-      >
+        >
         <div className="mx-auto flex min-h-[var(--countdown-height)] max-w-[1280px] flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] sm:px-6">
           
+        {eventInfo?.headerHighlight ? (
             <div className="flex items-center gap-2">
               {/* <span className="bg-yellow-400 text-sky-900 px-2 py-0.5 rounded text-[10px] font-black">NEW</span> */}
               <span className="font-bold tracking-wider">{eventInfo.headerHighlight}</span>
             </div>
+      ) : null}
         </div>
       </div>
-       ) : null}
 
       <header
         className="fixed inset-x-0 z-[1000] border-b border-slate-200/70 bg-white/95 shadow-sm backdrop-blur-md transition-all duration-300"
