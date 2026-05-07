@@ -33,6 +33,8 @@ export async function GET(request) {
     path: '/',
   });
 
+  let redirectUrl = '/dashboard/register';
+
   // Store the origin site (only if valid)
   if (safeOrigin) {
     cookieStore.set(ORIGIN_COOKIE_NAME, safeOrigin, {
@@ -52,16 +54,16 @@ export async function GET(request) {
         const now = new Date();
         
         if (now <= registrationEnd) {
-          // Direct redirect to registration page for this specific event
-          redirect(`/dashboard/event-register/${activeEvent.id}`);
+          // Store redirect target to avoid calling redirect() inside try/catch
+          redirectUrl = `/dashboard/event-register/${activeEvent.id}`;
         }
       }
     } catch (error) {
       console.error('Error in smart redirect:', error);
-      // Fallback to general register page on error
+      // Fallback to default redirectUrl on error
     }
   }
 
-  // Redirect to dashboard (default fallback: register list page)
-  redirect('/dashboard/register');
+  // Final terminal redirect
+  redirect(redirectUrl);
 }
