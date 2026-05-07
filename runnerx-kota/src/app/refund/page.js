@@ -1,5 +1,5 @@
 import { eventInfo as fallbackEventInfo } from '@/data/categories';
-import { getGlobalContent, getInfoSections } from '@/lib/api';
+import { getPageContent, getGlobalContent, getInfoSections } from '@/lib/api';
 import PageHero from '@/components/PageHero';
 
 export const dynamic = 'force-dynamic';
@@ -10,9 +10,11 @@ export const metadata = {
 };
 
 export default async function RefundPage() {
+  const content = await getPageContent('refund');
   const globalContent = await getGlobalContent();
   const sections = await getInfoSections('REFUND', 'GLOBAL');
 
+  const hero = content?.hero || {};
   const email = globalContent?.event_info?.email || fallbackEventInfo.email;
   const phone = globalContent?.event_info?.phone || fallbackEventInfo.phone;
   const address = globalContent?.event_info?.location || fallbackEventInfo.location;
@@ -20,7 +22,8 @@ export default async function RefundPage() {
   return (
     <>
       <PageHero 
-        title="Refund Policy"
+        title={hero.title || "Refund Policy"}
+        bgImage={hero.bg_image}
       />
 
       <div className="legal-content">
@@ -39,16 +42,6 @@ export default async function RefundPage() {
             <p>No refund policy sections have been added yet.</p>
           </div>
         )}
-
-        <h2>Contact Us</h2>
-        <p>
-          If you have any questions regarding these terms, please reach out to us:
-        </p>
-        <ul>
-          <li>Email: {email}</li>
-          <li>Phone: {phone}</li>
-          <li>Address: {address}</li>
-        </ul>
       </div>
     </>
   );

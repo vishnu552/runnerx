@@ -88,7 +88,7 @@ export default async function TermsPage() {
       />
 
       <div className="legal-content">
-        <p className="last-updated">{legal.last_updated || "Last updated: March 26, 2026"}</p>
+        <p className="last-updated">Runnerx LLP</p>
 
         {termsSections.map((section, index) => (
           <div key={section.id || index} style={{ marginBottom: '32px' }}>
@@ -99,16 +99,6 @@ export default async function TermsPage() {
             />
           </div>
         ))}
-
-        <h2>{termsSections.length + 1}. Contact Us</h2>
-        <p>
-          If you have any questions regarding these Terms and Conditions, please reach out to us:
-        </p>
-        <ul>
-          <li>Email: {email}</li>
-          <li>Phone: {phone}</li>
-          <li>Address: {address}</li>
-        </ul>
       </div>
     </>
   );

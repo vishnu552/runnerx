@@ -1,18 +1,20 @@
 import { eventInfo as fallbackEventInfo } from '@/data/categories';
-import { getGlobalContent, getInfoSections } from '@/lib/api';
+import { getPageContent, getGlobalContent, getInfoSections } from '@/lib/api';
 import PageHero from '@/components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Liability Waiver',
-  description: 'Liability waiver and release form for the RunnerX Kota Marathon.',
+  title: 'Waiver',
+  description: 'Waiver and release form for the RunnerX Kota Marathon.',
 };
 
 export default async function WaiverPage() {
+  const content = await getPageContent('waiver');
   const globalContent = await getGlobalContent();
   const sections = await getInfoSections('WAIVER', 'GLOBAL');
 
+  const hero = content?.hero || {};
   const email = globalContent?.event_info?.email || fallbackEventInfo.email;
   const phone = globalContent?.event_info?.phone || fallbackEventInfo.phone;
   const address = globalContent?.event_info?.location || fallbackEventInfo.location;
@@ -20,7 +22,8 @@ export default async function WaiverPage() {
   return (
     <>
       <PageHero 
-        title="Liability Waiver"
+        title={hero.title || "Waiver"}
+        bgImage={hero.bg_image}
       />
 
       <div className="legal-content">
@@ -36,19 +39,9 @@ export default async function WaiverPage() {
           ))
         ) : (
           <div style={{ marginBottom: '32px' }}>
-            <p>No liability waiver sections have been added yet.</p>
+            <p>No waiver sections have been added yet.</p>
           </div>
         )}
-
-        <h2>Contact Us</h2>
-        <p>
-          If you have any questions regarding this waiver, please reach out to us:
-        </p>
-        <ul>
-          <li>Email: {email}</li>
-          <li>Phone: {phone}</li>
-          <li>Address: {address}</li>
-        </ul>
       </div>
     </>
   );

@@ -30,6 +30,8 @@ const PAGES = [
   { value: "route", label: "Route & Venue Page", desc: "Course maps, landmarks, and aid stations." },
   { value: "privacy", label: "Privacy Policy", desc: "Privacy policy legal document." },
   { value: "terms", label: "Terms & Conditions", desc: "Terms & conditions legal document." },
+  { value: "refund", label: "Refund Policy", desc: "Refund policy legal document." },
+  { value: "waiver", label: "Waiver", desc: "Waiver legal document." },
 ];
 
 const TYPE_LABELS: Record<string, string> = {

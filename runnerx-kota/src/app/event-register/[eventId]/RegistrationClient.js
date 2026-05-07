@@ -58,6 +58,7 @@ export default function RegistrationClient({ currentUser, event }) {
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [rzpOptions, setRzpOptions] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Review Page states
   const [expandedParticipant, setExpandedParticipant] = useState(null);
@@ -233,7 +234,10 @@ export default function RegistrationClient({ currentUser, event }) {
     if (participantData.wantsVirtual && participantData.virtualSubCategoryId) {
       const parent = getCatById(Number(participantData.virtualParentCategoryId));
       const sub = (parent?.virtualSettings || []).find(s => String(s.categoryId) === String(participantData.virtualSubCategoryId));
-      if (sub) displayParts.push(`Virtual ${sub.categoryName} (T-Shirt: ${participantData.tshirtSize})`);
+      if (sub) {
+        const subName = getVirtualCategoryName(sub.categoryName);
+        displayParts.push(`${subName} (T-Shirt: ${participantData.tshirtSize})`);
+      }
     }
     participantData.displayCategoryName = displayParts.join(' + ');
     participantData.displayDistance = '';
@@ -466,11 +470,14 @@ export default function RegistrationClient({ currentUser, event }) {
           description: `Registration for ${event.title}`,
           order_id: data.razorpayOrder.id,
           handler: async function (response) {
+            setIsVerifying(true);
             setSubmitting(true);
             const verified = await verifyPayment(response, registration.id);
             if (verified) {
+              setIsVerifying(false);
               setStep(7);
             } else {
+              setIsVerifying(false);
               setSubmitError('Payment verification failed. Please contact support.');
               setStep(5);
             }
@@ -524,6 +531,18 @@ export default function RegistrationClient({ currentUser, event }) {
   }
   function getCatById(id) {
     return categories.find(c => c.id === id);
+  }
+  function getVirtualCategoryName(categoryName) {
+    let name = (categoryName || '').toLowerCase();
+    if (name.includes('3k') || name.includes('3 km')) return 'Virtual 3k';
+    if (name.includes('5k') || name.includes('5 km')) return 'Virtual 5k';
+    if (name.includes('10k') || name.includes('10 km')) return 'Virtual 10k';
+    if (name.includes('half marathon') || name.includes('21.1') || name.includes('21k')) return 'Virtual Half Marathon';
+    
+    if (!name.startsWith('virtual')) {
+      return `Virtual ${categoryName}`;
+    }
+    return categoryName;
   }
 
   const formattedEventDate = event ? new Date(event.date).toLocaleDateString('en-US', {
@@ -615,8 +634,30 @@ export default function RegistrationClient({ currentUser, event }) {
             
             <div className="registration-main-card" style={{ maxWidth: '850px', width: '100%', border: 'none', background: 'none', padding: 0, alignSelf: 'center' }}>
               
+              {isVerifying && (
+                <div style={{ textAlign: 'center', padding: '100px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '500px', animation: 'fadeIn 0.5s ease' }}>
+                  <div style={{ position: 'relative', width: '100px', height: '100px', marginBottom: '40px' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px solid rgba(255, 200, 60, 0.1)', borderRadius: '50%' }} />
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px solid transparent', borderTopColor: '#ffc83c', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '2.5rem' }}>💳</div>
+                  </div>
+                  <h2 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '16px', color: 'var(--text)', letterSpacing: '-0.02em' }}>Verifying Your Payment</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', maxWidth: '500px', margin: '0 auto', lineHeight: 1.6 }}>
+                    Hang tight! We're confirming your transaction with the bank. This usually takes just a few seconds. 
+                  </p>
+                  <p style={{ color: '#ffc83c', fontSize: '1rem', fontWeight: 700, marginTop: '32px', textTransform: 'uppercase', letterSpacing: '2px', animation: 'pulse 2s infinite' }}>
+                    Please do not refresh or close this page
+                  </p>
+                  <style>{`
+                    @keyframes spin { to { transform: rotate(360deg); } }
+                    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+                  `}</style>
+                </div>
+              )}
+
               {/* ═══════════════ STEP 1: PARTICIPANT COUNT ═══════════════ */}
-              {step === 1 && (
+              {!isVerifying && step === 1 && (
                 <>
 
                   <div style={{ padding: '32px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c', marginBottom: '32px' }}>
@@ -652,7 +693,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 2: PARTICIPANT DETAILS ═══════════════ */}
-              {step === 2 && (
+              {!isVerifying && step === 2 && (
                 <>
                   <div style={{ padding: '32px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c' }}>
 
@@ -764,7 +805,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 3: CATEGORY SELECTION ═══════════════ */}
-              {step === 3 && (
+              {!isVerifying && step === 3 && (
                 <>
 
                   {/* 1. On-Ground Participation Section */}
@@ -835,11 +876,14 @@ export default function RegistrationClient({ currentUser, event }) {
                             <label style={labelStyle}>Select Virtual Distance</label>
                             <select style={inputStyle('virtualSubCategoryId')} value={formData.virtualSubCategoryId} onChange={(e) => setFormData(p => ({ ...p, virtualSubCategoryId: e.target.value }))}>
                               <option value="">— Choose Distance —</option>
-                              {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => (
-                                <option key={sub.categoryId} value={sub.categoryId}>
-                                  {sub.categoryName} (₹{sub.discountPrice ?? sub.price})
-                                </option>
-                              ))}
+                              {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => {
+                                const subName = getVirtualCategoryName(sub.categoryName);
+                                return (
+                                  <option key={sub.categoryId} value={sub.categoryId}>
+                                    {subName} (₹{sub.discountPrice ?? sub.price})
+                                  </option>
+                                );
+                              })}
                             </select>
                           </div>
                         )}
@@ -867,11 +911,13 @@ export default function RegistrationClient({ currentUser, event }) {
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>This T-shirt is included with your registration.</p>
                         <select name="tshirtSize" value={formData.tshirtSize} onChange={handleChange} style={{ ...inputStyle('tshirtSize'), maxWidth: '300px' }}>
                           <option value="">Select Size</option>
-                          <option value="S">Small (S)</option>
-                          <option value="M">Medium (M)</option>
-                          <option value="L">Large (L)</option>
-                          <option value="XL">Extra Large (XL)</option>
-                          <option value="XXL">Double Extra Large (XXL)</option>
+                          <option value="XXS">XXS - 32 Inch</option>
+                          <option value="XS">XS - 34 Inch</option>
+                          <option value="S">S - 36 Inch</option>
+                          <option value="M">M - 38 Inch</option>
+                          <option value="L">L - 40 Inch</option>
+                          <option value="XL">XL - 42 Inch</option>
+                          <option value="XXL">XXL - 44 Inch</option>
                         </select>
                         {errors.tshirtSize && <p style={errorStyle}>{errors.tshirtSize}</p>}
                       </div>
@@ -900,7 +946,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 4: SUPPORT A CAUSE (DONATION) ═══════════════ */}
-              {step === 4 && (
+              {!isVerifying && step === 4 && (
                 <>
                   <div style={{ marginBottom: '32px' }}>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -1046,7 +1092,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 5: REVIEW ALL ═══════════════ */}
-              {step === 5 && (
+              {!isVerifying && step === 5 && (
                 <>
 
                   {submitError && (
@@ -1076,14 +1122,16 @@ export default function RegistrationClient({ currentUser, event }) {
                               <div>
                                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text)', margin: 0 }}>{p.fullName}</h3>
                                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
-                                  {[
-                                    p.selectedCategoryId && getCategoryDisplayName(getCatById(p.selectedCategoryId)),
-                                    p.virtualSubCategoryId && (() => {
+                                  {p.virtualSubCategoryId ? (() => {
                                       const parent = getCatById(p.virtualParentCategoryId);
                                       const sub = parent?.virtualSettings?.find(s => String(s.categoryId) === String(p.virtualSubCategoryId));
-                                      return sub ? `${sub.categoryName} (Virtual)` : null;
-                                    })()
-                                  ].filter(Boolean).join(' + ') || 'No Category'}
+                                      if (sub) {
+                                        let name = sub.categoryName;
+                                        if (name.toLowerCase().includes('virtual')) return name;
+                                        return `${name} (Virtual)`;
+                                      }
+                                      return parent?.name || "Virtual Race";
+                                    })() : (cat?.name || "Race Category")}
                                 </p>
                               </div>
                             </div>
@@ -1279,7 +1327,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 6: REDIRECTING ═══════════════ */}
-              {step === 6 && (
+              {!isVerifying && step === 6 && (
                 <div style={{ textAlign: 'center', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
                   <div style={{ width: '64px', height: '64px', border: '4px solid #f3f3f3', borderTop: '4px solid #ffc83c', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '24px' }} />
                   <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
@@ -1304,7 +1352,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 7: SUCCESS ═══════════════ */}
-              {step === 7 && submitSuccess && (
+              {!isVerifying && step === 7 && submitSuccess && (
                 <div style={{ textAlign: 'center', padding: '40px 20px' }}>
                   <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(34, 197, 94, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', fontSize: '2.5rem', border: '3px solid #22c55e' }}>✓</div>
                   <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '8px' }}>You're Registered! 🎉</h2>
@@ -1617,11 +1665,13 @@ export default function RegistrationClient({ currentUser, event }) {
                     <label style={labelStyle}>T-Shirt Size *</label>
                     <select name="tshirtSize" value={tempEditData.tshirtSize} onChange={handleEditChange} style={inputStyle('')}>
                       <option value="">Select Size</option>
-                      <option value="S">Small (S)</option>
-                      <option value="M">Medium (M)</option>
-                      <option value="L">Large (L)</option>
-                      <option value="XL">Extra Large (XL)</option>
-                      <option value="XXL">Double Extra Large (XXL)</option>
+                      <option value="XXS">XXS - 32 Inch</option>
+                      <option value="XS">XS - 34 Inch</option>
+                      <option value="S">S - 36 Inch</option>
+                      <option value="M">M - 38 Inch</option>
+                      <option value="L">L - 40 Inch</option>
+                      <option value="XL">XL - 42 Inch</option>
+                      <option value="XXL">XXL - 44 Inch</option>
                     </select>
                   </div>
                 </div>
@@ -1722,11 +1772,14 @@ export default function RegistrationClient({ currentUser, event }) {
                           style={inputStyle('')}
                         >
                           <option value="">— Choose Distance —</option>
-                          {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => (
-                            <option key={sub.categoryId} value={sub.categoryId}>
-                              {sub.categoryName} (₹{sub.discountPrice ?? sub.price})
-                            </option>
-                          ))}
+                          {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => {
+                            const subName = getVirtualCategoryName(sub.categoryName);
+                            return (
+                              <option key={sub.categoryId} value={sub.categoryId}>
+                                {subName} (₹{sub.discountPrice ?? sub.price})
+                              </option>
+                            );
+                          })}
                         </select>
                       )}
                     </div>

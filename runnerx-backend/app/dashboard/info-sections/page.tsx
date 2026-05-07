@@ -23,7 +23,7 @@ const PAGE_TYPES = [
   { value: "TERMS", label: "Terms & Conditions", desc: "Legal terms for participation", icon: "📋" },
   { value: "PRIVACY", label: "Privacy & Policy", desc: "Data privacy & cookie policies", icon: "🔒" },
   { value: "REFUND", label: "Refund Policy", desc: "Cancellation & refund terms", icon: "💸" },
-  { value: "WAIVER", label: "Liability Waiver", desc: "Liability waiver and release form", icon: "📝" },
+  { value: "WAIVER", label: "Waiver", desc: "Waiver and release form", icon: "📝" },
 ];
 
 const GLOBAL_TYPES = ["TERMS", "PRIVACY", "REFUND", "WAIVER"];

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
-  sendRegistrationSuccessEmail,
   sendParticipantConfirmationEmail,
   sendNewParticipantWelcomeEmail,
 } from "@/lib/mail";
+import { assignNextBib } from "@/lib/bibs";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 
@@ -55,8 +55,9 @@ export async function POST(request: Request) {
       if (!orderUserId && primaryLi) {
         let u = await tx.user.findUnique({ where: { email: primaryLi.participantEmail } });
         if (!u) {
-          const dobPassword = "runnerx2026";
-          const hashedPassword = await bcrypt.hash(dobPassword, 10);
+          // Generate a random 6-digit password for the new user
+          const generatedPassword = Math.floor(100000 + Math.random() * 900000).toString();
+          const hashedPassword = await bcrypt.hash(generatedPassword, 10);
           u = await tx.user.create({
             data: {
               name: primaryLi.participantName,
@@ -102,13 +103,40 @@ export async function POST(request: Request) {
         },
       });
 
-      await tx.registrationLineItem.updateMany({
+      // Assign bibs in deterministic order. Custom bibs and already-assigned
+      // bibs are left untouched; idempotent under retry.
+      const items = await tx.registrationLineItem.findMany({
         where: { registrationId: reg.id },
-        data: { status: "CONFIRMED" },
+        orderBy: { id: "asc" },
+        select: { id: true, bibNumber: true, isCustomBib: true, raceTypeSnapshot: true },
       });
 
-      return reg;
+      for (const li of items) {
+        const needsBib = !li.bibNumber && !li.isCustomBib;
+        const bib = needsBib
+          ? await assignNextBib(tx, existingReg.eventId, li.raceTypeSnapshot)
+          : null;
+        await tx.registrationLineItem.update({
+          where: { id: li.id },
+          data: {
+            status: "CONFIRMED",
+            ...(bib ? { bibNumber: bib } : {}),
+          },
+        });
+      }
+
+      return tx.registration.findUnique({
+        where: { id: reg.id },
+        include: { lineItems: true },
+      });
     });
+
+    if (!finalReg) {
+      return NextResponse.json(
+        { success: false, message: "Failed to load updated registration" },
+        { status: 500 }
+      );
+    }
 
     // 3. Send per-participant emails (grouped by email to avoid duplicates)
     const participantsByEmail: Record<string, any[]> = {};
@@ -143,15 +171,10 @@ export async function POST(request: Request) {
           );
         } else {
           // ── New participant: auto-create RunnerX account
-          const dob = firstItem.participantDob;
-          const dobPassword = [
-            dob.getFullYear(),
-            String(dob.getMonth() + 1).padStart(2, "0"),
-            String(dob.getDate()).padStart(2, "0"),
-          ].join("");
+          const generatedPassword = Math.floor(100000 + Math.random() * 900000).toString();
 
           try {
-            const hashedPassword = await bcrypt.hash(dobPassword, 10);
+            const hashedPassword = await bcrypt.hash(generatedPassword, 10);
             await prisma.user.create({
               data: {
                 name: firstItem.participantName,
@@ -175,7 +198,7 @@ export async function POST(request: Request) {
           await sendNewParticipantWelcomeEmail(
             email,
             firstItem.participantName,
-            dobPassword,
+            generatedPassword,
             finalReg.eventTitleSnapshot,
             regIds,
             finalReg.eventDateSnapshot.toDateString(),
@@ -188,22 +211,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 4. Send order summary to the primary registrant (isRegistrant = true or first item)
-    try {
-      const primaryParticipant =
-        finalReg.lineItems.find((p) => p.isRegistrant) || finalReg.lineItems[0];
-      if (primaryParticipant) {
-        await sendRegistrationSuccessEmail(
-          primaryParticipant.participantEmail,
-          primaryParticipant.participantName,
-          finalReg.eventTitleSnapshot,
-          finalReg.id.toString(),
-          finalReg.eventDateSnapshot.toDateString()
-        );
-      }
-    } catch (mailError) {
-      console.error("Failed to send order summary email:", mailError);
-    }
+
 
     return NextResponse.json({ success: true, message: "Payment verified successfully" });
   } catch (error) {

@@ -13,13 +13,12 @@ export default function DashboardHeader({ originConfig, user }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         {/* RunnerX Logo */}
-        <a href="/dashboard/register" style={{ textDecoration: 'none' }}>
-          <span style={{
-            fontSize: '1.4rem', fontWeight: 900, fontStyle: 'italic',
-            color: '#0f172a', letterSpacing: '-0.02em',
-          }}>
-            RUNNER<span style={{ color: '#ffc83c' }}>X</span>
-          </span>
+        <a href="/dashboard/register" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+          <img 
+            src="/runnerxlogo.png" 
+            alt="RunnerX" 
+            style={{ height: '40px', width: 'auto', display: 'block' }} 
+          />
         </a>
 
         {/* Origin badge */}
@@ -54,7 +53,6 @@ export default function DashboardHeader({ originConfig, user }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingLeft: '24px', borderLeft: '1px solid #e2e8f0' }}>
             <div className="header-user-info" style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a' }}>Hey, {firstName}</div>
-              <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{user.email}</div>
             </div>
             <div
               style={{

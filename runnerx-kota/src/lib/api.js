@@ -7,6 +7,52 @@ export const API_URL = baseUrl;
 // so always use NEXT_PUBLIC_API_URL even when running on the server.
 export const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || baseUrl;
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
+export async function getHomeBundle(siteFor = 'KTA') {
+  try {
+    const res = await fetch(`${API_URL}/api/pages/home?siteFor=${siteFor}`, {
+      cache: 'no-store'
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.success) return null;
+
+    const bundle = data.data;
+
+    // Post-process image URLs and JSON as done in separate calls
+    const resolveImages = (obj) => {
+      if (!obj) return;
+      Object.keys(obj).forEach(section => {
+        Object.keys(obj[section]).forEach(key => {
+          let val = obj[section][key];
+          if (typeof val === 'string' && val.startsWith('/uploads/')) {
+            obj[section][key] = `${PUBLIC_API_URL}${val}`;
+          }
+        });
+      });
+    };
+
+    resolveImages(bundle.homeContent);
+    resolveImages(bundle.globalContent);
+
+    // Map categories
+    bundle.categories = (bundle.categories || []).map(cat => ({
+      ...cat,
+      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/uploads/') ? `${PUBLIC_API_URL}${cat.heroImage}` : cat.heroImage) : null,
+      tabs: (cat.tabs || []).map(tab => ({ ...tab })),
+    }));
+
+    // Map runners info
+    bundle.runnersInfo = (bundle.runnersInfo || []).map(item => ({
+      ...item,
+      image: item.image.startsWith('/uploads/') ? `${PUBLIC_API_URL}${item.image}` : item.image
+    }));
+
+    return bundle;
+  } catch (error) {
+    console.error("Error fetching home bundle:", error);
+    return null;
+  }
+}
 
 /**
  * Helper for client-side authenticated fetches to the backend.
@@ -143,7 +189,7 @@ export async function getCategories(siteFor = 'KTA') {
     }));
   } catch (error) {
     console.error('Error fetching categories:', error);
-    return null;
+    return [];
   }
 }
 
@@ -214,7 +260,7 @@ export async function getEvents(siteFor = null) {
     return data.events;
   } catch (error) {
     console.error('Error fetching events:', error);
-    return null;
+    return [];
   }
 }
 

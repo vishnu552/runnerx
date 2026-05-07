@@ -42,7 +42,7 @@ export default function MedicalAdvisoryPage() {
       />
 
       <div className="legal-content">
-        <p className="last-updated">Last updated: April 18, 2026</p>
+        <p className="last-updated">Runnerx LLP</p>
 
         <h2>Pre-Participation Health Screening</h2>
         <p>

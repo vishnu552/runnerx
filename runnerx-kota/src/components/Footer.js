@@ -56,15 +56,15 @@ export default function Footer({ eventInfo }) {
               <Link href="/about" className="transition hover:text-[#1a8ab4]">
                 About the Event
               </Link>
-              <Link
+              {/* <Link
                 href="/categories"
                 className="transition hover:text-[#1a8ab4]"
               >
                 Race Categories
-              </Link>
-              <Link href="/route" className="transition hover:text-[#1a8ab4]">
+              </Link> */}
+              {/* <Link href="/route" className="transition hover:text-[#1a8ab4]">
                 Route & Venue
-              </Link>
+              </Link> */}
               <Link href="/gallery" className="transition hover:text-[#1a8ab4]">
                 Gallery
               </Link>
@@ -86,7 +86,7 @@ export default function Footer({ eventInfo }) {
                 Refund Policy
               </Link>
               <Link href="/waiver" className="transition hover:text-[#1a8ab4]">
-                Liability Waiver
+                Waiver
               </Link>
               <Link
                 href="/medical-advisory"

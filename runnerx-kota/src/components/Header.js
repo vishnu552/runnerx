@@ -32,14 +32,48 @@ export default function Header({
     setClientUser(user);
   }, [user]);
 
+  // On every route change, validate the token against the /me API.
   useEffect(() => {
-    if (clientUser) {
-      const hasCookie = document.cookie.includes('runnerx-user-token');
-      if (!hasCookie) {
-        setClientUser(null);
+    if (!clientUser) return;
+
+    async function validateToken() {
+      try {
+        const COOKIE_NAME = 'runnerx-user-token';
+        const match = document.cookie.match(new RegExp('(?:^|; )' + COOKIE_NAME + '=([^;]*)'));
+        const token = match ? decodeURIComponent(match[1]) : null;
+
+        if (!token) {
+          setClientUser(null);
+          return;
+        }
+
+        // Use the centralized API URL
+        const apiUrl = PUBLIC_API_URL;
+        
+        // If the API URL is local (127.0.0.1) but we're on a different host, 
+        // skip validation to avoid cross-origin network errors on remote devices.
+        if (apiUrl.includes('127.0.0.1') && !window.location.hostname.includes('127.0.0.1') && !window.location.hostname.includes('localhost')) {
+          return;
+        }
+
+        const res = await fetch(`${apiUrl}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store',
+        });
+
+        if (!res.ok) {
+          // Token expired or invalid — clear the cookie and reset state
+          document.cookie = `${COOKIE_NAME}=; max-age=0; path=/`;
+          setClientUser(null);
+        }
+      } catch (error) {
+        // Silently fail network errors (e.g. backend down or unreachable)
+        console.warn('Auth validation failed:', error.message);
       }
     }
-  }, [pathname, clientUser]);
+
+    validateToken();
+  }, [pathname]); // re-validate on every navigation
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,25 +107,19 @@ export default function Header({
 
   return (
     <>
+    {eventInfo?.headerHighlight ? (
       <div
         className={`fixed inset-x-0 top-0 z-[1001] bg-sky-500 text-white transition-transform duration-300 ${scrolled ? "-translate-y-full" : "translate-y-0"}`}
       >
         <div className="mx-auto flex min-h-[var(--countdown-height)] max-w-[1280px] flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.08em] sm:px-6">
-          <div className="flex items-center gap-1 whitespace-nowrap">
-            <span className="font-bold">
-              {eventInfo?.name || "RunnerX Kota Marathon"}
-            </span>
-            <span className="opacity-60">|</span>
-            <span className="whitespace-nowrap">
-              {eventInfo?.date || "15th November 2026"}
-            </span>
-          </div>
-          <span className="hidden opacity-60 sm:inline">|</span>
-          <span className="w-full text-center whitespace-nowrap sm:w-auto sm:text-left">
-            {countdown}
-          </span>
+          
+            <div className="flex items-center gap-2">
+              {/* <span className="bg-yellow-400 text-sky-900 px-2 py-0.5 rounded text-[10px] font-black">NEW</span> */}
+              <span className="font-bold tracking-wider">{eventInfo.headerHighlight}</span>
+            </div>
         </div>
       </div>
+       ) : null}
 
       <header
         className="fixed inset-x-0 z-[1000] border-b border-slate-200/70 bg-white/95 shadow-sm backdrop-blur-md transition-all duration-300"
@@ -100,7 +128,7 @@ export default function Header({
         <div className="mx-auto flex h-[72px] max-w-[1280px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="flex items-center"
+            className="relative z-[1002] flex items-center"
             aria-label="RunnerX Kota home"
           >
             <img

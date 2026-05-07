@@ -3,7 +3,8 @@
 export const dynamic = 'force-dynamic';
 
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { getInfoSections } from '@/app/lib/api';
 
 const fallbackPolicies = [
@@ -30,20 +31,31 @@ const fallbackPolicies = [
 ];
 
 export default function PolicyPage() {
+  return (
+    <Suspense fallback={<div className="card" style={{ padding: '48px', textAlign: 'center' }}><p style={{ color: 'var(--text-muted)' }}>Loading...</p></div>}>
+      <PolicyContent />
+    </Suspense>
+  );
+}
+
+function PolicyContent() {
+  const searchParams = useSearchParams();
+  const tab = searchParams.get('tab');
+  
   const [policies, setPolicies] = useState({
     PRIVACY: [],
     TERMS: [],
     REFUND: [],
     WAIVER: []
   });
-  const [openType, setOpenType] = useState('PRIVACY');
+  const [openType, setOpenType] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const policyGroups = [
     { id: 'PRIVACY', label: 'Privacy Policy' },
     { id: 'TERMS', label: 'Terms & Conditions' },
     { id: 'REFUND', label: 'Refund Policy' },
-    { id: 'WAIVER', label: 'Liability Waiver' },
+    { id: 'WAIVER', label: 'Waiver' },
   ];
 
   useEffect(() => {
@@ -71,6 +83,14 @@ export default function PolicyPage() {
     fetchPolicies();
   }, []);
 
+  useEffect(() => {
+    if (tab) {
+      setOpenType(tab.toUpperCase());
+    } else if (!loading && !openType) {
+      setOpenType('PRIVACY');
+    }
+  }, [tab, loading, openType]);
+
   const toggleType = (type) => {
     setOpenType(openType === type ? null : type);
   };
@@ -92,11 +112,8 @@ export default function PolicyPage() {
           color: 'var(--text)', marginBottom: '8px', textTransform: 'uppercase',
           letterSpacing: '0.04em',
         }}>
-          Legal & Policies
+          Policies
         </h1>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          Review our terms, privacy guidelines, and event policies below.
-        </p>
       </div>
 
       {/* Accordion List */}

@@ -1184,8 +1184,19 @@ export default function EventsClient() {
                       const existing = settings.find((s: any) => s.categoryId === tc.id);
                       const isChecked = !!existing;
 
+                      const getVirtualName = (name: string, slug: string) => {
+                        const s = slug.toLowerCase();
+                        if (s.includes("3km") || s === "3k") return "Virtual 3k";
+                        if (s.includes("5km") || s === "5k") return "Virtual 5k";
+                        if (s.includes("10km") || s === "10k") return "Virtual 10k";
+                        if (s.includes("half") || s.includes("21")) return "Virtual Half Marathon";
+                        return name;
+                      };
+
+                      const displayName = getVirtualName(tc.name, tc.slug);
+
                       return (
-                        <div key={tc.id} style={{ display: "grid", gridTemplateColumns: "1fr 120px 120px", gap: "12px", alignItems: "center", padding: "8px", background: isChecked ? "rgba(0,160,255,0.05)" : "transparent", borderRadius: "6px" }}>
+                        <div key={tc.id} style={{ display: "grid", gridTemplateColumns: "1fr 140px", gap: "12px", alignItems: "center", padding: "8px", background: isChecked ? "rgba(0,160,255,0.05)" : "transparent", borderRadius: "6px" }}>
                           <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "0.9rem" }}>
                             <input 
                               type="checkbox" 
@@ -1193,46 +1204,35 @@ export default function EventsClient() {
                               onChange={(e) => {
                                 let newSettings = [...settings];
                                 if (e.target.checked) {
-                                  newSettings.push({ categoryId: tc.id, categoryName: tc.name, price: 0, discountPrice: null });
+                                  newSettings.push({ 
+                                    categoryId: tc.id, 
+                                    categoryName: displayName, 
+                                    price: 0, 
+                                    discountPrice: null 
+                                  });
                                 } else {
                                   newSettings = newSettings.filter((s: any) => s.categoryId !== tc.id);
                                 }
                                 setCategoryForm({ ...categoryForm, virtualSettings: newSettings });
                               }}
                             />
-                            <span>{tc.name} ({tc.distanceLabel})</span>
+                            <span>{displayName}</span>
                           </label>
                           
                           {isChecked && (
-                            <>
-                              <input 
-                                type="number" 
-                                placeholder="Price ₹"
-                                className="modal-input" 
-                                style={{ padding: "6px 10px", height: "34px", fontSize: "0.85rem" }}
-                                value={existing.price || ""}
-                                onChange={(e) => {
-                                  const newSettings = settings.map((s: any) => 
-                                    s.categoryId === tc.id ? { ...s, price: parseFloat(e.target.value) || 0 } : s
-                                  );
-                                  setCategoryForm({ ...categoryForm, virtualSettings: newSettings });
-                                }}
-                              />
-                              <input 
-                                type="number" 
-                                placeholder="Discount ₹"
-                                className="modal-input" 
-                                style={{ padding: "6px 10px", height: "34px", fontSize: "0.85rem" }}
-                                value={existing.discountPrice || ""}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  const newSettings = settings.map((s: any) => 
-                                    s.categoryId === tc.id ? { ...s, discountPrice: val ? parseFloat(val) : null } : s
-                                  );
-                                  setCategoryForm({ ...categoryForm, virtualSettings: newSettings });
-                                }}
-                              />
-                            </>
+                            <input 
+                              type="number" 
+                              placeholder="Price ₹"
+                              className="modal-input" 
+                              style={{ padding: "6px 10px", height: "34px", fontSize: "0.85rem" }}
+                              value={existing.price || ""}
+                              onChange={(e) => {
+                                const newSettings = settings.map((s: any) => 
+                                  s.categoryId === tc.id ? { ...s, price: parseFloat(e.target.value) || 0 } : s
+                                );
+                                setCategoryForm({ ...categoryForm, virtualSettings: newSettings });
+                              }}
+                            />
                           )}
                         </div>
                       );

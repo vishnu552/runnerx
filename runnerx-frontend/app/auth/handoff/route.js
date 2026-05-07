@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ALLOWED_ORIGINS } from '@/app/lib/origin';
 import { COOKIE_NAME, ORIGIN_COOKIE_NAME } from '@/app/lib/constants';
+import { getActiveEvent } from '@/app/lib/api';
 
 /**
  * Auth Handoff Route Handler
@@ -41,8 +42,26 @@ export async function GET(request) {
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
     });
+
+    // Check if there's an active event for this origin to redirect directly to registration
+    try {
+      const activeEvent = await getActiveEvent(safeOrigin);
+      
+      if (activeEvent && activeEvent.status === 'PUBLISHED') {
+        const registrationEnd = new Date(activeEvent.registrationEnd);
+        const now = new Date();
+        
+        if (now <= registrationEnd) {
+          // Direct redirect to registration page for this specific event
+          redirect(`/dashboard/event-register/${activeEvent.id}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error in smart redirect:', error);
+      // Fallback to general register page on error
+    }
   }
 
-  // Redirect to dashboard (specifically the register page as per recent requirements)
+  // Redirect to dashboard (default fallback: register list page)
   redirect('/dashboard/register');
 }

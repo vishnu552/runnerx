@@ -1,5 +1,6 @@
 import './globals.css';
 import { Roboto, Roboto_Condensed } from 'next/font/google';
+import Script from 'next/script';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -21,13 +22,18 @@ export const metadata = {
     template: '%s | RunnerX',
   },
   description: 'Manage your RunnerX marathon registrations, track results, and update your personal information across all RunnerX events.',
+  icons: {
+    icon: '/runnerxlogo.png',
+    shortcut: '/runnerxlogo.png',
+    apple: '/runnerxlogo.png',
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       </head>
       <body className={`${roboto.variable} ${robotoCondensed.variable} ${roboto.className}`}
         style={{ minHeight: '100vh', overflowX: 'hidden', background: '#f8fafc', color: '#0f172a', WebkitFontSmoothing: 'antialiased' }}

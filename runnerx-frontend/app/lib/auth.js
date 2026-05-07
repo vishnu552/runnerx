@@ -74,7 +74,11 @@ export async function getCurrentUser() {
     if (!res.ok) {
       // If unauthorized, token is likely invalid or expired
       if (res.status === 401) {
+        // Read origin BEFORE destroying session so we know where to send user back
+        const origin = cookieStore.get(ORIGIN_COOKIE_NAME)?.value || null;
         await destroySession();
+        // Return sentinel so layout can redirect to origin site login
+        return { expired: true, originCode: origin };
       }
       return null;
     }

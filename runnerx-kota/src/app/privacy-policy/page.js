@@ -90,7 +90,7 @@ export default async function PrivacyPolicyPage() {
       />
 
       <div className="legal-content">
-        <p className="last-updated">{legal.last_updated || "Last updated: March 26, 2026"}</p>
+        <p className="last-updated">Runnerx LLP</p>
 
         {privacySections.map((section, index) => (
           <div key={section.id || index} style={{ marginBottom: '32px' }}>
@@ -101,16 +101,6 @@ export default async function PrivacyPolicyPage() {
             />
           </div>
         ))}
-
-        <h2>{privacySections.length + 1}. Contact Us</h2>
-        <p>
-          For any privacy-related inquiries or to exercise your rights, please contact us at:
-        </p>
-        <ul>
-          <li>Email: {email}</li>
-          <li>Phone: {phone}</li>
-          <li>Address: {address}</li>
-        </ul>
       </div>
     </>
   );

@@ -5,6 +5,7 @@ import { getGlobalContent, getCategories, getSponsors, getEvents } from '@/lib/a
 import { getCurrentUser } from '@/lib/auth';
 import { eventInfo as fallbackEventInfo, categories as fallbackCategories } from '@/data/categories';
 import { Roboto, Roboto_Condensed } from 'next/font/google';
+import Script from 'next/script';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -32,6 +33,11 @@ export const metadata = {
     title: 'RunnerX Kota Marathon',
     description: 'Run Through the Heart of Hadoti — 1st Edition, November 15, 2026',
     type: 'website',
+  },
+  icons: {
+    icon: '/favIcon.png',
+    shortcut: '/favIcon.png',
+    apple: '/favIcon.png',
   },
 };
 
@@ -84,6 +90,7 @@ export default async function RootLayout({ children }) {
     expectedParticipants: globalContent?.event_info?.expected_participants || fallbackEventInfo.expectedParticipants,
     email: globalContent?.event_info?.email || fallbackEventInfo.email,
     phone: globalContent?.event_info?.phone || fallbackEventInfo.phone,
+    headerHighlight: globalContent?.header?.header_highlight || "",
     social: {
       instagram: globalContent?.social?.instagram || fallbackEventInfo.social.instagram,
       facebook: globalContent?.social?.facebook || fallbackEventInfo.social.facebook,
@@ -94,7 +101,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+        <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       </head>
       <body className={`${roboto.variable} ${robotoCondensed.variable} ${roboto.className} min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 antialiased`}>
         <Header eventInfo={eventInfo} categories={categories} sponsors={sponsors} user={user} />

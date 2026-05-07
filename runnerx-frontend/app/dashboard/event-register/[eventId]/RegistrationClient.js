@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { API_URL } from '@/app/lib/api';
 import Link from 'next/link';
 
+// TEMP: donation step is hidden. Flip to true to restore the "Support a Cause" step.
+const SHOW_DONATION_STEP = false;
+
 const emptyForm = {
   fullName: '', email: '', phone: '', gender: '', dob: '',
   pinCode: '', country: '', state: '', city: '', address: '',
@@ -41,6 +44,7 @@ export default function RegistrationClient({ currentUser, event }) {
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const [rzpOptions, setRzpOptions] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Review Page states
   const [expandedParticipant, setExpandedParticipant] = useState(null);
@@ -50,6 +54,7 @@ export default function RegistrationClient({ currentUser, event }) {
   const [editErrors, setEditErrors] = useState({});
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showTshirtChart, setShowTshirtChart] = useState(false);
 
   // Derive categories from event
   const categories = event?.categories || [];
@@ -180,24 +185,67 @@ export default function RegistrationClient({ currentUser, event }) {
     return Object.keys(errs).length === 0;
   }
 
+  function getAgeFromDob(dobStr) {
+    if (!dobStr) return null;
+    const dob = new Date(dobStr);
+    if (Number.isNaN(dob.getTime())) return null;
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+    return age;
+  }
+
+  function ageMismatchReason(ec, age) {
+    if (age == null || !ec) return null;
+    if (ec.ageMin != null && age < ec.ageMin) return `Age ${ec.ageMin}+ only`;
+    if (ec.ageMax != null && age > ec.ageMax) return `Up to age ${ec.ageMax}`;
+    return null;
+  }
+
+  function getVirtualCategoryName(categoryName) {
+    let name = (categoryName || '').toLowerCase();
+    if (name.includes('3k') || name.includes('3 km')) return 'Virtual 3k';
+    if (name.includes('5k') || name.includes('5 km')) return 'Virtual 5k';
+    if (name.includes('10k') || name.includes('10 km')) return 'Virtual 10k';
+    if (name.includes('half marathon') || name.includes('21.1') || name.includes('21k')) return 'Virtual Half Marathon';
+    
+    if (!name.startsWith('virtual')) {
+      return `Virtual ${categoryName}`;
+    }
+    return categoryName;
+  }
+
   function validateCategory() {
     const errs = {};
     const wantsGround = formData.wantsGround;
     const wantsVirtual = formData.wantsVirtual;
+    const age = getAgeFromDob(formData.dob);
 
     if (!wantsGround && !wantsVirtual) {
       errs.category = 'Please opt-in to at least one participation type (On-Ground or Virtual)';
     }
-    
+
     if (wantsGround) {
       if (!formData.selectedCategoryId) errs.category = 'Please select a ground race category';
+      else {
+        const ec = getCatById(Number(formData.selectedCategoryId));
+        const reason = ageMismatchReason(ec, age);
+        if (reason) errs.category = `Selected category requires ${reason.toLowerCase()}`;
+      }
       if (!formData.emergencyName.trim()) errs.emergencyName = 'Emergency contact name is required';
       if (!formData.emergencyPhone.trim()) errs.emergencyPhone = 'Emergency contact phone is required';
       else if (formData.emergencyPhone.trim().length < 10) errs.emergencyPhone = 'Enter a valid phone number';
     }
-    
-    if (wantsVirtual && !formData.virtualSubCategoryId) {
-      errs.category = 'Please select a virtual race distance';
+
+    if (wantsVirtual) {
+      if (!formData.virtualSubCategoryId) {
+        errs.category = 'Please select a virtual race distance';
+      } else {
+        const parent = getCatById(Number(formData.virtualParentCategoryId)) || virtualCategories[0];
+        const reason = ageMismatchReason(parent, age);
+        if (reason) errs.category = `Virtual category requires ${reason.toLowerCase()}`;
+      }
     }
 
     if (!formData.tshirtSize) {
@@ -223,7 +271,10 @@ export default function RegistrationClient({ currentUser, event }) {
     if (participantData.wantsVirtual && participantData.virtualSubCategoryId) {
         const parent = getCatById(participantData.virtualParentCategoryId);
         const sub = (parent?.virtualSettings || []).find(s => String(s.categoryId) === String(participantData.virtualSubCategoryId));
-        if (sub) displayParts.push(`Virtual ${sub.categoryName} (T-Shirt: ${participantData.tshirtSize})`);
+        if (sub) {
+          const subName = getVirtualCategoryName(sub.categoryName);
+          displayParts.push(`${subName} (T-Shirt: ${participantData.tshirtSize})`);
+        }
     }
 
     participantData.displayCategoryName = displayParts.join(' + ');
@@ -239,9 +290,9 @@ export default function RegistrationClient({ currentUser, event }) {
       setErrors({});
       setStep(2);
     } else {
-      // All done, go to donation step
+      // All done, go to donation step (skipped to step 5 when donation is hidden)
       setErrors({});
-      setStep(4);
+      setStep(SHOW_DONATION_STEP ? 4 : 5);
     }
   }
 
@@ -274,7 +325,15 @@ export default function RegistrationClient({ currentUser, event }) {
       setFormData({ ...participants[lastIdx] });
       setStep(3);
     } else if (step === 5) {
-      setStep(4);
+      if (SHOW_DONATION_STEP) {
+        setStep(4);
+      } else {
+        // Donation step is hidden → jump back to last participant's category step
+        const lastIdx = participantCount - 1;
+        setCurrentIndex(lastIdx);
+        setFormData({ ...participants[lastIdx] });
+        setStep(3);
+      }
     }
   }
 
@@ -422,12 +481,15 @@ export default function RegistrationClient({ currentUser, event }) {
           description: `Registration for ${event.title}`,
           order_id: data.razorpayOrder.id,
           handler: async function (response) {
+            setIsVerifying(true);
             setSubmitting(true);
             const verified = await verifyPayment(response, registration.id);
             if (verified) {
               setSubmitSuccess(prev => ({ ...prev, paymentStatus: 'PAID', status: 'CONFIRMED' }));
+              setIsVerifying(false);
               setStep(7);
             } else {
+              setIsVerifying(false);
               setSubmitError('Payment verification failed. Please contact support.');
               setStep(5);
             }
@@ -513,7 +575,7 @@ export default function RegistrationClient({ currentUser, event }) {
   }
 
   // Progress info
-  const totalSteps = 1 + (participantCount * 2) + 1 + 1 + 1; // step1 + (details+category)*N + donation + review + payment
+  const totalSteps = 1 + (participantCount * 2) + (SHOW_DONATION_STEP ? 1 : 0) + 1 + 1; // step1 + (details+category)*N + donation? + review + payment
   const currentProgress = step === 1 ? 1
     : step === 5 ? totalSteps - 1
     : step === 6 ? totalSteps
@@ -580,8 +642,30 @@ export default function RegistrationClient({ currentUser, event }) {
             
             <div className="registration-main-card" style={{ maxWidth: '850px', width: '100%', border: 'none', background: 'none', padding: 0, alignSelf: 'center' }}>
               
+              {isVerifying && (
+                <div style={{ textAlign: 'center', padding: '100px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '500px', animation: 'fadeIn 0.5s ease' }}>
+                  <div style={{ position: 'relative', width: '100px', height: '100px', marginBottom: '40px' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px solid rgba(255, 200, 60, 0.1)', borderRadius: '50%' }} />
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px solid transparent', borderTopColor: '#ffc83c', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '2.5rem' }}>💳</div>
+                  </div>
+                  <h2 style={{ fontSize: '2.2rem', fontWeight: 900, marginBottom: '16px', color: 'var(--text)', letterSpacing: '-0.02em' }}>Verifying Your Payment</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', maxWidth: '500px', margin: '0 auto', lineHeight: 1.6 }}>
+                    Hang tight! We're confirming your transaction with the bank. This usually takes just a few seconds. 
+                  </p>
+                  <p style={{ color: '#ffc83c', fontSize: '1rem', fontWeight: 700, marginTop: '32px', textTransform: 'uppercase', letterSpacing: '2px', animation: 'pulse 2s infinite' }}>
+                    Please do not refresh or close this page
+                  </p>
+                  <style>{`
+                    @keyframes spin { to { transform: rotate(360deg); } }
+                    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+                  `}</style>
+                </div>
+              )}
+
               {/* ═══════════════ STEP 1: PARTICIPANT COUNT ═══════════════ */}
-              {step === 1 && (
+              {!isVerifying && step === 1 && (
                 <>
 
                   <div style={{ padding: '32px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c', marginBottom: '32px' }}>
@@ -617,7 +701,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 2: PARTICIPANT DETAILS ═══════════════ */}
-              {step === 2 && (
+              {!isVerifying && step === 2 && (
                 <>
                   <div style={{ padding: '32px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c' }}>
 
@@ -709,7 +793,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 3: CATEGORY SELECTION ═══════════════ */}
-              {step === 3 && (
+              {!isVerifying && step === 3 && (
                 <>
 
                   {/* 1. On-Ground Participation Section */}
@@ -738,9 +822,13 @@ export default function RegistrationClient({ currentUser, event }) {
                               <option value="">— Choose Distance —</option>
                               {groundCategories.map(ec => {
                                 const isFull = ec.maxParticipants && ec.registeredCount >= ec.maxParticipants;
+                                const ageReason = ageMismatchReason(ec, getAgeFromDob(formData.dob));
+                                const disabled = !!(isFull || ageReason);
                                 return (
-                                  <option key={ec.id} value={ec.id} disabled={isFull}>
-                                    {getCategoryDisplayName(ec)} ({getCategoryDistance(ec)}) — ₹{ec.discountPrice || ec.price} {isFull ? '(FULL)' : ''}
+                                  <option key={ec.id} value={ec.id} disabled={disabled}>
+                                    {getCategoryDisplayName(ec)} ({getCategoryDistance(ec)}) — ₹{ec.discountPrice || ec.price}
+                                    {isFull ? ' (FULL)' : ''}
+                                    {ageReason ? ` — ${ageReason}` : ''}
                                   </option>
                                 );
                               })}
@@ -775,11 +863,16 @@ export default function RegistrationClient({ currentUser, event }) {
                             <label style={labelStyle}>Select Virtual Distance</label>
                             <select style={inputStyle('virtualSubCategoryId')} value={formData.virtualSubCategoryId} onChange={(e) => setFormData(p => ({ ...p, virtualSubCategoryId: e.target.value }))}>
                               <option value="">— Choose Distance —</option>
-                              {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => (
-                                <option key={sub.categoryId} value={sub.categoryId}>
-                                  {sub.categoryName} (₹{sub.discountPrice ?? sub.price})
-                                </option>
-                              ))}
+                              {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => {
+                                const ageReason = ageMismatchReason(virtualCategories[0], getAgeFromDob(formData.dob));
+                                const disabled = !!ageReason;
+                                const subName = getVirtualCategoryName(sub.categoryName);
+                                return (
+                                  <option key={sub.categoryId} value={sub.categoryId} disabled={disabled}>
+                                    {subName} (₹{sub.discountPrice ?? sub.price}){ageReason ? ` — ${ageReason}` : ''}
+                                  </option>
+                                );
+                              })}
                             </select>
                           </div>
                         )}
@@ -798,16 +891,35 @@ export default function RegistrationClient({ currentUser, event }) {
                     </h3>
                     <div style={{ padding: '24px', background: 'var(--surface)', borderRadius: '16px', border: '2px solid #ffc83c' }}>
                       <div style={{ marginBottom: formData.wantsGround ? '24px' : '0' }}>
-                        <label style={labelStyle}>Confirm T-Shirt Size *</label>
+                        <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          Confirm T-Shirt Size *
+                          <button 
+                            type="button" 
+                            onClick={() => setShowTshirtChart(true)}
+                            style={{ 
+                              background: 'none', border: 'none', padding: 0, cursor: 'pointer', 
+                              color: '#00a0ff', display: 'flex', alignItems: 'center' 
+                            }}
+                            title="View Size Chart"
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <line x1="12" y1="16" x2="12" y2="12"></line>
+                              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                          </button>
+                        </label>
                         <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>This T-shirt is included with your registration.</p>
-                        <select name="tshirtSize" value={formData.tshirtSize} onChange={handleChange} style={{ ...inputStyle('tshirtSize'), maxWidth: '300px' }}>
-                          <option value="">Select Size</option>
-                          <option value="S">Small (S)</option>
-                          <option value="M">Medium (M)</option>
-                          <option value="L">Large (L)</option>
-                          <option value="XL">Extra Large (XL)</option>
-                          <option value="XXL">Double Extra Large (XXL)</option>
-                        </select>
+                         <select name="tshirtSize" value={formData.tshirtSize} onChange={handleChange} style={{ ...inputStyle('tshirtSize'), maxWidth: '300px' }}>
+                           <option value="">Select Size</option>
+                           <option value="XXS - 32 Inch">XXS - 32 Inch</option>
+                           <option value="XS - 34 Inch">XS - 34 Inch</option>
+                           <option value="S - 36 Inch">S - 36 Inch</option>
+                           <option value="M - 38 Inch">M - 38 Inch</option>
+                           <option value="L - 40 Inch">L - 40 Inch</option>
+                           <option value="XL - 42 Inch">XL - 42 Inch</option>
+                           <option value="XXL - 44 Inch">XXL - 44 Inch</option>
+                         </select>
                         {errors.tshirtSize && <p style={errorStyle}>{errors.tshirtSize}</p>}
                       </div>
 
@@ -835,7 +947,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 4: SUPPORT A CAUSE (DONATION) ═══════════════ */}
-              {step === 4 && (
+              {!isVerifying && SHOW_DONATION_STEP && step === 4 && (
                 <>
                   <div style={{ marginBottom: '32px' }}>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -981,7 +1093,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 5: REVIEW ALL ═══════════════ */}
-              {step === 5 && (
+              {!isVerifying && step === 5 && (
                 <>
 
                   {submitError && (
@@ -1016,7 +1128,12 @@ export default function RegistrationClient({ currentUser, event }) {
                                     p.virtualSubCategoryId && (() => {
                                       const parent = getCatById(p.virtualParentCategoryId);
                                       const sub = parent?.virtualSettings?.find(s => String(s.categoryId) === String(p.virtualSubCategoryId));
-                                      return sub ? `${sub.categoryName} (Virtual)` : null;
+                                      if (sub) {
+                                        let name = sub.categoryName;
+                                        if (name.toLowerCase().startsWith('virtual')) return name;
+                                        return `Virtual ${name}`;
+                                      }
+                                      return null;
                                     })()
                                   ].filter(Boolean).join(' + ') || 'No Category'}
                                 </p>
@@ -1182,7 +1299,7 @@ export default function RegistrationClient({ currentUser, event }) {
                       style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#ffc83c', marginTop: '2px' }}
                     />
                     <label htmlFor="terms-agree" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', cursor: 'pointer' }}>
-                      I have read and agree to the <a href="/terms" target="_blank" style={{ color: '#ffc83c', fontWeight: 700, textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>Terms & Conditions</a>, <a href="/waiver" target="_blank" style={{ color: '#ffc83c', fontWeight: 700, textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>Waiver</a>, <a href="/refund" target="_blank" style={{ color: '#ffc83c', fontWeight: 700, textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>Refund Policy</a>, and <a href="/privacy-policy" target="_blank" style={{ color: '#ffc83c', fontWeight: 700, textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>Privacy Policy</a>. I confirm that I am registering for myself and/or others with proper authorization and consent to RunnerX LLP processing personal data as outlined.
+                      I have read and agree to the <a href="/dashboard/policy?tab=TERMS" target="_blank" style={{ color: '#ffc83c', fontWeight: 700, textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>Terms & Conditions</a>, <a href="/dashboard/policy?tab=WAIVER" target="_blank" style={{ color: '#ffc83c', fontWeight: 700, textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>Waiver</a>, <a href="/dashboard/policy?tab=REFUND" target="_blank" style={{ color: '#ffc83c', fontWeight: 700, textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>Refund Policy</a>, and <a href="/dashboard/policy?tab=PRIVACY" target="_blank" style={{ color: '#ffc83c', fontWeight: 700, textDecoration: 'underline' }} onClick={(e) => e.stopPropagation()}>Privacy Policy</a>. I confirm that I am registering for myself and/or others with proper authorization and consent to RunnerX LLP processing personal data as outlined.
                     </label>
                   </div>
 
@@ -1215,7 +1332,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 6: REDIRECTING ═══════════════ */}
-              {step === 6 && (
+              {!isVerifying && step === 6 && (
                 <div style={{ textAlign: 'center', padding: '60px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
                   <div style={{ width: '64px', height: '64px', border: '4px solid #f3f3f3', borderTop: '4px solid #ffc83c', borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '24px' }} />
                   <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
@@ -1240,7 +1357,7 @@ export default function RegistrationClient({ currentUser, event }) {
               )}
 
               {/* ═══════════════ STEP 7: SUCCESS ═══════════════ */}
-              {step === 7 && submitSuccess && (
+              {!isVerifying && step === 7 && submitSuccess && (
                 <div style={{ textAlign: 'center', padding: '60px 20px', background: 'linear-gradient(180deg, rgba(34,197,94,0.03) 0%, transparent 100%)', borderRadius: '24px' }}>
                   <div style={{ 
                     width: 80, height: 80, borderRadius: '50%', 
@@ -1527,6 +1644,18 @@ export default function RegistrationClient({ currentUser, event }) {
       if (tempEditData.wantsGround && (!tempEditData.emergencyName || !tempEditData.emergencyPhone)) {
         errs.emergency = 'Emergency contact required for ground race';
       }
+
+      const editAge = getAgeFromDob(tempEditData.dob);
+      if (tempEditData.wantsGround && tempEditData.selectedCategoryId) {
+        const ec = getCatById(Number(tempEditData.selectedCategoryId));
+        const reason = ageMismatchReason(ec, editAge);
+        if (reason) errs.category = `Selected category requires ${reason.toLowerCase()}`;
+      }
+      if (tempEditData.wantsVirtual && tempEditData.virtualSubCategoryId) {
+        const parent = getCatById(Number(tempEditData.virtualParentCategoryId)) || virtualCategories[0];
+        const reason = ageMismatchReason(parent, editAge);
+        if (reason) errs.category = `Virtual category requires ${reason.toLowerCase()}`;
+      }
       
       if (Object.keys(errs).length > 0) {
         setEditErrors(errs);
@@ -1586,14 +1715,33 @@ export default function RegistrationClient({ currentUser, event }) {
                     </select>
                   </div>
                   <div>
-                    <label style={labelStyle}>T-Shirt Size *</label>
+                    <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      T-Shirt Size *
+                      <button 
+                        type="button" 
+                        onClick={() => setShowTshirtChart(true)}
+                        style={{ 
+                          background: 'none', border: 'none', padding: 0, cursor: 'pointer', 
+                          color: '#00a0ff', display: 'flex', alignItems: 'center' 
+                        }}
+                        title="View Size Chart"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <line x1="12" y1="16" x2="12" y2="12"></line>
+                          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                      </button>
+                    </label>
                     <select name="tshirtSize" value={tempEditData.tshirtSize} onChange={handleEditChange} style={inputStyle('')}>
                       <option value="">Select Size</option>
-                      <option value="S">Small (S)</option>
-                      <option value="M">Medium (M)</option>
-                      <option value="L">Large (L)</option>
-                      <option value="XL">Extra Large (XL)</option>
-                      <option value="XXL">Double Extra Large (XXL)</option>
+                      <option value="XXS - 32 Inch">XXS - 32 Inch</option>
+                      <option value="XS - 34 Inch">XS - 34 Inch</option>
+                      <option value="S - 36 Inch">S - 36 Inch</option>
+                      <option value="M - 38 Inch">M - 38 Inch</option>
+                      <option value="L - 40 Inch">L - 40 Inch</option>
+                      <option value="XL - 42 Inch">XL - 42 Inch</option>
+                      <option value="XXL - 44 Inch">XXL - 44 Inch</option>
                     </select>
                   </div>
                 </div>
@@ -1660,9 +1808,13 @@ export default function RegistrationClient({ currentUser, event }) {
                         <option value="">— Choose Distance —</option>
                         {groundCategories.map(ec => {
                           const isFull = ec.maxParticipants && ec.registeredCount >= ec.maxParticipants;
+                          const ageReason = ageMismatchReason(ec, getAgeFromDob(tempEditData.dob));
+                          const disabled = !!(isFull || ageReason);
                           return (
-                            <option key={ec.id} value={ec.id} disabled={isFull}>
-                              {getCategoryDisplayName(ec)} ({getCategoryDistance(ec)}) — ₹{ec.discountPrice || ec.price} {isFull ? '(FULL)' : ''}
+                            <option key={ec.id} value={ec.id} disabled={disabled}>
+                              {getCategoryDisplayName(ec)} ({getCategoryDistance(ec)}) — ₹{ec.discountPrice || ec.price}
+                              {isFull ? ' (FULL)' : ''}
+                              {ageReason ? ` — ${ageReason}` : ''}
                             </option>
                           );
                         })}
@@ -1694,16 +1846,24 @@ export default function RegistrationClient({ currentUser, event }) {
                           style={inputStyle('')}
                         >
                           <option value="">— Choose Distance —</option>
-                          {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => (
-                            <option key={sub.categoryId} value={sub.categoryId}>
-                              {sub.categoryName} (₹{sub.discountPrice ?? sub.price})
-                            </option>
-                          ))}
+                          {Array.isArray(virtualCategories[0]?.virtualSettings) && virtualCategories[0].virtualSettings.map(sub => {
+                            const ageReason = ageMismatchReason(virtualCategories[0], getAgeFromDob(tempEditData.dob));
+                            const disabled = !!ageReason;
+                            const subName = getVirtualCategoryName(sub.categoryName);
+                            return (
+                              <option key={sub.categoryId} value={sub.categoryId} disabled={disabled}>
+                                {subName} (₹{sub.discountPrice ?? sub.price}){ageReason ? ` — ${ageReason}` : ''}
+                              </option>
+                            );
+                          })}
                         </select>
                       )}
                     </div>
                   )}
 
+                  {editErrors.category && (
+                    <p style={{ ...errorStyle, marginTop: '12px', fontWeight: 600 }}>⚠ {editErrors.category}</p>
+                  )}
                 </div>
               </div>
 
@@ -1747,6 +1907,46 @@ export default function RegistrationClient({ currentUser, event }) {
       `}</style>
       {renderContent()}
       {EditParticipantModal()}
+
+      {/* T-Shirt Size Chart Modal */}
+      {showTshirtChart && (
+        <div 
+          style={{ 
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            background: 'rgba(0,0,0,0.8)', zIndex: 3000, 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            padding: '20px', backdropFilter: 'blur(5px)' 
+          }}
+          onClick={() => setShowTshirtChart(false)}
+        >
+          <div 
+            style={{ 
+              position: 'relative', maxWidth: '600px', width: '100%', 
+              background: 'white', borderRadius: '16px', overflow: 'hidden',
+              boxShadow: '0 25px 50px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setShowTshirtChart(false)}
+              style={{ 
+                position: 'absolute', top: '12px', right: '12px', 
+                background: 'white', border: 'none', width: '32px', height: '32px', 
+                borderRadius: '50%', fontSize: '1.5rem', cursor: 'pointer', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)', zIndex: 1
+              }}
+            >
+              ×
+            </button>
+            <img 
+              src="/tshirt_chart.jpeg" 
+              alt="T-Shirt Size Chart" 
+              style={{ width: '100%', height: 'auto', display: 'block' }} 
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

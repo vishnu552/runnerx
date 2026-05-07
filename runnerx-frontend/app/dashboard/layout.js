@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/app/lib/auth';
-import { getOriginFromCookies } from '@/app/lib/origin';
+import { getOriginFromCookies, getOriginConfig } from '@/app/lib/origin';
 import DashboardHeader from '@/app/components/DashboardHeader';
 import DashboardSidebar from './DashboardSidebar';
 
@@ -8,6 +8,12 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardLayout({ children }) {
   const user = await getCurrentUser();
+
+  // JWT expired — redirect back to the origin site's login page
+  if (user?.expired) {
+    const originConfig = user.originCode ? getOriginConfig(user.originCode) : null;
+    redirect(originConfig ? `${originConfig.url}/login` : '/login');
+  }
 
   if (!user || user.role !== 'USER') {
     redirect('/login');

@@ -32,6 +32,7 @@ export default function ProfilePage() {
   const [state, formAction] = useActionState(updateProfile, initialState);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [formVersion, setFormVersion] = useState(0);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -40,6 +41,7 @@ export default function ProfilePage() {
         const data = await res.json();
         if (data.success) {
           setProfile(data.profile);
+          if (state?.success) setFormVersion(v => v + 1);
         }
       } catch (err) {
         console.error('Failed to fetch profile:', err);
@@ -82,10 +84,10 @@ export default function ProfilePage() {
       {state?.success && (
         <div style={{
           padding: '14px 20px',
-          background: 'rgba(11, 110, 79, 0.08)',
-          color: 'var(--primary)',
+          background: 'rgba(34, 197, 94, 0.12)',
+          color: '#15803d',
           borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(11, 110, 79, 0.2)',
+          border: '1px solid rgba(34, 197, 94, 0.3)',
           fontSize: '0.9rem',
           fontWeight: 600,
           display: 'flex',
@@ -109,7 +111,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      <form className="contact-form" action={formAction}>
+      <form key={formVersion} className="contact-form" action={formAction}>
         {/* Personal Information */}
         <div className="card" style={{ padding: '32px' }}>
           <h2 style={{
@@ -193,25 +195,7 @@ export default function ProfilePage() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="profile-blood">Blood Group</label>
-              <select
-                className="form-input"
-                id="profile-blood"
-                name="bloodGroup"
-                defaultValue={profile?.bloodGroup || ''}
-              >
-                <option value="">Select blood group</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </select>
-            </div>
+
           </div>
         </div>
 

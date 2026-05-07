@@ -38,10 +38,11 @@ export default function LoginFallbackPage() {
 
         {/* City site links */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {sites.map((site) => (
+          {/* {sites.map((site) => ( */}
             <a
-              key={site.code}
-              href={`${site.url}/login`}
+              // key={site.code}
+              href={`https://kotahalfmarathon.in/login`}
+              // href={`${site.url}/login`}
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
                 padding: '16px 24px', borderRadius: '12px',
@@ -61,9 +62,9 @@ export default function LoginFallbackPage() {
                 e.currentTarget.style.borderColor = '#e2e8f0';
               }}
             >
-              🏃 {site.fullName}
+               {/* {site.fullName} */} Kota Half Marathon
             </a>
-          ))}
+          {/* ))} */}
         </div>
 
         <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '32px' }}>

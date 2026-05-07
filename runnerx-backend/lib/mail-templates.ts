@@ -211,14 +211,13 @@ export const participantConfirmationTemplate = (
         <h2 style="margin-top: 0; color: #1a1a1a; font-size: 24px; text-align: center;">Registration Confirmed</h2>
         <p>Hi ${participantName},</p>
         <p>Great news — you've been successfully registered for <strong>${eventName}</strong>! Your spot is confirmed.</p>
-        <p>This registration was completed as part of a group/multi-participant entry.</p>
 
         <div style="background-color: #f8faff; border-radius: 12px; padding: 24px; margin: 30px 0; border: 2px solid #00a0ff;">
           <h3 style="margin-top: 0; color: #00a0ff; font-size: 18px; text-align: center;">Your Registration Details</h3>
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
               <td style="padding: 10px 0; color: #666; width: 160px;">Registration ID:</td>
-              <td style="padding: 10px 0; font-weight: 800; font-size: 18px; color: #00a0ff; letter-spacing: 1px;">${uniqueRegId}</td>
+              <td style="padding: 10px 0; font-weight: 800; font-size: 14px; color: #00a0ff; letter-spacing: 1px;">${uniqueRegId}</td>
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #666;">Category:</td>
@@ -313,26 +312,32 @@ export const newParticipantWelcomeTemplate = (
           </table>
         </div>
 
-        <div style="background-color: #fff8e6; border-radius: 12px; padding: 24px; margin: 24px 0; border: 1px solid #ffc83c;">
-          <h3 style="margin-top: 0; color: #b8860b; font-size: 16px;">🔑 Your New RunnerX Account</h3>
-          <p style="margin: 8px 0; color: #666;">We've created a RunnerX account for you so you can track your registration and manage your details.</p>
-          <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
-            <tr>
-              <td style="padding: 8px 0; color: #666; width: 100px; font-weight: 600;">Email:</td>
-              <td style="padding: 8px 0; font-family: monospace; font-size: 14px; background: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd;">${email}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0 0; color: #666; font-weight: 600; vertical-align: top; padding-top: 12px;">Password:</td>
-              <td style="padding-top: 12px;">
-                <span style="font-family: monospace; font-size: 16px; font-weight: 800; background: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd; letter-spacing: 2px;">${password}</span>
-                <p style="margin: 6px 0 0; font-size: 12px; color: #999;">(Your date of birth in YYYYMMDD format)</p>
-              </td>
-            </tr>
-          </table>
-        </div>
-
-        <div style="background-color: #fff0f0; border-radius: 8px; padding: 16px; border-left: 4px solid #e74c3c; margin: 16px 0;">
-          <p style="margin: 0; color: #c0392b; font-weight: 600;">⚠️ Important: Please login and change your password immediately for security.</p>
+        <div style="background-color: #fff8e6; border-radius: 12px; padding: 24px; margin: 24px 0; border: 2px solid #ffc83c; box-shadow: 0 4px 12px rgba(255,200,60,0.1);">
+          <h3 style="margin-top: 0; color: #b8860b; font-size: 18px; display: flex; items-center: center; gap: 8px;">
+            🔑 Your RunnerX Account is Ready!
+          </h3>
+          <p style="margin: 8px 0; color: #444; font-size: 15px; line-height: 1.5;">
+            Since you didn't have a RunnerX account yet, we've automatically created one for you. You can use these credentials to log in, track your race result, and download your certificate later.
+          </p>
+          
+          <div style="background: #ffffff; border-radius: 8px; padding: 16px; margin-top: 16px; border: 1px dashed #ffc83c;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #666; width: 100px; font-weight: 600;">Email:</td>
+                <td style="padding: 8px 0; font-family: 'Courier New', monospace; font-size: 15px; font-weight: 700; color: #333;">${email}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666; font-weight: 600; vertical-align: top;">Password:</td>
+                <td>
+                  <span style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: 800; color: #333; letter-spacing: 1px;">${password}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+          
+          <p style="margin-top: 16px; font-size: 13px; color: #c0392b; font-weight: 600; background: #fff0f0; padding: 10px; border-radius: 6px;">
+            ⚠️ For security, please login and change your password immediately.
+          </p>
         </div>
 
         <div style="text-align: center; margin-top: 24px;">

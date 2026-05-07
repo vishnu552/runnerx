@@ -1,6 +1,7 @@
 import { eventInfo as fallbackEventInfo } from '@/data/categories';
 import { getPageContent, getGlobalContent } from '@/lib/api';
 import PageHero from '@/components/PageHero';
+import ContactForm from '@/components/ContactForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,38 +34,7 @@ export default async function ContactPage() {
         <div className="container">
           <div className="contact-grid">
             <div className="contact-form-container">
-              <h2 className="section-title" style={{ fontSize: '2rem', marginBottom: '24px' }}>{form.title || "Send us a Message"}</h2>
-              <form className="contact-form">
-                <div className="form-group">
-                  <label className="form-label">Name</label>
-                  <input type="text" className="form-input" placeholder="Your full name" required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Email</label>
-                  <input type="email" className="form-input" placeholder="you@example.com" required />
-                </div>
-                <div className="form-group">
-                  
-                  <label className="form-label">Subject</label>
-                  <select className="form-input" required>
-                    <option value="">Select a topic</option>
-                    <option value="registration">Registration</option>
-                    <option value="payment">Payment Issue</option>
-                    <option value="event">Event Information</option>
-                    <option value="sponsorship">Sponsorship Inquiry</option>
-                    <option value="volunteer">Volunteer</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Message</label>
-                  <textarea className="form-textarea" placeholder="How can we help you?" required></textarea>
-                </div>
-                <button type="submit" className="btn btn-primary" style={{ marginTop: '8px' }}>Send Message</button>
-                {/* <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px' }}>
-                  {form.disclaimer || ""}
-                </p> */}
-              </form>
+              <ContactForm title={form.title} />
             </div>
 
             <div className="contact-info-container">

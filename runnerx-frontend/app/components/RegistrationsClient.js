@@ -23,6 +23,7 @@ export default function RegistrationsClient({ registrations: initialRegistration
   const [updateType, setUpdateType] = useState('TSHIRT');
   const [bibCheckStatus, setBibCheckStatus] = useState(null); // null, 'checking', 'available', 'unavailable'
   const [bibPaying, setBibPaying] = useState(false);
+  const [showTshirtChart, setShowTshirtChart] = useState(false);
 
   const loadRazorpay = () => new Promise((resolve) => {
     if (window.Razorpay) return resolve(true);
@@ -514,9 +515,16 @@ export default function RegistrationsClient({ registrations: initialRegistration
                           </div>
                           <div className="participant-sub">{primary.participantEmail} • {primary.participantPhone}</div>
                           <div className="participant-chips">
-                            {sorted.map((li) => (
-                              <span key={li.id} className="chip-cat">{li.categoryNameSnapshot} · {li.distanceSnapshot || li.raceTypeSnapshot}</span>
-                            ))}
+                            {sorted.map((li) => {
+                              let catName = li.categoryNameSnapshot;
+                              const isVirtual = (li.raceTypeSnapshot || li.distanceSnapshot || '').toLowerCase().includes('virtual');
+                              if (isVirtual && !catName.toLowerCase().startsWith('virtual')) {
+                                catName = `Virtual ${catName}`;
+                              }
+                              return (
+                                <span key={li.id} className="chip-cat">{catName} · {li.distanceSnapshot || li.raceTypeSnapshot}</span>
+                              );
+                            })}
                             {(sorted.find(li => li.tshirtSize) || primary) && (
                               <span className="chip-cat">T-shirt: {sorted.find(li => li.tshirtSize)?.tshirtSize || '—'}</span>
                             )}
@@ -643,15 +651,33 @@ export default function RegistrationsClient({ registrations: initialRegistration
 
                   {updateType === 'TSHIRT' && (
                     <div style={{ background: 'var(--surface-alt)', padding: '20px', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                      <label style={{ display: 'block', fontSize: '0.73rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: 'var(--text-muted)' }}>Select New T-Shirt Size</label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.73rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px', color: 'var(--text-muted)' }}>
+                        Select New T-Shirt Size
+                        <button 
+                          type="button" 
+                          onClick={() => setShowTshirtChart(true)}
+                          style={{ 
+                            background: 'none', border: 'none', padding: 0, cursor: 'pointer', 
+                            color: '#00a0ff', display: 'flex', alignItems: 'center' 
+                          }}
+                          title="View Size Chart"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                          </svg>
+                        </button>
+                      </label>
                       <select name="tshirtSize" value={formData.tshirtSize} onChange={handleInputChange} className="form-input w-full" style={{ padding: '12px' }} required>
                         <option value="">— Select Size —</option>
-                        <option value="XS">XS (Extra Small)</option>
-                        <option value="S">S (Small)</option>
-                        <option value="M">M (Medium)</option>
-                        <option value="L">L (Large)</option>
-                        <option value="XL">XL (Extra Large)</option>
-                        <option value="XXL">XXL (Double XL)</option>
+                        <option value="XXS - 32 Inch">XXS - 32 Inch</option>
+                        <option value="XS - 34 Inch">XS - 34 Inch</option>
+                        <option value="S - 36 Inch">S - 36 Inch</option>
+                        <option value="M - 38 Inch">M - 38 Inch</option>
+                        <option value="L - 40 Inch">L - 40 Inch</option>
+                        <option value="XL - 42 Inch">XL - 42 Inch</option>
+                        <option value="XXL - 44 Inch">XXL - 44 Inch</option>
                       </select>
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '12px' }}>
                         * Note: T-shirt sizes are subject to availability on the event day.
@@ -737,6 +763,45 @@ export default function RegistrationsClient({ registrations: initialRegistration
                 </button>
               )}
             </div>
+          </div>
+        </div>
+      )}
+      {/* T-Shirt Size Chart Modal */}
+      {showTshirtChart && (
+        <div 
+          style={{ 
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+            background: 'rgba(0,0,0,0.8)', zIndex: 3000, 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            padding: '20px', backdropFilter: 'blur(5px)' 
+          }}
+          onClick={() => setShowTshirtChart(false)}
+        >
+          <div 
+            style={{ 
+              position: 'relative', maxWidth: '600px', width: '100%', 
+              background: 'white', borderRadius: '16px', overflow: 'hidden',
+              boxShadow: '0 25px 50px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setShowTshirtChart(false)}
+              style={{ 
+                position: 'absolute', top: '12px', right: '12px', 
+                background: 'white', border: 'none', width: '32px', height: '32px', 
+                borderRadius: '50%', fontSize: '1.5rem', cursor: 'pointer', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.2)', zIndex: 1
+              }}
+            >
+              ×
+            </button>
+            <img 
+              src="/tshirt_chart.jpeg" 
+              alt="T-Shirt Size Chart" 
+              style={{ width: '100%', height: 'auto', display: 'block' }} 
+            />
           </div>
         </div>
       )}

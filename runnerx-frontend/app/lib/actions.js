@@ -4,6 +4,7 @@ import { API_URL } from './api';
 import { setSessionToken, destroySession } from './auth';
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { ORIGIN_COOKIE_NAME } from './constants';
 import { getOriginConfig } from './origin';
@@ -58,6 +59,8 @@ export async function updateProfile(prevState, formData) {
     if (!res.ok) {
       return { error: data.message || 'Failed to update profile' };
     }
+
+    revalidatePath('/dashboard', 'layout');
 
     return { success: true, message: 'Profile updated successfully' };
   } catch (error) {

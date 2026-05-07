@@ -29,6 +29,10 @@ const entries: Entry[] = [
   // ─── About page — Hero banner image ───
   { siteFor: "KTA", page: "about", section: "hero", key: "bg_image", value: "", type: "IMAGE", sortOrder: 1, isActive: true },
 
+  { siteFor: "KTA", page: "event-rules", section: "hero", key: "heading", value: "", type: "TEXT", sortOrder: 1, isActive: true },
+  { siteFor: "KTA", page: "event-rules", section: "hero", key: "bg_image", value: "", type: "IMAGE", sortOrder: 2, isActive: true },
+  { siteFor: "KTA", page: "philanthropy", section: "hero", key: "heading", value: "", type: "TEXT", sortOrder: 1, isActive: true },
+  { siteFor: "KTA", page: "philanthropy", section: "hero", key: "bg_image", value: "", type: "IMAGE", sortOrder: 2, isActive: true },
   // ─── About page — Vision: 3 boxes (heading + text) ───
   { siteFor: "KTA", page: "about", section: "vision", key: "box1_heading", value: "GREEN RUNNING", type: "TEXT", sortOrder: 10, isActive: true },
   { siteFor: "KTA", page: "about", section: "vision", key: "box1_text", value: "Eco-friendly event management with biodegradable cups, minimal plastic use, and post-event clean-up drives along the Chambal riverside.", type: "TEXT", sortOrder: 11, isActive: true },
@@ -49,78 +53,73 @@ const entries: Entry[] = [
   // ─── Home page — Overview: card titles (frontend reads these but DB was missing) ───
   { siteFor: "KTA", page: "home", section: "overview", key: "card1_title", value: "", type: "TEXT", sortOrder: 20, isActive: true },
   { siteFor: "KTA", page: "home", section: "overview", key: "card2_title", value: "", type: "TEXT", sortOrder: 21, isActive: true },
+  
+  // ─── Global page — Header highlight text ───
+  { siteFor: "KTA", page: "global", section: "header", key: "header_highlight", value: "", type: "TEXT", sortOrder: 1, isActive: true },
+
+  // ─── Legal Pages — Hero banner images & titles ───
+  { siteFor: "KTA", page: "privacy", section: "hero", key: "title", value: "Privacy Policy", type: "TEXT", sortOrder: 1, isActive: true },
+  { siteFor: "KTA", page: "privacy", section: "hero", key: "bg_image", value: "", type: "IMAGE", sortOrder: 2, isActive: true },
+  
+  { siteFor: "KTA", page: "terms", section: "hero", key: "title", value: "Terms & Conditions", type: "TEXT", sortOrder: 1, isActive: true },
+  { siteFor: "KTA", page: "terms", section: "hero", key: "bg_image", value: "", type: "IMAGE", sortOrder: 2, isActive: true },
+  
+  { siteFor: "KTA", page: "refund", section: "hero", key: "title", value: "Refund Policy", type: "TEXT", sortOrder: 1, isActive: true },
+  { siteFor: "KTA", page: "refund", section: "hero", key: "bg_image", value: "", type: "IMAGE", sortOrder: 2, isActive: true },
+  
+  { siteFor: "KTA", page: "waiver", section: "hero", key: "title", value: "Waiver", type: "TEXT", sortOrder: 1, isActive: true },
+  { siteFor: "KTA", page: "waiver", section: "hero", key: "bg_image", value: "", type: "IMAGE", sortOrder: 2, isActive: true },
+];
+
+type InfoSectionEntry = {
+  siteFor: string;
+  pageType: string;
+  heading: string;
+  content: string;
+  sortOrder: number;
+  isActive: boolean;
+};
+
+const infoSections: InfoSectionEntry[] = [
+  // ─── Refund Policy ───
+  {
+    siteFor: "GLOBAL",
+    pageType: "REFUND",
+    heading: "No Refunds",
+    content: "Registration fees are strictly non-refundable under any circumstances, including event cancellation due to force majeure.",
+    sortOrder: 1,
+    isActive: true
+  },
+  {
+    siteFor: "GLOBAL",
+    pageType: "REFUND",
+    heading: "Event Rescheduling",
+    content: "If the event is postponed or rescheduled, your registration will be automatically valid for the new date.",
+    sortOrder: 2,
+    isActive: true
+  },
+  // ─── Waiver ───
+  {
+    siteFor: "GLOBAL",
+    pageType: "WAIVER",
+    heading: "Medical Declaration",
+    content: "I confirm that I am physically fit and have no medical condition that would prevent my participation in this event.",
+    sortOrder: 1,
+    isActive: true
+  },
+  {
+    siteFor: "GLOBAL",
+    pageType: "WAIVER",
+    heading: "Release of Liability",
+    content: "I hereby release the organizers and sponsors from all liability for any injury, loss, or damage arising from my participation.",
+    sortOrder: 2,
+    isActive: true
+  },
 ];
 
 // Keys present in DB but never read by the frontend — safe to remove.
 // (event-rules / philanthropy keys are intentionally NOT listed; frontend uses them.)
-const deletes: DeleteKey[] = [
-  // home — unused
-  { siteFor: "KTA", page: "home", section: "hero", key: "label" },
-  { siteFor: "KTA", page: "home", section: "categories_header", key: "badge" },
-  { siteFor: "KTA", page: "home", section: "categories_header", key: "subtitle" },
-
-  // about — PageHero doesn't render badge/subtitle; vision uses box*_heading/text not features; timeline & team sections don't exist in code
-  { siteFor: "KTA", page: "about", section: "hero", key: "badge" },
-  { siteFor: "KTA", page: "about", section: "hero", key: "subtitle" },
-  { siteFor: "KTA", page: "about", section: "vision", key: "badge" },
-  { siteFor: "KTA", page: "about", section: "vision", key: "subtitle" },
-  { siteFor: "KTA", page: "about", section: "vision", key: "features" },
-  { siteFor: "KTA", page: "about", section: "timeline", key: "badge" },
-  { siteFor: "KTA", page: "about", section: "timeline", key: "title" },
-  { siteFor: "KTA", page: "about", section: "timeline", key: "title_accent" },
-  { siteFor: "KTA", page: "about", section: "timeline", key: "items" },
-  { siteFor: "KTA", page: "about", section: "team", key: "title" },
-  { siteFor: "KTA", page: "about", section: "team", key: "title_accent" },
-  { siteFor: "KTA", page: "about", section: "team", key: "subtitle" },
-  { siteFor: "KTA", page: "about", section: "team", key: "cta_title" },
-  { siteFor: "KTA", page: "about", section: "team", key: "cta_subtitle" },
-  { siteFor: "KTA", page: "about", section: "team", key: "cta_button_text" },
-  { siteFor: "KTA", page: "about", section: "team", key: "cta_button_link" },
-
-  // faq — no /faq page exists in frontend
-  { siteFor: "KTA", page: "faq", section: "hero", key: "badge" },
-  { siteFor: "KTA", page: "faq", section: "hero", key: "title" },
-  { siteFor: "KTA", page: "faq", section: "hero", key: "title_accent" },
-  { siteFor: "KTA", page: "faq", section: "hero", key: "subtitle" },
-  { siteFor: "KTA", page: "faq", section: "footer", key: "text" },
-  { siteFor: "KTA", page: "faq", section: "footer", key: "cta_text" },
-  { siteFor: "KTA", page: "faq", section: "footer", key: "cta_link" },
-
-  // contact — unused (PageHero doesn't render badge/subtitle, info is hard-coded, disclaimer commented out)
-  { siteFor: "KTA", page: "contact", section: "hero", key: "badge" },
-  { siteFor: "KTA", page: "contact", section: "hero", key: "subtitle" },
-  { siteFor: "KTA", page: "contact", section: "form", key: "disclaimer" },
-  { siteFor: "KTA", page: "contact", section: "info", key: "office_hours" },
-  { siteFor: "KTA", page: "contact", section: "info", key: "map_label" },
-
-  // gallery — only hero.title_accent and hero.bg_image are used; GalleryClient pulls images via getGalleryImages()
-  { siteFor: "KTA", page: "gallery", section: "hero", key: "badge" },
-  { siteFor: "KTA", page: "gallery", section: "hero", key: "subtitle" },
-  { siteFor: "KTA", page: "gallery", section: "content", key: "notice" },
-  { siteFor: "KTA", page: "gallery", section: "content", key: "items" },
-
-  // route — PageHero doesn't render badge/subtitle
-  { siteFor: "KTA", page: "route", section: "hero", key: "badge" },
-  { siteFor: "KTA", page: "route", section: "hero", key: "subtitle" },
-
-  // privacy / terms — PageHero doesn't render subtitle; body comes from getInfoSections(); last_updated read from `legal` section not `content`
-  { siteFor: "KTA", page: "privacy", section: "hero", key: "subtitle" },
-  { siteFor: "KTA", page: "privacy", section: "content", key: "last_updated" },
-  { siteFor: "KTA", page: "privacy", section: "content", key: "body" },
-  { siteFor: "KTA", page: "terms", section: "hero", key: "subtitle" },
-  { siteFor: "KTA", page: "terms", section: "content", key: "last_updated" },
-  { siteFor: "KTA", page: "terms", section: "content", key: "body" },
-
-  // JDH / UDR — this build is KTA-only; remove non-KTA copies (KTA versions already exist)
-  { siteFor: "JDH", page: "event-rules", section: "hero", key: "heading" },
-  { siteFor: "JDH", page: "event-rules", section: "hero", key: "bg_image" },
-  { siteFor: "JDH", page: "philanthropy", section: "hero", key: "heading" },
-  { siteFor: "JDH", page: "philanthropy", section: "hero", key: "bg_image" },
-  { siteFor: "UDR", page: "event-rules", section: "hero", key: "heading" },
-  { siteFor: "UDR", page: "event-rules", section: "hero", key: "bg_image" },
-  { siteFor: "UDR", page: "philanthropy", section: "hero", key: "heading" },
-  { siteFor: "UDR", page: "philanthropy", section: "hero", key: "bg_image" },
-];
+const deletes: DeleteKey[] = [];
 
 async function main() {
   try {
@@ -144,7 +143,25 @@ async function main() {
       }
     }
 
-    // 2. Delete unused entries
+    // 2. Create missing InfoSections
+    console.log("\n— Seeding InfoSections (Legal/FAQ) —");
+    for (const section of infoSections) {
+      const existing = await prisma.infoSection.findFirst({
+        where: {
+          siteFor: section.siteFor,
+          pageType: section.pageType,
+          heading: section.heading,
+        },
+      });
+      if (existing) {
+        console.log(`⏭  Skipped (exists): ${section.pageType} - ${section.heading}`);
+      } else {
+        await prisma.infoSection.create({ data: section });
+        console.log(`✅ Created: ${section.pageType} - ${section.heading}`);
+      }
+    }
+
+    // 3. Delete unused entries
     console.log("\n— Removing unused keys —");
     for (const d of deletes) {
       const result = await prisma.pageContent.deleteMany({

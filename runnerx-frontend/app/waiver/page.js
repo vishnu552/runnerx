@@ -3,8 +3,8 @@ import { getGlobalContent, getInfoSections } from '@/app/lib/api';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Liability Waiver',
-  description: 'Liability waiver and release form for RunnerX events.',
+  title: 'Waiver',
+  description: 'Waiver and release form for RunnerX events.',
 };
 
 // Fallback contact info
@@ -26,7 +26,7 @@ export default async function WaiverPage() {
     <>
       <section className="legal-page-hero">
         <div className="legal-page-hero-inner">
-          <h1>Liability Waiver</h1>
+          <h1>Waiver</h1>
         </div>
       </section>
 
@@ -43,7 +43,7 @@ export default async function WaiverPage() {
           ))
         ) : (
           <div style={{ marginBottom: '32px' }}>
-            <p>No liability waiver sections have been added yet.</p>
+            <p>No waiver sections have been added yet.</p>
           </div>
         )}
 
