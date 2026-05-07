@@ -30,7 +30,7 @@ export default async function DashboardLayout({ children }) {
   return (
     <>
       <DashboardHeader originConfig={originConfig} user={user} />
-      <div style={{ background: '#f1f5f9', minHeight: '100vh', paddingTop: '88px', paddingBottom: '60px' }}>
+      <div className="dashboard-content-wrapper" style={{ background: '#f1f5f9', minHeight: '100vh', paddingBottom: '60px' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
           <div className="mb-4 lg:hidden" style={{ marginBottom: '16px' }}>
             <DashboardSidebar user={user} logoutAction={logoutAction} mobile />

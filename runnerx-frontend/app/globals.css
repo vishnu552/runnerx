@@ -303,9 +303,92 @@ body {
   line-height: 2;
   margin-bottom: 8px;
 }
-.last-updated {
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  font-style: italic;
-  margin-bottom: 32px;
+/* ─── Responsive Overrides ─── */
+.dashboard-content-wrapper {
+  padding-top: 88px;
+}
+
+@media (max-width: 640px) {
+  .dashboard-content-wrapper {
+    padding-top: 72px;
+  }
+  
+  :root {
+    --radius-lg: 12px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  /* Reduce base font size */
+  body {
+    font-size: 14px;
+  }
+
+  /* Headings */
+  h1 { font-size: 1.75rem !important; }
+  h2 { font-size: 1.25rem !important; }
+  h3 { font-size: 1.1rem !important; }
+
+  .legal-page-hero {
+    min-height: 180px;
+  }
+  
+  .legal-page-hero h1 {
+    font-size: 1.6rem !important;
+  }
+
+  .legal-content {
+    padding: 32px 16px;
+  }
+
+  .legal-content h2 {
+    font-size: 1.2rem !important;
+    margin-top: 24px;
+  }
+
+  .legal-content p, 
+  .legal-content li {
+    font-size: 0.875rem;
+    line-height: 1.8;
+  }
+
+  /* Dashboard Header Mobile */
+  .header-user-info {
+    display: none !important;
+  }
+  
+  .back-link-text {
+    display: none !important;
+  }
+
+  .back-link-icon {
+    display: inline-block !important;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+  }
+
+  /* Cards */
+  .card {
+    padding: 1.25rem !important;
+  }
+
+  /* Registration Form */
+  .registration-main-card {
+    padding: 1rem !important;
+  }
+}
+
+/* Hide back link icon on desktop */
+@media (min-width: 641px) {
+  .back-link-icon {
+    display: none !important;
+  }
 }

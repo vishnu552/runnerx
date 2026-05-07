@@ -36,7 +36,6 @@ export default async function RegisterPage() {
         <h1
           style={{
             fontFamily: "var(--font-heading)",
-            fontSize: "2.2rem",
             fontWeight: 900,
             color: "var(--text)",
             marginBottom: "12px",
@@ -110,10 +109,9 @@ export default async function RegisterPage() {
             borderStyle: "dashed",
           }}
         >
-          <div style={{ fontSize: "4rem", marginBottom: "20px" }}>🏃‍♂️</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: "4rem", marginBottom: "20px" }}>🏃‍♂️</div>
           <h2
             style={{
-              fontSize: "1.6rem",
               fontWeight: 900,
               color: "var(--text)",
               marginBottom: "12px",

@@ -24,7 +24,7 @@ export async function setSessionToken(token) {
 export async function destroySession() {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, '', {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 0,

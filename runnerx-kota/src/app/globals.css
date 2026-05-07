@@ -1146,11 +1146,85 @@
     @apply grid grid-cols-1 gap-5 sm:grid-cols-2;
   }
 
+  /* ─── Registration Flow Responsiveness ─── */
+  @media (max-width: 640px) {
+    .registration-container {
+      @apply !mt-4 !mb-8 !px-4;
+    }
+
+    .registration-card {
+      @apply !p-5;
+    }
+
+    .registration-header {
+      @apply !p-6;
+    }
+
+    .registration-header h2 {
+      @apply !text-xl;
+    }
+
+    .step-indicator {
+      @apply !gap-2 !p-3;
+    }
+
+    .step-indicator > div {
+      @apply !h-8 !w-8 !text-xs;
+    }
+
+    .registration-form-section {
+      @apply !p-5;
+    }
+
+    .registration-form-section h3 {
+      @apply !text-lg;
+    }
+
+    .registration-input {
+      @apply !py-3 !text-base; /* Better touch target */
+    }
+
+    .registration-label {
+      @apply !text-xs !mb-1.5;
+    }
+
+    .registration-btn-group {
+      @apply !flex-col !gap-3;
+    }
+
+    .registration-btn-group button {
+      @apply !w-full !py-4 !text-base;
+    }
+
+    .summary-cart-bar {
+      @apply !px-4 !py-3 !h-auto !flex-col !gap-3 !rounded-t-2xl !rounded-b-none !mb-0 !bottom-0 !fixed;
+    }
+
+    .summary-cart-bar button {
+      @apply !w-full !py-3;
+    }
+    
+    .edit-modal-content {
+      @apply !p-5 !max-h-[85vh];
+    }
+  }
+
   @media (min-width: 1024px) {
     .registration-layout {
       grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
       gap: 3rem;
     }
+  }
+
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6
+  ) {
+    font-family: sans-serif !important;
   }
 
   :is(

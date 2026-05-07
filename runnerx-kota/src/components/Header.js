@@ -75,6 +75,29 @@ export default function Header({
     validateToken();
   }, [pathname]); // re-validate on every navigation
 
+  // Re-validate on window focus or visibility change to catch logouts from other tabs
+  useEffect(() => {
+    const handleSync = () => {
+      // Small delay to ensure cookie clearing has propagated
+      setTimeout(() => {
+        const COOKIE_NAME = 'runnerx-user-token';
+        const match = document.cookie.match(new RegExp('(?:^|; )' + COOKIE_NAME + '=([^;]*)'));
+        const token = match ? decodeURIComponent(match[1]) : null;
+        
+        if (!token && clientUser) {
+          setClientUser(null);
+        }
+      }, 100);
+    };
+
+    window.addEventListener('focus', handleSync);
+    document.addEventListener('visibilitychange', handleSync);
+    return () => {
+      window.removeEventListener('focus', handleSync);
+      document.removeEventListener('visibilitychange', handleSync);
+    };
+  }, [clientUser]);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
