@@ -13,8 +13,12 @@ export default function CategorySlider({ items }) {
     const handleScroll = () => {
       if (scrollRef.current) {
         const { scrollLeft, clientWidth } = scrollRef.current;
-        const index = Math.round(scrollLeft / clientWidth);
-        setCurrentIndex(index);
+        if (clientWidth > 0) {
+          const index = Math.round(scrollLeft / clientWidth);
+          if (index !== currentIndex) {
+            setCurrentIndex(index);
+          }
+        }
       }
     };
 
@@ -25,11 +29,11 @@ export default function CategorySlider({ items }) {
     return () => {
       if (scroller) scroller.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [currentIndex]);
 
-  // Auto-scroll logic (optional, but keep it if user liked it, just make it smoother)
+  // Auto-scroll logic
   useEffect(() => {
-    if (!items || items.length === 0) return;
+    if (!items || items.length <= 1) return;
     
     const interval = setInterval(() => {
       if (scrollRef.current) {
@@ -39,10 +43,10 @@ export default function CategorySlider({ items }) {
           behavior: 'smooth'
         });
       }
-    }, 5000); // Slower interval for better UX
+    }, 6000);
     
     return () => clearInterval(interval);
-  }, [currentIndex, items.length]);
+  }, [currentIndex, items?.length]);
 
   if (!items || items.length === 0) return null;
 
