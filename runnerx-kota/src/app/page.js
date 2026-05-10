@@ -74,7 +74,7 @@ export default async function HomePage() {
             width={1920}
             height={600}
             priority
-            unoptimized
+            // unoptimized
             className="hero-banner-image"
             style={{ width: "100%", height: "auto", display: "block" }}
           />
@@ -305,23 +305,25 @@ export default async function HomePage() {
           )}
           <div className="initiatives-grid">
             {(() => {
-              const items =
-                initiatives.item1_title || initiatives.item2_title
-                  ? [
-                      {
-                        title: initiatives.item1_title,
-                        image: initiatives.item1_image,
-                        alt: initiatives.item1_title,
-                      },
-                      {
-                        title: initiatives.item2_title,
-                        image: initiatives.item2_image,
-                        alt: initiatives.item2_title,
-                      },
-                    ].filter((i) => i.title)
-                  : Array.isArray(initiatives.items)
-                    ? initiatives.items
-                    : [];
+              const hasItemFields =
+                initiatives.item1_title || initiatives.item2_title ||
+                initiatives.item1_image || initiatives.item2_image;
+              const items = hasItemFields
+                ? [
+                    {
+                      title: initiatives.item1_title,
+                      image: initiatives.item1_image,
+                      alt: initiatives.item1_title,
+                    },
+                    {
+                      title: initiatives.item2_title,
+                      image: initiatives.item2_image,
+                      alt: initiatives.item2_title,
+                    },
+                  ].filter((i) => i.title || i.image)
+                : Array.isArray(initiatives.items)
+                  ? initiatives.items
+                  : [];
 
               return items.map((item, i) => {
                 const imgSrc = resolveImage(item.image);
