@@ -12,11 +12,14 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
+const DASHBOARD_URL =
+  process.env.NEXT_PUBLIC_DASHBOARD_URL || "http://localhost:3002";
+const REGISTER_URL = `${DASHBOARD_URL}/login?origin=KTA`;
+
 export default function Header({
   eventInfo,
   categories = [],
   sponsors = [],
-  user,
 }) {
   const pathname = usePathname();
   const titleSponsor = sponsors?.find(
@@ -26,77 +29,6 @@ export default function Header({
   const [countdown, setCountdown] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [expandedNav, setExpandedNav] = useState(null);
-  const [clientUser, setClientUser] = useState(user);
-
-  useEffect(() => {
-    setClientUser(user);
-  }, [user]);
-
-  // On every route change, validate the token against the /me API.
-  useEffect(() => {
-    if (!clientUser) return;
-
-    async function validateToken() {
-      try {
-        const COOKIE_NAME = 'runnerx-user-token';
-        const match = document.cookie.match(new RegExp('(?:^|; )' + COOKIE_NAME + '=([^;]*)'));
-        const token = match ? decodeURIComponent(match[1]) : null;
-
-        if (!token) {
-          setClientUser(null);
-          return;
-        }
-
-        // Use the centralized API URL
-        const apiUrl = PUBLIC_API_URL;
-        
-        // If the API URL is local (127.0.0.1) but we're on a different host, 
-        // skip validation to avoid cross-origin network errors on remote devices.
-        if (apiUrl.includes('127.0.0.1') && !window.location.hostname.includes('127.0.0.1') && !window.location.hostname.includes('localhost')) {
-          return;
-        }
-
-        const res = await fetch(`${apiUrl}/api/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: 'no-store',
-        });
-
-        if (!res.ok) {
-          // Token expired or invalid — clear the cookie and reset state
-          document.cookie = `${COOKIE_NAME}=; max-age=0; path=/`;
-          setClientUser(null);
-        }
-      } catch (error) {
-        // Silently fail network errors (e.g. backend down or unreachable)
-        console.warn('Auth validation failed:', error.message);
-      }
-    }
-
-    validateToken();
-  }, [pathname]); // re-validate on every navigation
-
-  // Re-validate on window focus or visibility change to catch logouts from other tabs
-  useEffect(() => {
-    const handleSync = () => {
-      // Small delay to ensure cookie clearing has propagated
-      setTimeout(() => {
-        const COOKIE_NAME = 'runnerx-user-token';
-        const match = document.cookie.match(new RegExp('(?:^|; )' + COOKIE_NAME + '=([^;]*)'));
-        const token = match ? decodeURIComponent(match[1]) : null;
-        
-        if (!token && clientUser) {
-          setClientUser(null);
-        }
-      }, 100);
-    };
-
-    window.addEventListener('focus', handleSync);
-    document.addEventListener('visibilitychange', handleSync);
-    return () => {
-      window.removeEventListener('focus', handleSync);
-      document.removeEventListener('visibilitychange', handleSync);
-    };
-  }, [clientUser]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -222,33 +154,12 @@ export default function Header({
               />
             )}
 
-            {clientUser ? (
-              <>
-                <Link
-                  href={(process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3002') + "/dashboard"}
-                  className="hidden rounded-full bg-slate-100 px-5 py-2 text-sm font-semibold uppercase tracking-[0.08em] text-slate-700 transition hover:bg-slate-200 sm:inline-flex"
-                >
-                  Hey,{" "}
-                  <span className="ml-1 text-sky-600">
-                    {clientUser.name.split(" ")[0]}
-                  </span>
-                </Link>
-                <Link
-                  href={(process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3002') + "/dashboard"}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#00a0ff] text-sm font-bold text-white shadow sm:hidden"
-                  aria-label="Open dashboard"
-                >
-                  {clientUser.name.charAt(0).toUpperCase()}
-                </Link>
-              </>
-            ) : (
-              <Link
-                href="/login"
-                className="hidden rounded-full btn-yellow px-5 py-2 text-sm font-semibold uppercase tracking-[0.08em] transition sm:inline-flex"
-              >
-                Sign In
-              </Link>
-            )}
+            <a
+              href={REGISTER_URL}
+              className="inline-flex rounded-full btn-yellow px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] transition sm:px-5 sm:py-2 sm:text-sm"
+            >
+              Register
+            </a>
 
             <button
               type="button"
@@ -362,23 +273,13 @@ export default function Header({
         </nav>
 
         <div className="mt-6 border-t border-slate-200 pt-4">
-          {clientUser ? (
-            <Link
-              href={(process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3002') + "/dashboard"}
-              className="inline-flex w-full items-center justify-center rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-slate-800 transition hover:bg-slate-200"
-              onClick={() => setMenuOpen(false)}
-            >
-              Open Dashboard
-            </Link>
-          ) : (
-            <Link
-              href="/login"
-              className="inline-flex w-full items-center justify-center rounded-full btn-yellow px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition hover:bg-[#fff29b]"
-              onClick={() => setMenuOpen(false)}
-            >
-              Sign In
-            </Link>
-          )}
+          <a
+            href={REGISTER_URL}
+            className="inline-flex w-full items-center justify-center rounded-full btn-yellow px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition hover:bg-[#fff29b]"
+            onClick={() => setMenuOpen(false)}
+          >
+            Register
+          </a>
         </div>
       </aside>
     </>

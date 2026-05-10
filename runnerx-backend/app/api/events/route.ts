@@ -21,7 +21,6 @@ export async function GET(request: Request) {
       where.OR = [
         { title: { contains: search, mode: "insensitive" } },
         { city: { contains: search, mode: "insensitive" } },
-        { venue: { contains: search, mode: "insensitive" } },
       ];
     }
     if (status) where.status = status;
@@ -68,18 +67,14 @@ export async function POST(request: Request) {
         title: data.title,
         slug: data.slug,
         siteFor: data.siteFor,
-        description: data.description,
         date: new Date(data.date),
         registrationStart: new Date(data.registrationStart),
         registrationEnd: new Date(data.registrationEnd),
-        venue: data.venue,
         address: data.address,
         city: data.city,
         state: data.state,
-        mapUrl: data.mapUrl ?? null,
         bannerImage: data.bannerImage ?? null,
         contactEmail: data.contactEmail ?? null,
-        contactPhone: data.contactPhone ?? null,
         status: data.status,
         isActive: data.isActive ?? true,
       },

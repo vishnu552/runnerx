@@ -1,11 +1,5 @@
 import PageHero from '@/components/PageHero';
 
-export const metadata = {
-  title: 'Medical Advisory',
-  description:
-    'Medical advisory for RunnerX Kota Marathon participants covering pre-race screening, race-day safety, and post-race recovery guidance.',
-};
-
 const preParticipationQuestions = [
   'Has your doctor ever informed you that you have a heart condition or high blood pressure?',
   'Do you feel pain or discomfort in your chest at rest, during daily activities, or during physical activity?',

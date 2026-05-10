@@ -5,7 +5,71 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect } from "react";
 import { API_URL, authenticatedFetch } from "@/app/lib/api";
 
+// Page is gated to "Coming Soon" for launch. The full implementation is
+// preserved below in `SupportCausePageOriginal` — to re-enable the feature,
+// swap the default export to point at the original component.
 export default function SupportCausePage() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      <div
+        className="card"
+        style={{
+          padding: "80px 32px",
+          textAlign: "center",
+          background:
+            "linear-gradient(135deg, rgba(255,220,80,0.1), rgba(0,160,255,0.05))",
+          borderTop: "4px solid var(--accent)",
+        }}
+      >
+        <div
+          style={{
+            width: 96,
+            height: 96,
+            borderRadius: "50%",
+            background: "rgba(255,200,60,0.15)",
+            border: "2px solid #ffc83c",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 28px",
+            fontSize: "2.6rem",
+          }}
+        >
+          ❤️
+        </div>
+        <h1
+          style={{
+            fontSize: "2rem",
+            fontWeight: 900,
+            color: "var(--text)",
+            marginBottom: "12px",
+            textTransform: "uppercase",
+            fontStyle: "italic",
+            letterSpacing: "0.04em",
+          }}
+        >
+          Coming Soon
+        </h1>
+        <p
+          style={{
+            color: "var(--text-secondary)",
+            maxWidth: 520,
+            margin: "0 auto",
+            fontSize: "1.05rem",
+            lineHeight: 1.6,
+          }}
+        >
+          We&apos;re putting the finishing touches on our Support a Cause feature.
+          Soon you&apos;ll be able to contribute to verified NGOs and make your
+          run more meaningful. Stay tuned!
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// eslint-disable-next-line no-unused-vars
+function SupportCausePageOriginal() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

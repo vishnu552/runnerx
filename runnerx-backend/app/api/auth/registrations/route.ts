@@ -36,11 +36,14 @@ export async function GET(request: Request) {
       );
     }
 
-    // Find registrations where the user is:
+    // Find PAID registrations where the user is:
     // 1. The submitter (userId), OR
     // 2. Listed as a participant (by email match in line items)
+    // Unpaid/abandoned registrations are excluded so the My Registrations page
+    // only shows confirmed bookings the user has actually paid for.
     const registrations = await prisma.registration.findMany({
       where: {
+        paymentStatus: "PAID",
         OR: [
           { userId: Number(session.userId) },
           { lineItems: { some: { participantEmail: user.email } } },

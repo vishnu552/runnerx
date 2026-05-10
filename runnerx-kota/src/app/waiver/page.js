@@ -4,11 +4,6 @@ import PageHero from '@/components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Waiver',
-  description: 'Waiver and release form for the RunnerX Kota Marathon.',
-};
-
 export default async function WaiverPage() {
   const content = await getPageContent('waiver');
   const globalContent = await getGlobalContent();

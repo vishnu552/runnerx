@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
       ext = mimeType.split("/")[1];
     }
     
-    const uploadsDir = path.join(process.cwd(), "public", "uploads", "gallery");
+    const uploadsDir = path.join(process.cwd(), "uploads", "gallery");
     await mkdir(uploadsDir, { recursive: true });
     
     const fileName = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}.${ext}`;

@@ -619,7 +619,7 @@ export default function ContentManagerPage() {
 
                       // User requested removals for Global Content (Kota)
                       if (selectedPage === "global" && selectedSite === "KTA") {
-                        const keysToRemove = ["tagline", "edition", "start_venue", "expected_participants", "date"];
+                        const keysToRemove = ["tagline", "edition", "start_venue", "expected_participants", "date", "date_iso"];
                         if (keysToRemove.includes(item.key)) return false;
                       }
 

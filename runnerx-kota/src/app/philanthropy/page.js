@@ -4,11 +4,6 @@ import PageHero from '@/components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Philanthropy — RunnerX Kota',
-  description: 'Our impact and charity partners at RunnerX Kota Marathon.',
-};
-
 export default async function PhilanthropyPage() {
   const content = await getPageContent('philanthropy');
   const sections = await getInfoSections('PHILANTHROPY');

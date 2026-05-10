@@ -4,11 +4,6 @@ import PageHero from '@/components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Terms & Conditions',
-  description: 'Terms and conditions for participating in the RunnerX Kota Marathon.',
-};
-
 // Hardcoded fallbacks — only used if DB has no Terms sections yet
 const fallbackTermsSections = [
   {

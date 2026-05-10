@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState, useCallback } from "react";
+import { ImageUpload } from "@/components/image-upload";
 
 interface Site {
   id: string;
@@ -37,18 +38,14 @@ interface Event {
   title: string;
   slug: string;
   siteFor: string;
-  description: string;
   date: string;
   registrationStart: string;
   registrationEnd: string;
-  venue: string;
   address: string;
   city: string;
   state: string;
-  mapUrl: string | null;
   bannerImage: string | null;
   contactEmail: string | null;
-  contactPhone: string | null;
   status: string;
   isActive: boolean;
   categories: EventCategory[];
@@ -59,18 +56,14 @@ interface EventForm {
   title: string;
   slug: string;
   siteFor: string;
-  description: string;
   date: string;
   registrationStart: string;
   registrationEnd: string;
-  venue: string;
   address: string;
   city: string;
   state: string;
-  mapUrl: string;
   bannerImage: string;
   contactEmail: string;
-  contactPhone: string;
   status: string;
   isActive: boolean;
 }
@@ -93,18 +86,14 @@ const emptyEventForm: EventForm = {
   title: "",
   slug: "",
   siteFor: "JDH",
-  description: "",
   date: "",
   registrationStart: "",
   registrationEnd: "",
-  venue: "",
   address: "",
   city: "",
   state: "",
-  mapUrl: "",
   bannerImage: "",
   contactEmail: "",
-  contactPhone: "",
   status: "DRAFT",
   isActive: true,
 };
@@ -251,18 +240,14 @@ export default function EventsClient() {
       title: event.title,
       slug: event.slug,
       siteFor: event.siteFor,
-      description: event.description,
       date: event.date?.split("T")[0] || "",
       registrationStart: event.registrationStart?.split("T")[0] || "",
       registrationEnd: event.registrationEnd?.split("T")[0] || "",
-      venue: event.venue,
       address: event.address,
       city: event.city,
       state: event.state,
-      mapUrl: event.mapUrl || "",
       bannerImage: event.bannerImage || "",
       contactEmail: event.contactEmail || "",
-      contactPhone: event.contactPhone || "",
       status: event.status,
       isActive: event.isActive,
     });
@@ -277,11 +262,9 @@ export default function EventsClient() {
     if (!form.slug.trim()) errors.slug = "Slug is required";
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug))
       errors.slug = "Slug must be lowercase with hyphens only";
-    if (!form.description.trim()) errors.description = "Description is required";
     if (!form.date) errors.date = "Date is required";
     if (!form.registrationStart) errors.registrationStart = "Required";
     if (!form.registrationEnd) errors.registrationEnd = "Required";
-    if (!form.venue.trim()) errors.venue = "Venue is required";
     if (!form.address.trim()) errors.address = "Address is required";
     if (!form.city.trim()) errors.city = "City is required";
     if (!form.state.trim()) errors.state = "State is required";
@@ -301,18 +284,14 @@ export default function EventsClient() {
       title: form.title,
       slug: form.slug,
       siteFor: form.siteFor,
-      description: form.description,
       date: form.date,
       registrationStart: form.registrationStart,
       registrationEnd: form.registrationEnd,
-      venue: form.venue,
       address: form.address,
       city: form.city,
       state: form.state,
-      mapUrl: form.mapUrl || null,
       bannerImage: form.bannerImage || null,
       contactEmail: form.contactEmail || null,
-      contactPhone: form.contactPhone || null,
       status: form.status,
       isActive: form.isActive,
     };
@@ -574,7 +553,6 @@ export default function EventsClient() {
                       <td>
                         <div className="event-title-cell">
                           <span className="event-name">{event.title}</span>
-                          <span className="event-venue-label">{event.venue}</span>
                         </div>
                       </td>
                       <td>
@@ -842,19 +820,6 @@ export default function EventsClient() {
                 {formErrors.siteFor && <span className="login-error-text">{formErrors.siteFor}</span>}
               </div>
 
-              {/* Description */}
-              <div className="modal-field">
-                <label className="modal-label">Description</label>
-                <textarea
-                  className={`modal-input modal-textarea ${formErrors.description ? "modal-input-error" : ""}`}
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="Describe the marathon event..."
-                  rows={3}
-                />
-                {formErrors.description && <span className="login-error-text">{formErrors.description}</span>}
-              </div>
-
               {/* Date & Registration */}
               <div className="modal-grid modal-grid-3">
                 <div className="modal-field">
@@ -889,28 +854,16 @@ export default function EventsClient() {
                 </div>
               </div>
 
-              {/* Venue & Address */}
-              <div className="modal-grid">
-                <div className="modal-field">
-                  <label className="modal-label">Venue</label>
-                  <input
-                    className={`modal-input ${formErrors.venue ? "modal-input-error" : ""}`}
-                    value={form.venue}
-                    onChange={(e) => setForm({ ...form, venue: e.target.value })}
-                    placeholder="e.g. Azad Maidan"
-                  />
-                  {formErrors.venue && <span className="login-error-text">{formErrors.venue}</span>}
-                </div>
-                <div className="modal-field">
-                  <label className="modal-label">Address</label>
-                  <input
-                    className={`modal-input ${formErrors.address ? "modal-input-error" : ""}`}
-                    value={form.address}
-                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    placeholder="Full address"
-                  />
-                  {formErrors.address && <span className="login-error-text">{formErrors.address}</span>}
-                </div>
+              {/* Address */}
+              <div className="modal-field">
+                <label className="modal-label">Address</label>
+                <input
+                  className={`modal-input ${formErrors.address ? "modal-input-error" : ""}`}
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  placeholder="Full address"
+                />
+                {formErrors.address && <span className="login-error-text">{formErrors.address}</span>}
               </div>
 
               {/* City & State */}
@@ -937,48 +890,28 @@ export default function EventsClient() {
                 </div>
               </div>
 
-              {/* Contact & Map */}
-              <div className="modal-grid">
-                <div className="modal-field">
-                  <label className="modal-label">Contact Email</label>
-                  <input
-                    type="email"
-                    className="modal-input"
-                    value={form.contactEmail}
-                    onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
-                    placeholder="Optional"
-                  />
-                </div>
-                <div className="modal-field">
-                  <label className="modal-label">Contact Phone</label>
-                  <input
-                    className="modal-input"
-                    value={form.contactPhone}
-                    onChange={(e) => setForm({ ...form, contactPhone: e.target.value })}
-                    placeholder="Optional"
-                  />
-                </div>
+              {/* Banner Image */}
+              <div className="modal-field">
+                <label className="modal-label">Banner Image</label>
+                <ImageUpload
+                  key={editingId || "new"}
+                  name="bannerImage"
+                  defaultValue={form.bannerImage}
+                  placeholder="Paste URL or upload event banner"
+                  onChange={(url) => setForm({ ...form, bannerImage: url })}
+                />
               </div>
 
-              <div className="modal-grid">
-                <div className="modal-field">
-                  <label className="modal-label">Map URL</label>
-                  <input
-                    className="modal-input"
-                    value={form.mapUrl}
-                    onChange={(e) => setForm({ ...form, mapUrl: e.target.value })}
-                    placeholder="Google Maps link (optional)"
-                  />
-                </div>
-                <div className="modal-field">
-                  <label className="modal-label">Banner Image URL</label>
-                  <input
-                    className="modal-input"
-                    value={form.bannerImage}
-                    onChange={(e) => setForm({ ...form, bannerImage: e.target.value })}
-                    placeholder="Optional"
-                  />
-                </div>
+              {/* Contact */}
+              <div className="modal-field">
+                <label className="modal-label">Contact Email</label>
+                <input
+                  type="email"
+                  className="modal-input"
+                  value={form.contactEmail}
+                  onChange={(e) => setForm({ ...form, contactEmail: e.target.value })}
+                  placeholder="Optional"
+                />
               </div>
 
               {/* Status & Active */}

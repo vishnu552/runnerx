@@ -22,11 +22,6 @@ export const metadata = {
     template: '%s | RunnerX',
   },
   description: 'Manage your RunnerX marathon registrations, track results, and update your personal information across all RunnerX events.',
-  icons: {
-    icon: '/runnerxlogo.png',
-    shortcut: '/runnerxlogo.png',
-    apple: '/runnerxlogo.png',
-  },
 };
 
 export default function RootLayout({ children }) {

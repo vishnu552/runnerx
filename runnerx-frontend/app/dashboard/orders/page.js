@@ -45,7 +45,13 @@ export default async function MyOrdersPage() {
       {/* Orders list */}
       {orders.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {orders.map((order) => (
+          {orders.map((order) => {
+            const displayOrderId =
+              order.razorpayOrderId
+              || order.registrations?.[0]?.razorpayOrderId
+              || order.donations?.[0]?.razorpayOrderId
+              || `#${String(order.id).padStart(6, '0')}`;
+            return (
             <details
               key={order.id}
               className="card"
@@ -61,8 +67,8 @@ export default async function MyOrdersPage() {
                   listStyle: 'none', fontSize: '0.9rem',
                 }}
               >
-                <span style={{ fontWeight: 600, color: 'var(--text)', fontFamily: 'monospace' }}>
-                  #{String(order.id).padStart(6, '0')}
+                <span style={{ fontWeight: 600, color: 'var(--text)', fontFamily: 'monospace', fontSize: '0.85rem', wordBreak: 'break-all' }} title={displayOrderId}>
+                  {displayOrderId}
                 </span>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                   {new Date(order.createdAt).toLocaleDateString('en-US', {
@@ -96,7 +102,7 @@ export default async function MyOrdersPage() {
                 <div style={{ padding: '16px 0' }}>
                   <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text)', marginBottom: '12px' }}>Transaction Details</h4>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', fontSize: '0.85rem' }}>
-                    <div><span style={{ color: 'var(--text-muted)' }}>Order ID:</span> <strong>#{String(order.id).padStart(6, '0')}</strong></div>
+                    <div><span style={{ color: 'var(--text-muted)' }}>Order ID:</span> <strong style={{ fontFamily: 'monospace' }}>{displayOrderId}</strong></div>
                     <div><span style={{ color: 'var(--text-muted)' }}>Email:</span> <strong>{order.contactEmail}</strong></div>
                     <div><span style={{ color: 'var(--text-muted)' }}>Phone:</span> <strong>{order.contactPhone || '—'}</strong></div>
                     <div><span style={{ color: 'var(--text-muted)' }}>Payment Mode:</span> <strong>{order.paymentMode || '—'}</strong></div>
@@ -155,7 +161,8 @@ export default async function MyOrdersPage() {
                 )}
               </div>
             </details>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="card" style={{ padding: '48px 24px', textAlign: 'center' }}>

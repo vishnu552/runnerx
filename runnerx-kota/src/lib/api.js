@@ -7,75 +7,6 @@ export const API_URL = baseUrl;
 // so always use NEXT_PUBLIC_API_URL even when running on the server.
 export const PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || baseUrl;
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || '';
-export async function getHomeBundle(siteFor = 'KTA') {
-  try {
-    const res = await fetch(`${API_URL}/api/pages/home?siteFor=${siteFor}`, {
-      cache: 'no-store'
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data.success) return null;
-
-    const bundle = data.data;
-
-    // Post-process image URLs and JSON as done in separate calls
-    const resolveImages = (obj) => {
-      if (!obj) return;
-      Object.keys(obj).forEach(section => {
-        Object.keys(obj[section]).forEach(key => {
-          let val = obj[section][key];
-          if (typeof val === 'string' && val.startsWith('/uploads/')) {
-            obj[section][key] = `${PUBLIC_API_URL}${val}`;
-          }
-        });
-      });
-    };
-
-    resolveImages(bundle.homeContent);
-    resolveImages(bundle.globalContent);
-
-    // Map categories
-    bundle.categories = (bundle.categories || []).map(cat => ({
-      ...cat,
-      heroImage: cat.heroImage ? (cat.heroImage.startsWith('/uploads/') ? `${PUBLIC_API_URL}${cat.heroImage}` : cat.heroImage) : null,
-      tabs: (cat.tabs || []).map(tab => ({ ...tab })),
-    }));
-
-    // Map runners info
-    bundle.runnersInfo = (bundle.runnersInfo || []).map(item => ({
-      ...item,
-      image: item.image.startsWith('/uploads/') ? `${PUBLIC_API_URL}${item.image}` : item.image
-    }));
-
-    return bundle;
-  } catch (error) {
-    console.error("Error fetching home bundle:", error);
-    return null;
-  }
-}
-
-/**
- * Helper for client-side authenticated fetches to the backend.
- * Uses API_URL from env.
- */
-export async function authenticatedFetch(path, options = {}) {
-  const { getSessionTokenClient } = await import('./auth-client');
-  const token = getSessionTokenClient();
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-    ...options.headers,
-  };
-
-  const url = path.startsWith('http') ? path : `${API_URL}${path}`;
-  
-  return fetch(url, {
-    ...options,
-    headers,
-  });
-}
-
 export async function getPageContent(page, siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/page-content?page=${page}&siteFor=${siteFor}`, {
@@ -283,45 +214,6 @@ export async function getActiveEvent(siteFor = 'KTA') {
   }
 }
 
-// Get a specific event by ID (for registration page)
-export async function getEventById(eventId) {
-  try {
-    const res = await fetch(`${API_URL}/api/events/public/${eventId}`, {
-      cache: 'no-store'
-    });
-
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    if (!data.success) return null;
-
-    return data.event;
-  } catch (error) {
-    console.error('Error fetching event:', error);
-    return null;
-  }
-}
-
-// Submit a registration (client-side, no caching)
-export async function submitRegistration(registrationData) {
-  const res = await fetch(`${API_URL}/api/registrations`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(registrationData),
-  });
-  return res.json();
-}
-
-// Validate a coupon code (client-side, no caching)
-export async function validateCoupon(code, siteFor, amount) {
-  const res = await fetch(`${API_URL}/api/coupons/validate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code, siteFor, amount }),
-  });
-  return res.json();
-}
-
 export async function getSponsors(siteFor = 'KTA') {
   try {
     const res = await fetch(`${API_URL}/api/sponsors?siteFor=${siteFor}`, {
@@ -365,78 +257,6 @@ export async function getRunnersInfo(siteFor = 'KTA') {
     }));
   } catch (error) {
     console.error(`Error fetching runners info:`, error);
-    return [];
-  }
-}
-
-// Get registrations for the currently logged-in user (server-side, needs token)
-export async function getUserRegistrations(token) {
-  try {
-    if (!token) return [];
-    const res = await fetch(`${API_URL}/api/auth/registrations`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (!data.success) return [];
-    return data.registrations;
-  } catch (error) {
-    console.error('Error fetching user registrations:', error);
-    return [];
-  }
-}
-
-// Get orders for the currently logged-in user (server-side, needs token)
-export async function getUserOrders(token) {
-  try {
-    if (!token) return [];
-    const res = await fetch(`${API_URL}/api/auth/orders`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (!data.success) return [];
-    return data.orders;
-  } catch (error) {
-    console.error('Error fetching user orders:', error);
-    return [];
-  }
-}
-
-// Get donations for the currently logged-in user (server-side, needs token)
-export async function getUserDonations(token) {
-  try {
-    if (!token) return [];
-    const res = await fetch(`${API_URL}/api/auth/donations`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (!data.success) return [];
-    return data.donations;
-  } catch (error) {
-    console.error('Error fetching user donations:', error);
-    return [];
-  }
-}
-
-// Get stories for the currently logged-in user (server-side, needs token)
-export async function getUserStories(token) {
-  try {
-    if (!token) return [];
-    const res = await fetch(`${API_URL}/api/auth/stories`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (!data.success) return [];
-    return data.stories;
-  } catch (error) {
-    console.error('Error fetching user stories:', error);
     return [];
   }
 }

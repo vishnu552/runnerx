@@ -83,6 +83,7 @@ export async function POST(request: Request) {
           couponCode: existingReg.couponCode,
           paymentStatus: "PAID",
           paymentId: razorpay_payment_id,
+          razorpayOrderId: razorpay_order_id,
           paymentMode: "ONLINE",
           contactEmail: primaryLi?.participantEmail || "",
           contactPhone: primaryLi?.participantPhone || "",

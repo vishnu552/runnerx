@@ -4,11 +4,6 @@ import PageHero from '@/components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Refund Policy',
-  description: 'Refund and cancellation policy for the RunnerX Kota Marathon.',
-};
-
 export default async function RefundPage() {
   const content = await getPageContent('refund');
   const globalContent = await getGlobalContent();

@@ -7,12 +7,18 @@ interface ImageUploadProps {
   defaultValue?: string | null;
   placeholder?: string;
   onUploadSuccess?: (url: string) => void;
+  onChange?: (url: string) => void;
 }
 
-export function ImageUpload({ name, defaultValue, placeholder, onUploadSuccess }: ImageUploadProps) {
+export function ImageUpload({ name, defaultValue, placeholder, onUploadSuccess, onChange }: ImageUploadProps) {
   const [url, setUrl] = useState<string>(defaultValue || "");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const updateUrl = (next: string) => {
+    setUrl(next);
+    if (onChange) onChange(next);
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,7 +36,7 @@ export function ImageUpload({ name, defaultValue, placeholder, onUploadSuccess }
 
       const data = await res.json();
       if (data.success) {
-        setUrl(data.url);
+        updateUrl(data.url);
         if (onUploadSuccess) onUploadSuccess(data.url);
       } else {
         alert("Upload failed: " + (data.message || "Unknown error"));
@@ -53,8 +59,8 @@ export function ImageUpload({ name, defaultValue, placeholder, onUploadSuccess }
           className="input" 
           placeholder={placeholder || "https://..."} 
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          style={{ flex: 1 }} 
+          onChange={(e) => updateUrl(e.target.value)}
+          style={{ flex: 1 }}
         />
         <input 
           type="file" 

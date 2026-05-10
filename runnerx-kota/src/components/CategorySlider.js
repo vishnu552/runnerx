@@ -77,7 +77,7 @@ export default function CategorySlider({ items }) {
               src={item.image || "/images/overview-runner.png"}
               alt={item.title}
               fill
-              unoptimized
+              sizes="100vw"
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />

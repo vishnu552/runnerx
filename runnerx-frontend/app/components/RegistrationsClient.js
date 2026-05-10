@@ -188,22 +188,29 @@ export default function RegistrationsClient({ registrations: initialRegistration
           box-shadow: 0 2px 12px rgba(0,0,0,0.06);
           transition: box-shadow 0.2s;
           display: flex;
-          flex-direction: row;
+          flex-direction: column;
         }
         .reg-ticket:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.10); }
 
-        /* Left side poster */
+        /* Top row: image on left + event info on right */
+        .ticket-top {
+          display: flex;
+          align-items: stretch;
+          border-bottom: 2px dashed var(--border);
+        }
         .ticket-poster {
-          width: 140px;
-          min-width: 140px;
+          width: 200px;
+          min-width: 200px;
+          height: 160px;
           object-fit: cover;
           display: block;
           border-right: 1px solid var(--border);
           background: var(--surface);
         }
         .ticket-poster-placeholder {
-          width: 140px;
-          min-width: 140px;
+          width: 200px;
+          min-width: 200px;
+          height: 160px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -212,21 +219,9 @@ export default function RegistrationsClient({ registrations: initialRegistration
           border-right: 1px solid var(--border);
           color: #ffc83c;
         }
-        .ticket-content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-        }
-
-        /* ticket top: event info */
-        .ticket-header {
-          display: flex;
-          align-items: stretch;
-          border-bottom: 2px dashed var(--border);
-        }
         .ticket-info {
           flex: 1;
+          min-width: 0;
           padding: 16px 20px;
           display: flex;
           flex-direction: column;
@@ -242,6 +237,7 @@ export default function RegistrationsClient({ registrations: initialRegistration
           font-family: var(--font-heading, sans-serif);
           line-height: 1.2;
           margin: 0;
+          overflow-wrap: anywhere;
         }
         .ticket-meta {
           display: flex;
@@ -373,36 +369,44 @@ export default function RegistrationsClient({ registrations: initialRegistration
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 12px;
           padding: 10px 20px;
           background: var(--surface, #f9fafb);
           border-top: 1px solid var(--border);
           font-size: 0.78rem;
           color: var(--text-muted);
         }
+        .ticket-footer span { overflow-wrap: anywhere; min-width: 0; }
 
-        /* Responsive: stack on mobile */
+        /* Responsive: stack image above info on mobile */
         @media (max-width: 800px) {
-          .reg-ticket {
-            flex-direction: column;
+          .ticket-top { flex-direction: column; }
+          .ticket-poster, .ticket-poster-placeholder {
+            width: 100%;
+            min-width: 100%;
+            height: 140px;
+            border-right: none;
+            border-bottom: 1px solid var(--border);
           }
-          .ticket-poster, .ticket-poster-placeholder { 
-            width: 100%; min-width: 100%; 
-            height: 140px; 
-            border-right: none; 
-            border-bottom: 1px solid var(--border); 
-          }
+          .ticket-poster-placeholder { font-size: 2rem; }
           .ticket-event-title { font-size: 1.05rem; }
 
           .participant-row {
             flex-direction: column;
             align-items: flex-start;
             padding: 12px 14px;
+            gap: 10px;
           }
           .participant-row .participant-top {
             display: flex;
             align-items: center;
             gap: 10px;
             width: 100%;
+          }
+          .participant-name,
+          .participant-sub {
+            white-space: normal;
+            overflow-wrap: anywhere;
           }
           .action-btns {
             flex-direction: row;
@@ -413,8 +417,10 @@ export default function RegistrationsClient({ registrations: initialRegistration
           .action-btn {
             flex: 1 1 auto;
             min-width: 0;
+            font-size: 0.72rem;
+            padding: 8px 10px;
           }
-          .ticket-footer { flex-direction: column; gap: 4px; align-items: flex-start; }
+          .ticket-footer { flex-direction: column; gap: 6px; align-items: flex-start; padding: 10px 14px; }
         }
 
         .modal-grid {
@@ -439,45 +445,42 @@ export default function RegistrationsClient({ registrations: initialRegistration
 
           return (
             <div key={reg.id} className="reg-ticket">
-              {/* ── Ticket Poster (Left Side) ── */}
-              {bannerUrl ? (
-                <img
-                  src={bannerUrl}
-                  alt={reg.eventTitleSnapshot}
-                  className="ticket-poster"
-                />
-              ) : (
-                <div className="ticket-poster-placeholder">🏃</div>
-              )}
+              {/* ── Top Row: Image (left) + Event Info (right) ── */}
+              <div className="ticket-top">
+                {bannerUrl ? (
+                  <img
+                    src={bannerUrl}
+                    alt={reg.eventTitleSnapshot}
+                    className="ticket-poster"
+                  />
+                ) : (
+                  <div className="ticket-poster-placeholder">🏃</div>
+                )}
 
-              {/* ── Ticket Content (Right Side) ── */}
-              <div className="ticket-content">
-                {/* ── Ticket Header: event info ── */}
-                <div className="ticket-header">
-                  <div className="ticket-info">
-                    <h3 className="ticket-event-title">{reg.eventTitleSnapshot}</h3>
-                    <div className="ticket-meta">
-                      <span>📅 {new Date(reg.eventDateSnapshot).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                      <span>🕐 Booked {new Date(reg.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    </div>
-                    <div className="ticket-badges">
-                      <span className={`badge ${reg.status === 'CONFIRMED' ? 'badge-green' : reg.status === 'CANCELLED' ? 'badge-red' : 'badge-yellow'}`}>
-                        {reg.status}
+                <div className="ticket-info">
+                  <h3 className="ticket-event-title">{reg.eventTitleSnapshot}</h3>
+                  <div className="ticket-meta">
+                    <span>📅 {new Date(reg.eventDateSnapshot).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span>🕐 Booked {new Date(reg.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  </div>
+                  <div className="ticket-badges">
+                    <span className={`badge ${reg.status === 'CONFIRMED' ? 'badge-green' : reg.status === 'CANCELLED' ? 'badge-red' : 'badge-yellow'}`}>
+                      {reg.status}
+                    </span>
+                    <span className={`badge ${reg.paymentStatus === 'PAID' ? 'badge-green' : 'badge-yellow'}`}>
+                      {reg.paymentStatus}
+                    </span>
+                    {isRegClosed && (
+                      <span className="badge badge-red">Registration Closed</span>
+                    )}
+                    {isEventCompleted && (
+                      <span className="badge" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.25)' }}>
+                        Event Completed
                       </span>
-                      <span className={`badge ${reg.paymentStatus === 'PAID' ? 'badge-green' : 'badge-yellow'}`}>
-                        {reg.paymentStatus}
-                      </span>
-                      {isRegClosed && (
-                        <span className="badge badge-red">Registration Closed</span>
-                      )}
-                      {isEventCompleted && (
-                        <span className="badge" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.25)' }}>
-                          Event Completed
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
+              </div>
 
               {/* ── Participant Rows (grouped by person) ── */}
               {(() => {
@@ -568,10 +571,11 @@ export default function RegistrationsClient({ registrations: initialRegistration
               {/* ── Order Footer ── */}
               <div className="ticket-footer">
                 <span>Total: <strong>₹{reg.finalAmount?.toLocaleString('en-IN')}</strong>{reg.couponCode && ' · Discount applied'}</span>
-                <span>Order #{reg.orderId || reg.id}</span>
+                <span style={{ fontFamily: 'monospace' }}>
+                  Order: {reg.razorpayOrderId || `#${reg.orderId || reg.id}`}
+                </span>
               </div>
             </div>
-          </div>
           );
         })}
       </div>

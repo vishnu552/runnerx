@@ -75,18 +75,14 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (data.title !== undefined) updateData.title = data.title;
     if (data.slug !== undefined) updateData.slug = data.slug;
     if (data.siteFor !== undefined) updateData.siteFor = data.siteFor;
-    if (data.description !== undefined) updateData.description = data.description;
     if (data.date !== undefined) updateData.date = new Date(data.date);
     if (data.registrationStart !== undefined) updateData.registrationStart = new Date(data.registrationStart);
     if (data.registrationEnd !== undefined) updateData.registrationEnd = new Date(data.registrationEnd);
-    if (data.venue !== undefined) updateData.venue = data.venue;
     if (data.address !== undefined) updateData.address = data.address;
     if (data.city !== undefined) updateData.city = data.city;
     if (data.state !== undefined) updateData.state = data.state;
-    if (data.mapUrl !== undefined) updateData.mapUrl = data.mapUrl ?? null;
     if (data.bannerImage !== undefined) updateData.bannerImage = data.bannerImage ?? null;
     if (data.contactEmail !== undefined) updateData.contactEmail = data.contactEmail ?? null;
-    if (data.contactPhone !== undefined) updateData.contactPhone = data.contactPhone ?? null;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
 

@@ -41,6 +41,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return {
+      afterFiles: [
+        // Old files in public/uploads/ still served by the static handler.
+        // Anything missing falls through here and is read from /uploads (outside public).
+        { source: "/uploads/:path*", destination: "/api/files/:path*" },
+      ],
+    };
+  },
 };
 
 export default nextConfig;

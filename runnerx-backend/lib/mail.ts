@@ -30,7 +30,7 @@ export async function sendVerificationEmail(
   userName: string,
   token: string,
 ) {
-  const verificationUrl = `${process.env.FRONTEND_URL}/verify?token=${token}`;
+  const verificationUrl = `${process.env.DASHBOARD_URL}/verify?token=${token}`;
 
   const mailOptions = {
     from: mailFrom,
@@ -57,7 +57,7 @@ export async function sendForgotPasswordEmail(
   userName: string,
   token: string,
 ) {
-  const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password?token=${token}`;
+  const resetUrl = `${process.env.DASHBOARD_URL}/auth/reset-password?token=${token}`;
 
   const mailOptions = {
     from: mailFrom,

@@ -7,7 +7,8 @@ export default function CountdownTimer({ targetDate }) {
 
   useEffect(() => {
     const target = new Date(targetDate).getTime();
-    
+    if (isNaN(target)) return;
+
     const updateCountdown = () => {
       const now = new Date().getTime();
       const diff = target - now;

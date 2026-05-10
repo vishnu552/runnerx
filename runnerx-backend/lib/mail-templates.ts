@@ -53,12 +53,19 @@ const footerStyle = `
   background-color: #fcfdfe;
 `;
 
-const brandText = `<h1 style="margin:0; color:#ffffff; font-size: 28px; letter-spacing: 2px;">RUNNER<span style="color:#ffdc50">X</span></h1>`;
+// Logo lives at /runnerxlogo.png in the backend's public/ folder.
+// BACKEND_PUBLIC_URL must point to the publicly reachable backend origin
+// (e.g. https://admin.runnerx.in) so email clients can load the image.
+const logoOrigin = process.env.BACKEND_PUBLIC_URL || "http://127.0.0.1:3001";
+const brandText = `<img src="${logoOrigin}/runnerxlogo.png" alt="RunnerX" style="display:inline-block; height:56px; width:auto; max-width:240px;" />`;
 
 /**
  * Verification Email Template
  */
-export const verificationTemplate = (userName: string, verificationUrl: string) => `
+export const verificationTemplate = (
+  userName: string,
+  verificationUrl: string,
+) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -133,7 +140,7 @@ export const eventRegistrationTemplate = (
   userName: string,
   eventName: string,
   registrationId: string,
-  eventDate: string
+  eventDate: string,
 ) => `
 <!DOCTYPE html>
 <html>
@@ -193,7 +200,7 @@ export const participantConfirmationTemplate = (
   uniqueRegId: string,
   eventDate: string,
   categoryName: string,
-  amount: string | number
+  amount: string | number,
 ) => `
 <!DOCTYPE html>
 <html>
@@ -221,11 +228,11 @@ export const participantConfirmationTemplate = (
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #666;">Category:</td>
-              <td style="padding: 10px 0; font-weight: 600;">${categoryName || 'N/A'}</td>
+              <td style="padding: 10px 0; font-weight: 600;">${categoryName || "N/A"}</td>
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #666;">Amount Paid:</td>
-              <td style="padding: 10px 0; font-weight: 600;">₹${amount || '0'}</td>
+              <td style="padding: 10px 0; font-weight: 600;">₹${amount || "0"}</td>
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #666;">Event:</td>
@@ -240,7 +247,7 @@ export const participantConfirmationTemplate = (
 
         <p>Keep this email safe — your Registration ID <strong>${uniqueRegId}</strong> is your entry pass for race day.</p>
         <div style="text-align: center;">
-          <a href="${process.env.FRONTEND_URL || '#'}/dashboard/registrations" style="${buttonStyle}">View My Registration</a>
+          <a href="${process.env.DASHBOARD_URL || "#"}/dashboard/registrations" style="${buttonStyle}">View My Registration</a>
         </div>
         <p style="margin-top: 40px; border-top: 1px solid #eee; pt: 20px;">See you at the finish line,<br><strong>Team RunnerX</strong></p>
       </div>
@@ -267,7 +274,7 @@ export const newParticipantWelcomeTemplate = (
   email: string,
   password: string,
   categoryName: string,
-  amount: string | number
+  amount: string | number,
 ) => `
 <!DOCTYPE html>
 <html>
@@ -295,11 +302,11 @@ export const newParticipantWelcomeTemplate = (
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #666;">Category:</td>
-              <td style="padding: 10px 0; font-weight: 600;">${categoryName || 'N/A'}</td>
+              <td style="padding: 10px 0; font-weight: 600;">${categoryName || "N/A"}</td>
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #666;">Amount Paid:</td>
-              <td style="padding: 10px 0; font-weight: 600;">₹${amount || '0'}</td>
+              <td style="padding: 10px 0; font-weight: 600;">₹${amount || "0"}</td>
             </tr>
             <tr>
               <td style="padding: 10px 0; color: #666;">Event:</td>
@@ -341,7 +348,7 @@ export const newParticipantWelcomeTemplate = (
         </div>
 
         <div style="text-align: center; margin-top: 24px;">
-          <a href="${process.env.FRONTEND_URL || '#'}/auth/login" style="${buttonStyle}">Login to RunnerX</a>
+          <a href="${process.env.DASHBOARD_URL || "#"}/login" style="${buttonStyle}">Login to RunnerX</a>
         </div>
         
         <p style="margin-top: 40px; border-top: 1px solid #eee; pt: 20px;">See you at the race,<br><strong>Team RunnerX</strong></p>
@@ -355,4 +362,3 @@ export const newParticipantWelcomeTemplate = (
 </body>
 </html>
 `;
-

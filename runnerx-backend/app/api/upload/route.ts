@@ -40,8 +40,8 @@ export async function POST(request: Request) {
     const safeName = originalName.replace(/[^a-zA-Z0-9.-]/g, "_");
     const uniqueName = `${Date.now()}_${safeName}`;
 
-    // Ensure uploads directory exists
-    const uploadDir = join(process.cwd(), "public", "uploads");
+    // Ensure uploads directory exists (outside public/ so it survives deploys)
+    const uploadDir = join(process.cwd(), "uploads");
     await mkdir(uploadDir, { recursive: true });
 
     // Stream request body directly to disk — no buffering, no size limits

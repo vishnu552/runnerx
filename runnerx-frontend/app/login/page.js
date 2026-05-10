@@ -1,76 +1,466 @@
 'use client';
 
-import { ORIGIN_COOKIE_NAME } from '@/app/lib/constants';
-import { SITE_CONFIG } from '@/app/lib/origin';
-import { useEffect, useState } from 'react';
+import { Suspense, useActionState, useEffect, useRef, useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { checkUserStatus, unifiedAuth } from '@/app/lib/actions';
 
-/**
- * Login fallback page.
- * If a user navigates directly to the dashboard site without going through
- * a city site, this page shows them links to log in on each city site.
- * 
- * In the future, this will be replaced with a proper login form.
- */
-export default function LoginFallbackPage() {
-  const [sites] = useState(Object.values(SITE_CONFIG));
+function SubmitButton({ label }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      className="btn btn-primary"
+      style={{ width: '100%', marginTop: '8px' }}
+      disabled={pending}
+    >
+      {pending ? 'Please wait...' : label}
+    </button>
+  );
+}
+
+const initialState = {
+  error: null,
+  success: false,
+  redirect: null,
+};
+
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const origin = searchParams.get('origin') || '';
+  const redirectParam = searchParams.get('redirect') || '';
+
+  const [state, formAction] = useActionState(unifiedAuth, initialState);
+  const [email, setEmail] = useState('');
+  const [userExists, setUserExists] = useState(null);
+  const [checking, setChecking] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const blurTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    if (userExists !== null) {
+      setUserExists(null);
+    }
+  }, [email]);
+
+  async function handleCheckUser() {
+    if (!email || !email.includes('@') || email.length < 5) return;
+
+    setChecking(true);
+    try {
+      const result = await checkUserStatus(email);
+      setUserExists(result.exists);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  const onBlur = () => {
+    blurTimeoutRef.current = setTimeout(handleCheckUser, 200);
+  };
+
+  const onFocus = () => {
+    if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
+  };
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-      padding: '24px',
-    }}>
-      <div style={{
-        background: 'white', borderRadius: '20px', padding: '48px 40px',
-        maxWidth: '480px', width: '100%', textAlign: 'center',
-        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-      }}>
-        {/* Logo */}
-        <h1 style={{
-          fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.02em',
-          marginBottom: '8px', fontStyle: 'italic',
-        }}>
-          RUNNER<span style={{ color: '#00a0ff' }}>X</span>
-        </h1>
-        <p style={{ color: '#64748b', fontSize: '0.95rem', marginBottom: '32px', lineHeight: 1.6 }}>
-          Please log in through one of our event sites to access your dashboard.
-        </p>
-
-        {/* City site links */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {/* {sites.map((site) => ( */}
-            <a
-              // key={site.code}
-              href={`https://kotahalfmarathon.in/login`}
-              // href={`${site.url}/login`}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-                padding: '16px 24px', borderRadius: '12px',
-                border: '1px solid #e2e8f0', background: '#f8fafc',
-                textDecoration: 'none', color: '#0f172a',
-                fontSize: '1rem', fontWeight: 600,
-                transition: 'all 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#00a0ff';
-                e.currentTarget.style.color = 'white';
-                e.currentTarget.style.borderColor = '#00a0ff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f8fafc';
-                e.currentTarget.style.color = '#0f172a';
-                e.currentTarget.style.borderColor = '#e2e8f0';
-              }}
-            >
-               {/* {site.fullName} */} Kota Half Marathon
-            </a>
-          {/* ))} */}
+    <section
+      className="section"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        paddingTop: '40px',
+        paddingBottom: '40px',
+      }}
+    >
+      <div className="container" style={{ maxWidth: '480px', width: '100%' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <Link href="/">
+            <img
+              src="/runnerxlogo.png"
+              alt="RunnerX"
+              style={{ height: '64px', width: 'auto', margin: '0 auto 20px', display: 'block' }}
+            />
+          </Link>
+          <h1
+            style={{
+              fontFamily: 'var(--font-heading)',
+              fontSize: '1.8rem',
+              fontWeight: 700,
+              color: 'var(--text)',
+              marginBottom: '8px',
+              textTransform: 'uppercase',
+              fontStyle: 'italic',
+              letterSpacing: '0.04em',
+            }}
+          >
+            Welcome to RunnerX
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+            Enter your email to sign in or create your account.
+          </p>
         </div>
 
-        <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '32px' }}>
-          Your dashboard is shared across all RunnerX events.
-        </p>
+        <div className="card" style={{ padding: '32px', borderRadius: '20px' }}>
+
+          {state?.error && !state?.fieldErrors && (
+            <div
+              style={{
+                padding: '12px',
+                background: 'rgba(229, 57, 53, 0.1)',
+                color: '#ef4444',
+                borderRadius: '6px',
+                marginBottom: '24px',
+                fontSize: '0.9rem',
+                border: '1px solid rgba(229, 57, 53, 0.2)',
+              }}
+            >
+              {state.error}
+            </div>
+          )}
+
+          {state?.success && (
+            <div
+              style={{
+                padding: '16px',
+                background: 'rgba(76, 175, 80, 0.1)',
+                color: '#2e7d32',
+                borderRadius: '8px',
+                marginBottom: '24px',
+                fontSize: '0.95rem',
+                border: '1px solid rgba(76, 175, 80, 0.2)',
+                textAlign: 'center',
+              }}
+            >
+              {state.message}
+            </div>
+          )}
+
+          {!state?.success && (
+            <form className="contact-form" action={formAction}>
+              <input
+                type="hidden"
+                name="auth_mode"
+                value={userExists === false ? 'register' : 'login'}
+              />
+              <input type="hidden" name="origin" value={origin} />
+              <input type="hidden" name="redirect" value={redirectParam} />
+
+              <div className="form-group">
+                <label className="form-label" htmlFor="auth-email">
+                  Email Address
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    className="form-input"
+                    type="email"
+                    id="auth-email"
+                    name="email"
+                    placeholder="you@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onBlur={onBlur}
+                    onFocus={onFocus}
+                    required
+                  />
+                  {checking && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                      }}
+                    >
+                      <div className="loader-mini" />
+                    </div>
+                  )}
+                </div>
+                {state?.fieldErrors?.email && (
+                  <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>
+                    {state.fieldErrors.email[0]}
+                  </div>
+                )}
+              </div>
+
+              {userExists === true && (
+                <div className="animate-in fade-in slide-in-from-top-2">
+                  <div className="form-group" style={{ marginBottom: '8px' }}>
+                    <label className="form-label" htmlFor="auth-password">
+                      Password
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        className="form-input"
+                        type={showPassword ? 'text' : 'password'}
+                        id="auth-password"
+                        name="password"
+                        placeholder="Your password"
+                        required
+                        style={{ paddingRight: '45px' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: '12px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: 'var(--text-muted)',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                      </button>
+                    </div>
+                    {state?.fieldErrors?.password && (
+                      <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>
+                        {state.fieldErrors.password[0]}
+                      </div>
+                    )}
+                    <div style={{ textAlign: 'right', marginTop: '10px' }}>
+                      <Link
+                        href={`/auth/forgot-password${origin ? `?origin=${origin}` : ''}`}
+                        style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600 }}
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
+                  </div>
+                  <SubmitButton label="Sign In" />
+                </div>
+              )}
+
+              {userExists === false && (
+                <div className="animate-in fade-in slide-in-from-top-2">
+                  <div className="form-group" style={{ marginBottom: '20px' }}>
+                    <label className="form-label" htmlFor="auth-name">
+                      Full Name
+                    </label>
+                    <input
+                      className="form-input"
+                      type="text"
+                      id="auth-name"
+                      name="name"
+                      placeholder="John Doe"
+                      required
+                    />
+                    {state?.fieldErrors?.name && (
+                      <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>
+                        {state.fieldErrors.name[0]}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '20px' }}>
+                    <label className="form-label" htmlFor="auth-phone">
+                      Mobile Number
+                    </label>
+                    <input
+                      className="form-input"
+                      type="tel"
+                      id="auth-phone"
+                      name="phone"
+                      placeholder="10-digit mobile number"
+                      required
+                      maxLength={10}
+                      onKeyPress={(e) => {
+                        if (!/[0-9]/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onChange={(e) => {
+                        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                      }}
+                    />
+                    {state?.fieldErrors?.phone && (
+                      <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>
+                        {state.fieldErrors.phone[0]}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '20px' }}>
+                    <label className="form-label" htmlFor="auth-reg-password">
+                      Create Password
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        className="form-input"
+                        type={showPassword ? 'text' : 'password'}
+                        id="auth-reg-password"
+                        name="password"
+                        placeholder="Min. 6 characters"
+                        required
+                        style={{ paddingRight: '45px' }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{
+                          position: 'absolute',
+                          right: '12px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: 'var(--text-muted)',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                      </button>
+                    </div>
+                    {state?.fieldErrors?.password && (
+                      <div style={{ color: '#ef4444', fontSize: '0.8rem', marginTop: '4px' }}>
+                        {state.fieldErrors.password[0]}
+                      </div>
+                    )}
+                  </div>
+
+                  <SubmitButton label="Sign Up" />
+                </div>
+              )}
+
+              {userExists === null && (
+                <div style={{ marginTop: '24px' }}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    style={{ width: '100%' }}
+                    onClick={handleCheckUser}
+                    disabled={checking || !email.includes('@')}
+                  >
+                    {checking ? 'Checking...' : 'Continue'}
+                  </button>
+                  <div style={{ textAlign: 'center', marginTop: '14px' }}>
+                    <Link
+                      href={`/auth/forgot-password${origin ? `?origin=${origin}` : ''}`}
+                      style={{ fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 600 }}
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </form>
+          )}
+        </div>
       </div>
-    </div>
+
+      <style jsx>{`
+        .loader-mini {
+          width: 18px;
+          height: 18px;
+          border: 2px solid rgba(0, 0, 0, 0.1);
+          border-top-color: var(--primary);
+          border-radius: 50%;
+          animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .animate-in {
+          animation-duration: 0.3s;
+          animation-fill-mode: forwards;
+        }
+        .fade-in {
+          animation-name: fadeIn;
+        }
+        .slide-in-from-top-2 {
+          animation-name: slideInFromTop;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes slideInFromTop {
+          from {
+            transform: translateY(-8px);
+          }
+          to {
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function LoginFallback() {
+  return (
+    <section
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <div style={{ color: 'var(--text-muted)' }}>Loading...</div>
+    </section>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+      <line x1="1" y1="1" x2="23" y2="23"></line>
+    </svg>
   );
 }

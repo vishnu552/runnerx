@@ -4,11 +4,6 @@ import PageHero from '@/components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Gallery',
-  description: 'Photos and memories from the RunnerX Kota Marathon.',
-};
-
 export default async function GalleryPage() {
   const content = await getPageContent('gallery');
   const allItems = await getGalleryImages();

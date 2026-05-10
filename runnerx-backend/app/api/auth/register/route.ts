@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, password, name } = result.data;
+    const { email, password, name, phone } = result.data;
     const lowerEmail = email.toLowerCase();
 
     // Check if user already exists
@@ -47,6 +47,7 @@ export async function POST(request: Request) {
         password: hashedPassword,
         role: "USER", // Default scope is Runner/User
         verifyToken,
+        ...(phone ? { phone } : {}),
       },
     });
 

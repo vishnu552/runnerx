@@ -67,13 +67,12 @@ export default function SponsorSlider({ sponsors, apiUrl }) {
           >
             {page.map((s) => (
               <div key={s.id} className="partner-sponsor-item" style={{ margin: '0 auto', width: '100%' }}>
-                <div className="partner-logo-box" style={{ width: '100%', height: '80px' }}>
-                  <Image 
-                    src={s.image?.startsWith('/') ? `${apiUrl}${s.image}` : s.image} 
-                    alt={s.name || "Partner"} 
+                <div className="partner-logo-box" style={{ width: '100%', height: 'auto', aspectRatio: '1 / 1', padding: '12px' }}>
+                  <Image
+                    src={s.image?.startsWith('/') ? `${apiUrl}${s.image}` : s.image}
+                    alt={s.name || "Partner"}
                     width={120}
-                    height={60}
-                    unoptimized
+                    height={120}
                     style={{ objectFit: 'contain', width: '100%', height: '100%' }}
                   />
                 </div>

@@ -23,7 +23,7 @@ export default function CategoryPage({ category }) {
               {category.ageEligibility}
             </span>
           </div>
-          <Link href={category.ctaLink || '/register'} className="btn btn-primary btn-lg">
+          <Link href={category.ctaLink || `${process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3002'}/login?origin=KTA`} className="btn btn-primary btn-lg">
             {category.ctaText || 'Register Now'} →
           </Link>
         </div>
@@ -159,7 +159,7 @@ export default function CategoryPage({ category }) {
             <p className="cta-subtitle">
               Secure your spot before registrations close. Limited slots available.
             </p>
-            <Link href={category.ctaLink || '/register'} className="btn btn-primary btn-lg">
+            <Link href={category.ctaLink || `${process.env.NEXT_PUBLIC_DASHBOARD_URL || 'http://localhost:3002'}/login?origin=KTA`} className="btn btn-primary btn-lg">
               {category.ctaText || 'Register Now'} →
             </Link>
           </div>

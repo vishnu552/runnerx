@@ -31,7 +31,7 @@ export default async function DashboardLayout({ children }) {
     <>
       <DashboardHeader originConfig={originConfig} user={user} logoutAction={logoutAction} />
       <div className="dashboard-content-wrapper" style={{ background: '#f1f5f9', minHeight: '100vh', paddingBottom: '60px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+        <div className="dashboard-inner">
 
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>

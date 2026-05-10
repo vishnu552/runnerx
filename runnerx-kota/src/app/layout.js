@@ -1,8 +1,7 @@
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { getGlobalContent, getCategories, getSponsors, getEvents } from '@/lib/api';
-import { getCurrentUser } from '@/lib/auth';
+import { getGlobalContent, getCategories, getSponsors, getEvents, getPageContent } from '@/lib/api';
 import { eventInfo as fallbackEventInfo, categories as fallbackCategories } from '@/data/categories';
 import { Roboto, Roboto_Condensed } from 'next/font/google';
 import Script from 'next/script';
@@ -22,16 +21,14 @@ const robotoCondensed = Roboto_Condensed({
 });
 
 export const metadata = {
-  title: {
-    default: 'RunnerX Kota Marathon | Run Through the Heart of Hadoti',
-    template: '%s | RunnerX Kota Marathon',
-  },
+  title: 'Kota Half Marathon | Challenge Your Limits',
   description:
-    'Join the 1st Edition of RunnerX Kota Marathon — 3 KM, 5 KM, 10 KM & Half Marathon. Run through the scenic Chambal Riverfront in Kota, Rajasthan. November 15, 2026.',
+    'Challenge yourself at Kota Half Marathon and experience the energy, determination, and spirit of a world-class running event.',
   keywords: ['marathon', 'kota', 'running', 'half marathon', 'rajasthan', 'chambal', 'fun run', '5k', '10k'],
   openGraph: {
-    title: 'RunnerX Kota Marathon',
-    description: 'Run Through the Heart of Hadoti — 1st Edition, November 15, 2026',
+    title: 'Kota Half Marathon | Challenge Your Limits',
+    description:
+      'Challenge yourself at Kota Half Marathon and experience the energy, determination, and spirit of a world-class running event.',
     type: 'website',
   },
   icons: {
@@ -42,12 +39,12 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
-  const [globalContent, categoriesData, sponsorsData, eventsData, user] = await Promise.all([
+  const [globalContent, homeContent, categoriesData, sponsorsData, eventsData] = await Promise.all([
     getGlobalContent(),
+    getPageContent('home', 'KTA'),
     getCategories(),
     getSponsors(),
     getEvents(),
-    getCurrentUser()
   ]);
   const categories = categoriesData || fallbackCategories;
   const sponsors = sponsorsData || [];
@@ -76,7 +73,11 @@ export default async function RootLayout({ children }) {
     formattedDisplayDate = globalContent.event_info.date;
   }
 
-  const dateIsoObj = nearestEvent ? nearestEvent.date : (globalContent?.event_info?.date_iso || '2026-11-15T05:30:00+05:30');
+  const countdownTarget = homeContent?.countdown?.target_date;
+  const isValidIso = (v) => typeof v === 'string' && !isNaN(new Date(v).getTime());
+  const dateIsoObj = nearestEvent
+    ? nearestEvent.date
+    : (isValidIso(countdownTarget) ? countdownTarget : '2026-11-15T05:30:00+05:30');
 
   // Create an eventInfo object matching the shape of the existing one
   const eventInfo = {
@@ -104,7 +105,7 @@ export default async function RootLayout({ children }) {
         <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       </head>
       <body className={`${roboto.variable} ${robotoCondensed.variable} ${roboto.className} min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 antialiased`}>
-        <Header eventInfo={eventInfo} categories={categories} sponsors={sponsors} user={user} />
+        <Header eventInfo={eventInfo} categories={categories} sponsors={sponsors} />
         <main>{children}</main>
         <Footer eventInfo={eventInfo} />
       </body>

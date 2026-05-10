@@ -3,11 +3,6 @@ import PageHero from '@/components/PageHero';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Route & Venue',
-  description: 'Explore the scenic route of the RunnerX Kota Marathon along the Chambal River.',
-};
-
 export default async function RoutePage() {
   const content = await getPageContent('route');
   

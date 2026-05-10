@@ -5,11 +5,6 @@ import ContactForm from '@/components/ContactForm';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Contact Us',
-  description: 'Get in touch with the RunnerX Kota Marathon team.',
-};
-
 export default async function ContactPage() {
   const content = await getPageContent('contact');
   const globalContent = await getGlobalContent();

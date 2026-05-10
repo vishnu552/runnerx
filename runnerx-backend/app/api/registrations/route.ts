@@ -369,6 +369,17 @@ export async function POST(request: Request) {
         }
       }
 
+      if (razorpayOrder) {
+        try {
+          await prisma.registration.update({
+            where: { id: updatedReg.id },
+            data: { razorpayOrderId: razorpayOrder.id },
+          });
+        } catch (dbError) {
+          console.error("Failed to persist razorpayOrderId on registration:", dbError);
+        }
+      }
+
       return NextResponse.json(
         {
           success: true,
@@ -607,6 +618,17 @@ export async function POST(request: Request) {
         });
       } catch (rzpError) {
         console.error("Razorpay order creation failed:", rzpError);
+      }
+    }
+
+    if (razorpayOrder) {
+      try {
+        await prisma.registration.update({
+          where: { id: registration!.id },
+          data: { razorpayOrderId: razorpayOrder.id },
+        });
+      } catch (dbError) {
+        console.error("Failed to persist razorpayOrderId on registration:", dbError);
       }
     }
 

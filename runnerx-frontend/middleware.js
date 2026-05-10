@@ -5,11 +5,21 @@ export function middleware(request) {
   const { pathname } = request.nextUrl;
 
   const protectedRoutes = ['/dashboard'];
-  const isProtectedRoute = protectedRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+  const authRoutes = ['/login', '/auth/forgot-password', '/auth/reset-password', '/verify'];
 
-  // If accessing a protected route without a token, redirect to login fallback
+  const isProtectedRoute = protectedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+  const isAuthRoute = authRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+
   if (isProtectedRoute && !token) {
     return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  if (isAuthRoute && token) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();
@@ -17,6 +27,6 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|auth).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|auth/handoff).*)',
   ],
 };

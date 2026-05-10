@@ -420,6 +420,8 @@ export default function RegistrationClient({ currentUser, event }) {
           state: p.state,
           city: p.city,
           address: p.address,
+          emergencyContactName: p.emergencyName || null,
+          emergencyContactPhone: p.emergencyPhone || null,
           isRegistrant: i === 0 && isForSelf,
         };
 
@@ -428,6 +430,7 @@ export default function RegistrationClient({ currentUser, event }) {
           participantsPayload.push({
             ...pBase,
             eventCategoryId: Number(p.selectedCategoryId),
+            tshirtSize: p.tshirtSize || null,
           });
         }
 
@@ -585,14 +588,6 @@ export default function RegistrationClient({ currentUser, event }) {
 
   const renderContent = () => (
     <>
-      {/* <section className="page-hero" style={{ padding: '80px 0', textAlign: 'center', background: 'var(--surface-alt)' }}>
-        <div className="container">
-          <div className="badge badge-primary" style={{ marginBottom: '16px' }}>Event Registration</div>
-          <h1 className="page-hero-title">Register for <span style={{ color: 'var(--primary)' }}>{event.title}</span></h1>
-          <p className="page-hero-subtitle">{formattedEventDate} • {event.venue}, {event.city}</p>
-        </div>
-      </section> */}
-
       <section className="section" style={{ minHeight: '60vh', padding: '0' }}>
         <div className="container registration-container">
           {/* Progress Bar */}
@@ -1557,7 +1552,7 @@ export default function RegistrationClient({ currentUser, event }) {
           )}
 
           {/* Main Bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '80px', position: 'relative', zIndex: 1000 }} className="registration-btn-group">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', minHeight: '80px', padding: '12px 20px', position: 'relative', zIndex: 1000 }} className="registration-btn-group">
             <div 
               onClick={() => setShowBreakdown(!showBreakdown)}
               style={{ display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer', color: 'white' }}
@@ -1679,7 +1674,7 @@ export default function RegistrationClient({ currentUser, event }) {
           </div>
           
           <div className="edit-modal-content" style={{ overflowY: 'auto', flex: 1 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '24px' }}>
               
               {/* Section: Personal Info */}
               <div>

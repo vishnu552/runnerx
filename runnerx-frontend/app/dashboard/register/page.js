@@ -1,6 +1,12 @@
-import { getEvents } from "@/app/lib/api";
+import { getEvents, API_URL } from "@/app/lib/api";
 import { getCityFromCode, SITE_CONFIG } from "@/app/lib/origin";
 import Link from "next/link";
+
+function resolveImageUrl(src) {
+  if (!src) return null;
+  if (src.startsWith("http")) return src;
+  return `${API_URL}${src}`;
+}
 
 export const metadata = {
   title: "Choose Your Event — RunnerX",
@@ -160,8 +166,8 @@ function EventCard({ event, city }) {
       >
         <div style={{ width: "100%", aspectRatio: "16/10", overflow: "hidden" }}>
           <img
-            src="/kota.png"
-            alt="Event"
+            src={resolveImageUrl(event.bannerImage) || "/kota.png"}
+            alt={event.title || "Event"}
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
         </div>

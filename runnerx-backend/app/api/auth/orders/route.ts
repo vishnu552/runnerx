@@ -29,6 +29,7 @@ export async function GET(request: Request) {
         registrations: {
           include: {
             lineItems: true,
+            event: { select: { id: true, title: true, bannerImage: true } },
           },
         },
         donations: true,

@@ -26,6 +26,11 @@ export const registerSchema = z.object({
     .min(1, "Password is required")
     .min(6, "Password must be at least 6 characters")
     .max(100, "Password must be less than 100 characters"),
+  phone: z
+    .string()
+    .regex(/^\d{10}$/, "Phone must be a 10-digit number")
+    .optional()
+    .nullable(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -44,18 +49,14 @@ export const createEventSchema = z.object({
     .max(200)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase with hyphens only"),
   siteFor: z.string().min(1, "Site is required"),
-  description: z.string().min(1, "Description is required"),
   date: z.string().min(1, "Date is required"),
   registrationStart: z.string().min(1, "Registration start is required"),
   registrationEnd: z.string().min(1, "Registration end is required"),
-  venue: z.string().min(1, "Venue is required").max(200),
   address: z.string().min(1, "Address is required").max(500),
   city: z.string().min(1, "City is required").max(100),
   state: z.string().min(1, "State is required").max(100),
-  mapUrl: z.string().url("Invalid URL").optional().nullable(),
   bannerImage: z.string().optional().nullable(),
   contactEmail: z.string().email("Invalid email").optional().nullable(),
-  contactPhone: z.string().max(20).optional().nullable(),
   status: z.enum(EVENT_STATUSES).default("DRAFT"),
   isActive: z.boolean().optional().default(true),
 });

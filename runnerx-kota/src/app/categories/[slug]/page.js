@@ -9,23 +9,6 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }) {
-  const { slug } = await params;
-  const category = await getCategoryBySlug(slug);
-  if (!category) {
-    const fallback = fallbackCategories.find(c => c.slug === slug);
-    if (!fallback) return {};
-    return {
-      title: `${fallback.name} — ${fallback.distance}`,
-      description: fallback.tagline,
-    };
-  }
-  return {
-    title: `${category.name} — ${category.distance}`,
-    description: category.tagline,
-  };
-}
-
 function getFallbackCategory(slug) {
   const found = fallbackCategories.find(c => c.slug === slug);
   if (!found) return null;

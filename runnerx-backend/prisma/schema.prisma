@@ -82,18 +82,14 @@ model Event {
   title             String
   slug              String   @unique
   siteFor           String   @default("JDH")
-  description       String
   date              DateTime
   registrationStart DateTime
   registrationEnd   DateTime
-  venue             String
   address           String
   city              String
   state             String
-  mapUrl            String?
-  bannerImage       String?
+  bannerImage       String?  // Public URL or /uploads/... path used on registration page and orders thumbnail
   contactEmail      String?
-  contactPhone      String?
   status            String   @default("DRAFT") // DRAFT, PUBLISHED, CANCELLED, COMPLETED
   isActive          Boolean  @default(true)
   categories        EventCategory[]
@@ -215,6 +211,7 @@ model Registration {
   couponCode      String?  // coupon code snapshot (not FK)
   paymentStatus   String   @default("UNPAID")   // UNPAID, PAID, FAILED, REFUNDED
   paymentId       String?  // from payment gateway
+  razorpayOrderId String?  // Razorpay order id returned by orders.create()
 
   // Snapshots for historical integrity
   eventTitleSnapshot  String
@@ -305,7 +302,8 @@ model Order {
 
   // Payment
   paymentStatus   String   @default("UNPAID")  // UNPAID, PAID, FAILED, REFUNDED
-  paymentId       String?  // Gateway transaction ID
+  paymentId       String?  // Gateway transaction ID (Razorpay payment_id)
+  razorpayOrderId String?  // Razorpay order_id from orders.create()
   paymentMode     String?  // UPI, Card, NetBanking, etc.
 
   // Invoice

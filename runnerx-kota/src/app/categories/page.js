@@ -5,11 +5,6 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Race Categories — RunnerX Kota Marathon',
-  description: 'Choose your challenge: Half Marathon, 10K, 5K, or 3K Fun Run.',
-};
-
 export default async function CategoriesPage() {
   const categories = await getCategories('KTA');
   const cats = categories || fallbackCategories;
