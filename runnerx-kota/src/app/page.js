@@ -11,7 +11,10 @@ import {
   PUBLIC_API_URL,
 } from "@/lib/api";
 
-export const dynamic = "force-dynamic";
+// Revalidate the home page every 5 minutes (ISR). The first request after
+// each window builds a fresh copy in the background; everyone else is served
+// the cached HTML, so we no longer hit the API on every page load.
+export const revalidate = 300;
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 const hasValue = (obj) => {
@@ -38,11 +41,12 @@ export default async function HomePage() {
   // Fetch components in parallel.
   // Note: categories and sponsors are also fetched in Layout.
   // Next.js fetch cache will ensure these don't result in redundant network calls.
+  const cache = { revalidate: 300 };
   const [homeContent, categories, sponsors, runnersInfo] = await Promise.all([
-    getPageContent("home", "KTA"),
-    getCategories("KTA"),
-    getSponsors("KTA"),
-    getRunnersInfo("KTA"),
+    getPageContent("home", "KTA", cache),
+    getCategories("KTA", cache),
+    getSponsors("KTA", cache),
+    getRunnersInfo("KTA", cache),
   ]);
 
   const content = homeContent || {};

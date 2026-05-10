@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, Fragment } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 interface LineItem {
   id: number;
@@ -66,11 +67,11 @@ function formatDate(dateStr: string) {
 }
 
 export default function RegistrationsClient() {
+  const router = useRouter();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const fetchRegistrations = useCallback(async () => {
     setLoading(true);
@@ -168,139 +169,79 @@ export default function RegistrationsClient() {
             </thead>
             <tbody>
               {registrations.map((reg) => {
-                const isExpanded = expandedId === reg.id;
                 const primaryParticipant = reg.lineItems.find(li => li.isRegistrant) || reg.lineItems[0];
                 return (
-                  <Fragment key={reg.id}>
-                    <tr className={isExpanded ? "row-expanded" : ""}>
-                      <td>
-                        <button
-                          className="expand-btn"
-                          onClick={() => setExpandedId(isExpanded ? null : reg.id)}
-                          title={isExpanded ? "Collapse" : "Show participants"}
+                  <tr key={reg.id}>
+                    <td>
+                      <button
+                        className="expand-btn"
+                        onClick={() => router.push(`/dashboard/registrations/${reg.id}`)}
+                        title="View details"
+                      >
+                        <svg
+                          width="16" height="16"
+                          viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor"
+                          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                         >
-                          <svg
-                            width="16" height="16"
-                            viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor"
-                            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                            style={{ transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
-                          >
-                            <polyline points="9 18 15 12 9 6" />
-                          </svg>
-                        </button>
-                      </td>
-                      <td>
-                        <span style={{ fontSize: "0.85rem", fontFamily: "monospace", color: "var(--text-muted)" }}>
-                          #{reg.id}
-                        </span>
-                      </td>
-                      <td>
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      </button>
+                    </td>
+                    <td>
+                      <span style={{ fontSize: "0.85rem", fontFamily: "monospace", color: "var(--text-muted)" }}>
+                        #{reg.id}
+                      </span>
+                    </td>
+                    <td>
+                      <div>
+                        <span style={{ fontWeight: 600, fontSize: "0.85rem" }}>{reg.eventTitleSnapshot}</span>
+                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                          {new Date(reg.eventDateSnapshot).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {primaryParticipant ? (
                         <div>
-                          <span style={{ fontWeight: 600, fontSize: "0.85rem" }}>{reg.eventTitleSnapshot}</span>
+                          <span style={{ fontSize: "0.85rem" }}>{primaryParticipant.participantName}</span>
                           <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                            {new Date(reg.eventDateSnapshot).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                            {primaryParticipant.participantEmail}
                           </div>
                         </div>
-                      </td>
-                      <td>
-                        {primaryParticipant ? (
-                          <div>
-                            <span style={{ fontSize: "0.85rem" }}>{primaryParticipant.participantName}</span>
-                            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                              {primaryParticipant.participantEmail}
-                            </div>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className="race-type-badge">{reg.lineItems.length}</span>
+                    </td>
+                    <td>
+                      <div>
+                        <span style={{ fontWeight: 600 }}>₹{reg.finalAmount.toLocaleString("en-IN")}</span>
+                        {reg.discountAmount > 0 && (
+                          <div style={{ fontSize: "0.75rem", color: "#22c55e" }}>
+                            −₹{reg.discountAmount.toLocaleString("en-IN")}
+                            {reg.couponCode && ` (${reg.couponCode})`}
                           </div>
-                        ) : (
-                          <span className="text-muted">—</span>
                         )}
-                      </td>
-                      <td>
-                        <span className="race-type-badge">{reg.lineItems.length}</span>
-                      </td>
-                      <td>
-                        <div>
-                          <span style={{ fontWeight: 600 }}>₹{reg.finalAmount.toLocaleString("en-IN")}</span>
-                          {reg.discountAmount > 0 && (
-                            <div style={{ fontSize: "0.75rem", color: "#22c55e" }}>
-                              −₹{reg.discountAmount.toLocaleString("en-IN")}
-                              {reg.couponCode && ` (${reg.couponCode})`}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`status-badge ${STATUS_STYLES[reg.status] || "status-draft"}`}>
-                          {reg.status}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`status-badge ${PAYMENT_STYLES[reg.paymentStatus] || "status-draft"}`}>
-                          {reg.paymentStatus}
-                        </span>
-                      </td>
-                      <td style={{ fontSize: "0.8rem" }}>
-                        {formatDate(reg.createdAt)}
-                      </td>
-                    </tr>
-
-                    {/* Expanded: participant details */}
-                    {isExpanded && (
-                      <tr className="expanded-row">
-                        <td colSpan={9}>
-                          <div className="categories-panel">
-                            <div className="categories-panel-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <h3 className="categories-panel-title">Participants ({reg.lineItems.length})</h3>
-                              {reg.paymentId && (
-                                <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                                  Transaction ID: <span style={{ fontFamily: "monospace", color: "var(--text)" }}>{reg.paymentId}</span>
-                                </div>
-                              )}
-                            </div>
-                            <table className="data-table categories-table">
-                              <thead>
-                                <tr>
-                                  <th>Name</th>
-                                  <th>Email</th>
-                                  <th>Phone</th>
-                                  <th>Gender</th>
-                                  <th>Category</th>
-                                  <th>Price</th>
-                                  <th>Self?</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {reg.lineItems.map((li) => (
-                                  <tr key={li.id}>
-                                    <td style={{ fontWeight: 600 }}>{li.participantName}</td>
-                                    <td>{li.participantEmail}</td>
-                                    <td>{li.participantPhone}</td>
-                                    <td>{li.participantGender}</td>
-                                    <td>
-                                      <span className="race-type-badge">
-                                        {li.categoryNameSnapshot} ({li.distanceSnapshot})
-                                      </span>
-                                    </td>
-                                    <td>
-                                      {li.discountPriceSnapshot ? (
-                                        <>
-                                          <span style={{ textDecoration: "line-through", opacity: 0.5, marginRight: 4 }}>₹{li.unitPriceSnapshot}</span>
-                                          ₹{li.finalPriceSnapshot}
-                                        </>
-                                      ) : (
-                                        <>₹{li.finalPriceSnapshot}</>
-                                      )}
-                                    </td>
-                                    <td>{li.isRegistrant ? "✓" : ""}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`status-badge ${STATUS_STYLES[reg.status] || "status-draft"}`}>
+                        {reg.status}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`status-badge ${PAYMENT_STYLES[reg.paymentStatus] || "status-draft"}`}>
+                        {reg.paymentStatus}
+                      </span>
+                    </td>
+                    <td style={{ fontSize: "0.8rem" }}>
+                      {formatDate(reg.createdAt)}
+                    </td>
+                  </tr>
                 );
               })}
             </tbody>

@@ -464,6 +464,20 @@ img {
   @apply border-[#ffc83c] ring-4 ring-[#ffc83c]/10 outline-none;
 }
 
+/* iOS Safari renders native date inputs with the value centered and an
+   intrinsic min-width that overflows tight grid columns. Normalize to match
+   the other text inputs. */
+.registration-input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  text-align: left;
+  min-height: 48px;
+}
+
+.registration-input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+}
+
 .registration-label {
   @apply block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1;
 }

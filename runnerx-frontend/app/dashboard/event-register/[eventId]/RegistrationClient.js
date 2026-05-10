@@ -106,8 +106,18 @@ export default function RegistrationClient({ currentUser, event }) {
 
   // Current working price (for Step 3 before saving)
   const currentItemPrice = getParticipantPrice(formData);
-  const participantsSubtotal = participants.reduce((sum, p) => sum + getParticipantPrice(p), 0);
+  // On step 3, exclude the participant at currentIndex from the subtotal —
+  // currentItemPrice already represents the in-progress edit. Without this
+  // skip, navigating back to step 3 double-counts the saved participant.
+  const participantsSubtotal = participants.reduce((sum, p, idx) => {
+    if (step === 3 && idx === currentIndex) return sum;
+    return sum + getParticipantPrice(p);
+  }, 0);
   const raceFees = participantsSubtotal + (step === 3 ? currentItemPrice : 0);
+  // Cart-item count: same logic — the in-progress edit shouldn't add 1 if
+  // the participant is already saved at currentIndex.
+  const isEditingExisting = step === 3 && currentIndex < participants.length;
+  const cartItemCount = participants.length + (step === 3 && !isEditingExisting ? 1 : 0);
   const discountAmount = couponResult?.coupon?.discountAmount || 0;
   const taxableAmount = Math.max(0, raceFees - discountAmount);
   const taxAmount = 0; // taxableAmount * 0.18;
@@ -116,6 +126,13 @@ export default function RegistrationClient({ currentUser, event }) {
   const totalAmount = taxableAmount + taxAmount + donationAmount;
   
   const [showBreakdown, setShowBreakdown] = useState(false);
+
+  // Scroll to top whenever the step changes so users land at the top of the new view.
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [step, currentIndex]);
 
   // Auto-fill for "registering for yourself"
   useEffect(() => {
@@ -346,7 +363,7 @@ export default function RegistrationClient({ currentUser, event }) {
       const res = await fetch(`${API_URL}/api/coupons/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponCode.trim(), siteFor: event.siteFor, amount: baseAmount }),
+        body: JSON.stringify({ code: couponCode.trim(), siteFor: event.siteFor, amount: raceFees }),
       });
       const data = await res.json();
       if (data.success) {
@@ -1512,7 +1529,7 @@ export default function RegistrationClient({ currentUser, event }) {
               </div>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
-                <span>Subtotal ({participants.length + (step === 3 ? 1 : 0)} items)</span>
+                <span>Subtotal ({cartItemCount} items)</span>
                 <span>₹{raceFees.toLocaleString('en-IN')}</span>
               </div>
               
@@ -1559,14 +1576,14 @@ export default function RegistrationClient({ currentUser, event }) {
             >
               <div style={{ position: 'relative' }}>
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                {(participants.length + (step === 3 ? 1 : 0)) > 0 && (
+                {(cartItemCount) > 0 && (
                   <span style={{ 
                     position: 'absolute', top: '-8px', right: '-8px', 
                     background: '#1a1a2e', color: 'white', fontSize: '0.7rem', 
                     width: '18px', height: '18px', borderRadius: '50%', 
                     display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800
                   }}>
-                    {participants.length + (step === 3 ? 1 : 0)}
+                    {cartItemCount}
                   </span>
                 )}
               </div>
@@ -1659,8 +1676,25 @@ export default function RegistrationClient({ currentUser, event }) {
         return;
       }
 
+      const editedParticipant = { ...tempEditData };
+      const displayParts = [];
+      if (editedParticipant.selectedCategoryId) {
+        const cat = getCatById(editedParticipant.selectedCategoryId);
+        if (cat) displayParts.push(`${getCategoryDisplayName(cat)} (${getCategoryDistance(cat)})`);
+      }
+      if (editedParticipant.wantsVirtual && editedParticipant.virtualSubCategoryId) {
+        const parent = getCatById(editedParticipant.virtualParentCategoryId);
+        const sub = (parent?.virtualSettings || []).find(s => String(s.categoryId) === String(editedParticipant.virtualSubCategoryId));
+        if (sub) {
+          const subName = getVirtualCategoryName(sub.categoryName);
+          displayParts.push(`${subName} (T-Shirt: ${editedParticipant.tshirtSize})`);
+        }
+      }
+      editedParticipant.displayCategoryName = displayParts.join(' + ');
+      editedParticipant.displayDistance = '';
+
       const updated = [...participants];
-      updated[editingIdx] = { ...tempEditData };
+      updated[editingIdx] = editedParticipant;
       setParticipants(updated);
       setIsEditModalOpen(false);
     };

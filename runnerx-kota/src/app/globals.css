@@ -1282,6 +1282,26 @@
     letter-spacing: 0.06em;
     word-spacing: 0.2rem;
   }
+
+  /* Below desktop, the 1px webkit-text-stroke trick produces overlapping
+     glyph outlines on small letters — drop the hollow effect and show a
+     solid fill instead. */
+  @media (max-width: 1023.98px) {
+    .section-title .outline-text,
+    .sponsors-title .outline-text,
+    .overview-title-outline {
+      -webkit-text-stroke: 0;
+      -webkit-text-fill-color: #000;
+      color: #000;
+    }
+
+    .ambassador-title-italic,
+    .about-footer-title-outline {
+      -webkit-text-stroke: 0;
+      -webkit-text-fill-color: #fff;
+      color: #fff;
+    }
+  }
 }
 
 @keyframes marquee {

@@ -1,10 +1,10 @@
-import { getPageContent } from '@/lib/api';
-import PageHero from '@/components/PageHero';
+import { getPageContent } from "@/lib/api";
+import PageHero from "@/components/PageHero";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function AboutPage() {
-  const content = await getPageContent('about');
+  const content = await getPageContent("about");
   const hero = content?.hero || {};
   const mission = content?.mission || {};
   const vision = content?.vision || {};
@@ -16,7 +16,11 @@ export default async function AboutPage() {
     }))
     .filter((b) => b.heading || b.text);
 
-  const hasMission = mission.title || mission.paragraph1 || mission.paragraph2 || mission.paragraph3;
+  const hasMission =
+    mission.title ||
+    mission.paragraph1 ||
+    mission.paragraph2 ||
+    mission.paragraph3;
   const hasVisionHeader = vision.title || vision.title_accent;
   const hasVisionSection = hasVisionHeader || boxes.length > 0;
 
@@ -24,7 +28,7 @@ export default async function AboutPage() {
     <>
       <PageHero
         title={hero.title}
-        titleAccent={hero.title_accent}
+        // titleAccent="Hello"
         bgImage={hero.bg_image}
       />
 
@@ -53,7 +57,7 @@ export default async function AboutPage() {
                   {vision.title_accent && (
                     <span
                       className="overview-title-outline !m-0 !tracking-[0.04em] !text-transparent"
-                      style={{ WebkitTextStroke: '1px rgba(255,255,255,0.8)' }}
+                      style={{ WebkitTextStroke: "1px rgba(255,255,255,0.8)" }}
                     >
                       {vision.title_accent}
                     </span>
@@ -65,12 +69,19 @@ export default async function AboutPage() {
             {boxes.length > 0 && (
               <div className="features-grid">
                 {boxes.map((box, i) => (
-                  <div className="feature-card border-white/20 bg-white/10" key={i}>
+                  <div
+                    className="feature-card border-white/20 bg-white/10"
+                    key={i}
+                  >
                     {box.heading && (
-                      <h3 className="feature-title text-2xl font-bold text-white mb-3">{box.heading}</h3>
+                      <h3 className="feature-title text-2xl font-bold text-white mb-3">
+                        {box.heading}
+                      </h3>
                     )}
                     {box.text && (
-                      <p className="feature-desc text-[1.05rem] font-medium text-white/90">{box.text}</p>
+                      <p className="feature-desc text-[1.05rem] font-medium text-white/90">
+                        {box.text}
+                      </p>
                     )}
                   </div>
                 ))}
