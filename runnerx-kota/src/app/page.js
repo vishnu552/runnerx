@@ -54,7 +54,7 @@ export default async function HomePage() {
   const categoriesHeader = content?.categories_header;
   const sponsorsHeader = content?.sponsors_header;
   const aboutFooter = content?.about_footer;
-
+  console.log("Home page content:", initiatives);
   const targetDate = countdown?.target_date;
   const dateIso =
     typeof targetDate === "string" && !isNaN(new Date(targetDate).getTime())
