@@ -38,13 +38,12 @@ export default async function HomePage() {
   // Fetch components in parallel.
   // Note: categories and sponsors are also fetched in Layout.
   // Next.js fetch cache will ensure these don't result in redundant network calls.
-  const [homeContent, categories, sponsors, runnersInfo] =
-    await Promise.all([
-      getPageContent("home", "KTA"),
-      getCategories("KTA"),
-      getSponsors("KTA"),
-      getRunnersInfo("KTA"),
-    ]);
+  const [homeContent, categories, sponsors, runnersInfo] = await Promise.all([
+    getPageContent("home", "KTA"),
+    getCategories("KTA"),
+    getSponsors("KTA"),
+    getRunnersInfo("KTA"),
+  ]);
 
   const content = homeContent || {};
   const hero = content?.hero;
@@ -57,9 +56,10 @@ export default async function HomePage() {
   const aboutFooter = content?.about_footer;
 
   const targetDate = countdown?.target_date;
-  const dateIso = typeof targetDate === "string" && !isNaN(new Date(targetDate).getTime())
-    ? targetDate
-    : null;
+  const dateIso =
+    typeof targetDate === "string" && !isNaN(new Date(targetDate).getTime())
+      ? targetDate
+      : null;
   return (
     <>
       {/* ===== HERO BANNER ===== */}
@@ -74,6 +74,7 @@ export default async function HomePage() {
             width={1920}
             height={600}
             priority
+            unoptimized
             className="hero-banner-image"
             style={{ width: "100%", height: "auto", display: "block" }}
           />
