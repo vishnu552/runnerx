@@ -6,16 +6,14 @@ interface User {
   id: string;
   name: string;
   email: string;
+  emailVerified: boolean;
   role: string;
   gender: string | null;
   dateOfBirth: string | null;
   phone: string | null;
   city: string | null;
   state: string | null;
-  bloodGroup: string | null;
-  emergencyContactName: string | null;
-  emergencyContactPhone: string | null;
-  tshirtSize: string | null;
+  address: string | null;
   createdAt: string;
 }
 
@@ -118,7 +116,7 @@ export default function UsersClient() {
                 <th>Email</th>
                 <th>Phone</th>
                 <th>City</th>
-                <th>Gender</th>
+                <th>Email Verified</th>
                 <th>Joined</th>
                 <th>Details</th>
               </tr>
@@ -145,7 +143,11 @@ export default function UsersClient() {
                         ? `${user.city}${user.state ? `, ${user.state}` : ""}`
                         : <span className="text-muted">—</span>}
                     </td>
-                    <td>{user.gender || <span className="text-muted">—</span>}</td>
+                    <td>
+                      <span className={`status-badge ${user.emailVerified ? "status-active" : "status-draft"}`}>
+                        {user.emailVerified ? "Verified" : "Unverified"}
+                      </span>
+                    </td>
                     <td>
                       {new Date(user.createdAt).toLocaleDateString("en-IN", {
                         day: "numeric",
@@ -191,20 +193,12 @@ export default function UsersClient() {
                             </span>
                           </div>
                           <div className="user-detail-item">
-                            <span className="user-detail-label">Blood Group</span>
-                            <span className="user-detail-value">{user.bloodGroup || "Not provided"}</span>
+                            <span className="user-detail-label">Gender</span>
+                            <span className="user-detail-value">{user.gender || "Not provided"}</span>
                           </div>
                           <div className="user-detail-item">
-                            <span className="user-detail-label">T-Shirt Size</span>
-                            <span className="user-detail-value">{user.tshirtSize || "Not provided"}</span>
-                          </div>
-                          <div className="user-detail-item">
-                            <span className="user-detail-label">Emergency Contact</span>
-                            <span className="user-detail-value">
-                              {user.emergencyContactName
-                                ? `${user.emergencyContactName} (${user.emergencyContactPhone || "—"})`
-                                : "Not provided"}
-                            </span>
+                            <span className="user-detail-label">Address</span>
+                            <span className="user-detail-value">{user.address || "Not provided"}</span>
                           </div>
                         </div>
                       </td>

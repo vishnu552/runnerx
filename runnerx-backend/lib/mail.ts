@@ -194,7 +194,7 @@ export async function sendContactInquiryEmail(
 ) {
   const mailOptions = {
     from: mailFrom,
-    to: "sutharvishnu2021@gmail.com",
+    to: "contact@runnerx.in",
     subject: `New Contact Inquiry [${siteFor}]: ${subject || "No Subject"}`,
     html: `
       <h2>New Message from Contact Form</h2>
